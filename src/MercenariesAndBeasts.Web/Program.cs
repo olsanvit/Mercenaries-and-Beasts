@@ -1,13 +1,23 @@
 using MercenariesAndBeasts.Web.Components;
-
+using MercenariesAndBeasts.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// EF Core PostgreSQL
+var connectionString = builder.Configuration.GetConnectionString("GameDatabase");
+builder.Services.AddDbContext<GameDbContext>(options =>
+    options.UseNpgsql(connectionString));
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<GameDbContext>();
+    db.Database.Migrate();
+}
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

@@ -1,0 +1,16 @@
+namespace MercenariesAndBeasts.Domain.Locations;
+
+public class Location
+{
+    public Guid Id { get; set; }
+
+    public string Code { get; set; } = default!; // "NORTHERN_TRADE_ROAD"
+    public string Type { get; set; } = "Expedition"; // "Expedition" / "Dungeon"
+
+    public int MinLevel { get; set; }
+    public int MaxLevel { get; set; }
+
+    public string NameEn { get; set; } = default!;
+    public string NameCs { get; set; } = default!;
+    public string NameDe { get; set; } = default!;
+}
