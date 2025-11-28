@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch MercenariesAndBeasts.Web",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/MercenariesAndBeasts.Web/bin/Debug/net10.0/MercenariesAndBeasts.Web.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/MercenariesAndBeasts.Web",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "OPENAI_API_KEY": "k-proj-wYOk0DR5WdwmN0B6sMj-kdC_H5pIreOC89jJzh0Wab7EO2eV_CYMGSS7O-G6vpCRPVdUhi2zPrT3BlbkFJddizG_15HfVsHI5nuIqgiPgNYEzFM2WHe1YGtvS1i-vmnfg0NeUDEaOvMnMFrE_ySgzSsQNM8A"
+            },
+            "console": "integratedTerminal"
+        }
+    ]
+}

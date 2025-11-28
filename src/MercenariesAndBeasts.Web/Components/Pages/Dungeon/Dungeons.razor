@@ -1,0 +1,203 @@
+@page "/dungeons"
+@using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Domain.Progress
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject GameDbContext Db
+@inject UserManager<AppUser> UserManager
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<h1>Dungeons</h1>
+
+@if (isLoading)
+{
+    <p>Loading…</p>
+}
+else if (player is null)
+{
+    <p class="text-danger">No player profile found.</p>
+}
+else
+{
+    <div class="row g-4">
+
+        <div class="col-12 col-lg-6">
+            <div class="card-like">
+                <h3>Available dungeons</h3>
+                <p class="text-muted mb-3">
+                    Up to 5 dungeons based on your current progress.
+                </p>
+
+                @if (!availableDungeons.Any())
+                {
+                    <p>No dungeons unlocked yet.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var dun in availableDungeons)
+                        {
+                            var prog = dungeonProgress
+                                .FirstOrDefault(p => p.DungeonId == dun.Id);
+
+                            <li class="list-group-item bg-transparent text-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@dun.NameEn</strong>
+                                        <div class="text-muted small">
+                                            Recommended level @dun.MinLevel@dun.MaxLevel
+                                        </div>
+                                        @if (prog is null)
+                                        {
+                                            <span class="badge bg-secondary mt-1">Not started</span>
+                                        }
+                                        else if (prog.IsCompleted)
+                                        {
+                                            <span class="badge bg-success mt-1">Completed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark mt-1">
+                                                Stage @prog.MaxStageReached / 10
+                                            </span>
+                                        }
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-sm btn-primary" href="@($"/dungeons/{dun.Id}")">
+                                            Enter
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card-like">
+                <h3>Recent dungeons</h3>
+                <p class="text-muted mb-3">
+                    Last 5 dungeon runs.
+                </p>
+
+                @if (!recentDungeons.Any())
+                {
+                    <p>No dungeon history yet.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var prog in recentDungeons)
+                        {
+                            <li class="list-group-item bg-transparent text-light">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>@prog.Dungeon.NameEn</strong>
+                                        <div class="text-muted small">
+                                            Updated @prog.LastUpdatedUtc.ToLocalTime()
+                                                .ToString("yyyy-MM-dd HH:mm")
+                                        </div>
+                                        @if (prog.IsCompleted)
+                                        {
+                                            <span class="badge bg-success mt-1">Completed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark mt-1">
+                                                Stage @prog.MaxStageReached / 10
+                                            </span>
+                                        }
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-sm btn-outline-secondary" href="@($"/dungeons/{prog.DungeonId}")">
+                                            Continue
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private PlayerProfile? player;
+
+    private List<Dungeon> availableDungeons = new();
+    private List<PlayerDungeonProgress> dungeonProgress = new();
+    private List<PlayerDungeonProgress> recentDungeons = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        
+        // získání aktuálního ClaimsPrincipal
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user is null || !user.Identity?.IsAuthenticated == true)
+        {
+            isLoading = false;
+            return;
+        }
+
+        var appUser = await UserManager.GetUserAsync(user);
+        if (appUser is null)
+        {
+            isLoading = false;
+            return;
+        }
+
+        player = await Db.Players
+            .FirstOrDefaultAsync(p => p.UserId == appUser.Id);
+
+        if (player is null)
+        {
+            isLoading = false;
+            return;
+        }
+
+        dungeonProgress = await Db.PlayerDungeonProgresses
+            .Include(p => p.Dungeon)
+            .Where(p => p.PlayerId == player.Id)
+            .ToListAsync();
+
+        var allDungeons = await Db.Dungeons
+            .OrderBy(d => d.UnlockOrder)
+            .ToListAsync();
+
+        var completedOrders = dungeonProgress
+            .Where(p => p.IsCompleted)
+            .Select(p => p.Dungeon.UnlockOrder)
+            .ToList();
+
+        var maxCompletedOrder = completedOrders.Any()
+            ? completedOrders.Max()
+            : 0;
+
+        var maxUnlockedOrder = maxCompletedOrder + 1;
+
+        availableDungeons = allDungeons
+            .Where(d => d.UnlockOrder <= maxUnlockedOrder)
+            .OrderBy(d => d.UnlockOrder)
+            .Take(5)
+            .ToList();
+
+        recentDungeons = dungeonProgress
+            .OrderByDescending(p => p.LastUpdatedUtc)
+            .Take(5)
+            .ToList();
+
+        isLoading = false;
+    }
+}

@@ -1,0 +1,86 @@
+using MercenariesAndBeasts.Web.Components;
+using MercenariesAndBeasts.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using MercenariesAndBeasts.Domain.Interface;
+using MercenariesAndBeasts.Infrastructure.AI;
+using OpenAI;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+builder.Services.AddRazorPages();
+var cs = builder.Configuration.GetConnectionString("GameDatabase");
+builder.Services.AddDbContext<GameDbContext>(o => o.UseNpgsql(cs));
+
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+    {
+        // minimální nastavení, později doladíš
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireDigit = false;
+        options.SignIn.RequireConfirmedAccount = false;
+    })
+    .AddEntityFrameworkStores<GameDbContext>()
+    .AddDefaultTokenProviders()
+    .AddDefaultUI(); 
+
+builder.Services.AddSingleton(sp => new ChatGptAsker(
+    isSimple: true,      // nebo false, když chceš dražší model na generování
+    maxParallelism: 5,
+    maxRetries: 5,
+    baseDelayMs: 750));
+
+builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+app.UseHttpsRedirection();
+
+app.MapStaticAssets();
+app.UseStaticFiles();     // kvůli CSS/skriptům z Identity UI
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseAntiforgery();
+
+app.MapRazorPages(); // kvůli Identity UI
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
+app.MapPost("/logout", async (SignInManager<AppUser> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+    return Results.Redirect("/");
+})
+.DisableAntiforgery(); 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var db = services.GetRequiredService<GameDbContext>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    db.Database.Migrate();
+    await GameSeed.SeedBaseContentAsync(db, userManager, roleManager);
+}
+app.Run();

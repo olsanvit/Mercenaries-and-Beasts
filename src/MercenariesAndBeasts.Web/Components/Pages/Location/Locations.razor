@@ -1,0 +1,206 @@
+@page "/expeditions"
+@using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Domain.Progress
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject GameDbContext Db
+@inject UserManager<AppUser> UserManager
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<h1>Expeditions</h1>
+
+@if (isLoading)
+{
+    <p>Loading…</p>
+}
+else if (player is null)
+{
+    <p class="text-danger">No player profile found.</p>
+}
+else
+{
+    <div class="row g-4">
+
+        <div class="col-12 col-lg-6">
+            <div class="card-like">
+                <h3>Available expeditions</h3>
+                <p class="text-muted mb-3">
+                    Up to 5 locations based on your current progress.
+                </p>
+
+                @if (!availableExpeditions.Any())
+                {
+                    <p>No expeditions unlocked yet.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var loc in availableExpeditions)
+                        {
+                            var prog = expeditionProgress
+                                .FirstOrDefault(p => p.LocationId == loc.Id);
+
+                            <li class="list-group-item bg-transparent text-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@loc.NameEn</strong>
+                                        <div class="text-muted small">
+                                            Recommended level @loc.MinLevel@loc.MaxLevel
+                                        </div>
+                                        @if (prog is null)
+                                        {
+                                            <span class="badge bg-secondary mt-1">Not started</span>
+                                        }
+                                        else if (prog.IsCompleted)
+                                        {
+                                            <span class="badge bg-success mt-1">Completed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark mt-1">
+                                                Stage @prog.MaxStageReached / 10
+                                            </span>
+                                        }
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-sm btn-primary" href="@($"/expeditions/{loc.Id}")">
+                                            Enter
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card-like">
+                <h3>Recent expeditions</h3>
+                <p class="text-muted mb-3">
+                    Last 5 expeditions you have played.
+                </p>
+
+                @if (!recentExpeditions.Any())
+                {
+                    <p>No expedition history yet.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var prog in recentExpeditions)
+                        {
+                            <li class="list-group-item bg-transparent text-light">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>@prog.Location.NameEn</strong>
+                                        <div class="text-muted small">
+                                            Updated @prog.LastUpdatedUtc.ToLocalTime()
+                                                .ToString("yyyy-MM-dd HH:mm")
+                                        </div>
+                                        @if (prog.IsCompleted)
+                                        {
+                                            <span class="badge bg-success mt-1">Completed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark mt-1">
+                                                Stage @prog.MaxStageReached / 10
+                                            </span>
+                                        }
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-sm btn-outline-secondary" href="@($"/expeditions/{prog.LocationId}")">
+                                            Continue
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private PlayerProfile? player;
+
+    private List<Location> availableExpeditions = new();
+    private List<PlayerExpeditionProgress> expeditionProgress = new();
+    private List<PlayerExpeditionProgress> recentExpeditions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        
+        // získání aktuálního ClaimsPrincipal
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user is null || !user.Identity?.IsAuthenticated == true)
+        {
+            isLoading = false;
+            return;
+        }
+
+        var appUser = await UserManager.GetUserAsync(user);
+        if (appUser is null)
+        {
+            isLoading = false;
+            return;
+        }
+
+        player = await Db.Players
+            .FirstOrDefaultAsync(p => p.UserId == appUser.Id);
+
+        if (player is null)
+        {
+            isLoading = false;
+            return;
+        }
+
+        expeditionProgress = await Db.PlayerExpeditionProgresses
+            .Include(p => p.Location)
+            .Where(p => p.PlayerId == player.Id)
+            .ToListAsync();
+
+        // max unlock podle progressu:
+        // - najdi max UnlockOrder, kde IsCompleted == true
+        // - povol i další (current) lokaci
+        var allLocations = await Db.Locations
+            .OrderBy(l => l.UnlockOrder)
+            .ToListAsync();
+
+        var completedOrders = expeditionProgress
+            .Where(p => p.IsCompleted)
+            .Select(p => p.Location.UnlockOrder)
+            .ToList();
+
+        var maxCompletedOrder = completedOrders.Any()
+            ? completedOrders.Max()
+            : 0;
+
+        var maxUnlockedOrder = maxCompletedOrder + 1;
+
+        availableExpeditions = allLocations
+            .Where(l => l.UnlockOrder <= maxUnlockedOrder)
+            .OrderBy(l => l.UnlockOrder)
+            .Take(5)
+            .ToList();
+
+        recentExpeditions = expeditionProgress
+            .OrderByDescending(p => p.LastUpdatedUtc)
+            .Take(5)
+            .ToList();
+
+        isLoading = false;
+    }
+}

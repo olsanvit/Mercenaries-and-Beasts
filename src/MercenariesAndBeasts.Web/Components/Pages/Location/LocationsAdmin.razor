@@ -1,0 +1,258 @@
+@page "/locations-admin"
+@using MercenariesAndBeasts.Domain.AI
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+<h1>Locations</h1>
+
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="NewLocation">New location</button>
+        <button class="btn btn-secondary" @onclick="GenerateAiLocation">
+            AI generate location
+        </button>
+    </div>
+    @if (!locations.Any())
+    {
+        <p>No locations yet.</p>
+    }
+    else
+    {
+        <table class="table table-striped table-dark">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Level range</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var loc in locations)
+            {
+                <tr>
+                    <td>@loc.Code</td>
+                    <td>@loc.NameEn</td>
+                    <td>@loc.MinLevel - @loc.MaxLevel</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary me-1" @onclick="() => EditLocation(loc)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteLocation(loc.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}
+
+@if (editModel is not null)
+{
+    <hr />
+    <h2>@(editModel.Id == Guid.Empty ? "Create location" : "Edit location")</h2>
+
+    <EditForm Model="@editModel" OnValidSubmit="Save">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-2">
+            <label class="form-label">Code</label>
+            <InputText class="form-control" @bind-Value="editModel.Code" />
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Name (EN)</label>
+            <InputText class="form-control" @bind-Value="editModel.NameEn" />
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Min level</label>
+            <InputNumber class="form-control" @bind-Value="editModel.MinLevel" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Max level</label>
+            <InputNumber class="form-control" @bind-Value="editModel.MaxLevel" />
+        </div>
+
+        <button type="submit" class="btn btn-success me-2">Save</button>
+        <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    private bool isLoading = true;
+    private List<Location> locations = new();
+    private Location? editModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLocations();
+    }
+
+    private async Task LoadLocations()
+    {
+        isLoading = true;
+        locations = await Db.Locations
+            .OrderBy(l => l.MinLevel)
+            .ThenBy(l => l.Code)
+            .ToListAsync();
+        isLoading = false;
+    }
+
+    private void NewLocation()
+    {
+        editModel = new Location
+        {
+            MinLevel = 1,
+            MaxLevel = 5
+        };
+    }
+
+    private void EditLocation(Location loc)
+    {
+        // kopie, ať nehýbeš rovnou trackovaným
+        editModel = new Location
+        {
+            Id = loc.Id,
+            Code = loc.Code,
+            NameEn = loc.NameEn,
+            MinLevel = loc.MinLevel,
+            MaxLevel = loc.MaxLevel
+        };
+    }
+
+    private async Task Save()
+    {
+        if (editModel is null)
+            return;
+
+        if (editModel.Id == Guid.Empty)
+        {
+            // create
+            editModel.Id = Guid.NewGuid();
+            Db.Locations.Add(editModel);
+        }
+        else
+        {
+            // update
+            var existing = await Db.Locations.FirstOrDefaultAsync(l => l.Id == editModel.Id);
+            if (existing is null) return;
+
+            existing.Code = editModel.Code;
+            existing.NameEn = editModel.NameEn;
+            existing.MinLevel = editModel.MinLevel;
+            existing.MaxLevel = editModel.MaxLevel;
+        }
+
+        await Db.SaveChangesAsync();
+        editModel = null;
+        await LoadLocations();
+    }
+
+    private async Task DeleteLocation(Guid id)
+    {
+        var loc = await Db.Locations.FirstOrDefaultAsync(l => l.Id == id);
+        if (loc is null) return;
+
+        Db.Locations.Remove(loc);
+        await Db.SaveChangesAsync();
+        await LoadLocations();
+    }
+
+    private void CancelEdit()
+    {
+        editModel = null;
+    }
+    private async Task GenerateAiLocation()
+{
+    isLoading = true;
+
+    // najdi lokaci s nejvyšším MaxLevel, ať víme navázat
+    var lastLocation = await Db.Locations
+        .OrderByDescending(l => l.MaxLevel)
+        .FirstOrDefaultAsync();
+
+    int targetMinLevel;
+    int targetMaxLevel;
+    int unlockOrder;
+
+    if (lastLocation is null)
+    {
+        targetMinLevel = 1;
+        targetMaxLevel = 5;
+        unlockOrder = 1;
+    }
+    else
+    {
+        var span = lastLocation.MaxLevel - lastLocation.MinLevel;
+        if (span <= 0) span = 4;
+
+        targetMinLevel = lastLocation.MaxLevel + 1;
+        targetMaxLevel = targetMinLevel + span;
+        unlockOrder = lastLocation.UnlockOrder + 1;
+    }
+
+    var aiOptions = new ExpeditionGenerationOptions
+    {
+        Name = lastLocation!.NameEn,
+        TargetMinLevel = targetMinLevel,
+        TargetMaxLevel = targetMaxLevel,
+        FocusElement = null // nebo podle designu (Fire, Earth...)
+    };
+
+    var result = await DungeonAi.GenerateAsync(aiOptions);
+
+    var location = new Location
+    {
+        Id = Guid.NewGuid(),
+        Code = result.Code,
+        NameEn = result.NameEn,
+        MinLevel = result.MinLevel,
+        MaxLevel = result.MaxLevel,
+        UnlockOrder = unlockOrder,
+        DescriptionEn = result.DescriptionEn
+    };
+
+    Db.Locations.Add(location);
+
+    foreach (var stageDef in result.Stages)
+    {
+        var merc = new MercenaryTemplate
+        {
+            Id = Guid.NewGuid(),
+            Code = $"{location.Code}_ST{stageDef.StageNumber}",
+            NameEn = stageDef.Mercenary.NameEn,
+            DescriptionEn = stageDef.Mercenary.DescriptionEn,
+            Element = stageDef.Mercenary.Element,
+            BaseLevel = stageDef.Mercenary.BaseLevel,
+            //StageType = stageDef.StageType,
+            //Stats = stageDef.Mercenary.Stats,
+            //ImageUrl = null
+        };
+
+        Db.MercenaryTemplates.Add(merc);
+
+        var stage = new ExpeditionStage
+        {
+            Id = Guid.NewGuid(),
+            LocationId = location.Id,
+            StageNumber = stageDef.StageNumber,
+            //StageType = stageDef.StageType,
+            EnemyMercenaryId = merc.Id
+        };
+
+        Db.ExpeditionStages.Add(stage);
+    }
+
+    await Db.SaveChangesAsync();
+    await LoadLocations(); // tvoje metoda pro reload seznamu
+    isLoading = false;
+}
+}

@@ -1,0 +1,226 @@
+:root {
+    --bg-main: #05060b;
+    --bg-panel: rgba(15, 18, 30, 0.96);
+    --bg-panel-soft: rgba(15, 18, 30, 0.9);
+    --border-soft: rgba(148, 163, 184, 0.3);
+    --accent-primary: #4fd1c5;
+    --accent-secondary: #c084fc;
+    --accent-danger: #f97373;
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.65);
+    --radius-lg: 18px;
+    --radius-xl: 24px;
+    --transition-fast: 0.18s ease-out;
+
+    --quality-1: #9CA3AF;
+    --quality-1-glow: #FFFFFF22;
+
+    --quality-2: #34D399;
+    --quality-2-glow: #6EE7B733;
+
+    --quality-3: #3B82F6;
+    --quality-3-glow: #93C5FD33;
+
+    --quality-4: #8B5CF6;
+    --quality-4-glow: #C4B5FD33;
+
+    --quality-5: #EC4899;
+    --quality-5-glow: #F9A8D433;
+
+    --quality-6: #F59E0B;
+    --quality-6-glow: #FBBF2433;
+
+    --quality-7: #A16207;
+    --quality-7-glow: #FDE68A22;
+
+    --quality-8: #06B6D4;
+    --quality-8-glow: #67E8F933;
+
+    --quality-9: #A855F7;
+    --quality-9-glow: #D8B4FE44;
+
+    --quality-10: #7DD3FC;
+    --quality-10-glow: #BAE6FD66;
+
+    --quality-11: #F472B6;
+    --quality-11-glow: #FBCFE833;
+
+     --element-fire: #EF4444;
+    --element-water: #3B82F6;
+    --element-earth: #8B5CF6;
+    --element-air: #A5F3FC;
+    --element-light: #FACC15;
+    --element-shadow: #6B21A8;
+    --element-arcane: #06B6D4;
+    --element-poison: #4ADE80;
+    --element-metal: #9CA3AF;
+    --element-plasma: #93C5FD;
+    --element-void: #0EA5E9;
+}
+
+/* Background celé appky */
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(76, 29, 149, 0.5), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(8, 47, 73, 0.7), transparent 60%),
+        var(--bg-main);
+    color: var(--text-primary);
+}
+
+/* Hlavní layout */
+.page {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar – „chrám“ / ovládací panel */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95), rgba(15, 15, 25, 0.98));
+    border-right: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+}
+
+/* Hlavní obsah */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Horní lišta */
+.top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--border-soft);
+    background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), rgba(10, 16, 30, 0.98));
+}
+
+/* Kontejner obsahu */
+.content {
+    padding-top: 1.5rem;
+}
+
+/* Odkazy v top row */
+.top-row a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.top-row a:hover {
+    color: var(--accent-secondary);
+}
+
+/* NavMenu – položky */
+.nav-link {
+    color: var(--text-secondary);
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.nav-link.active {
+    background: radial-gradient(circle at top, rgba(79, 209, 197, 0.35), rgba(192, 132, 252, 0.38));
+    color: var(--text-primary);
+    box-shadow: 0 0 18px rgba(79, 209, 197, 0.5);
+    transform: translateX(3px);
+}
+
+.nav-link:hover {
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--text-primary);
+}
+
+/* Fantasy „card“ vzhled */
+.card-like {
+    background: var(--bg-panel);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+    padding: 1.25rem 1.5rem;
+}
+
+/* Tabulky – admin */
+table.table {
+    background: var(--bg-panel-soft);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-soft);
+}
+
+table.table thead {
+    background: rgba(15, 23, 42, 0.95);
+}
+
+table.table tbody tr:hover {
+    background: rgba(15, 23, 42, 0.8);
+}
+
+/* Tlačítka – fantasy/future styl */
+.btn {
+    border-radius: 999px;
+    border-width: 1px;
+    font-weight: 500;
+    transition: background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-primary {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+    border-color: var(--accent-primary);
+    color: #020617;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 0 20px rgba(79, 209, 197, 0.65);
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: radial-gradient(circle at top, rgba(248, 113, 113, 0.9), rgba(127, 29, 29, 0.9));
+    border-color: var(--accent-danger);
+    color: #0b0f19;
+}
+
+.btn-outline-secondary {
+    border-color: var(--border-soft);
+    color: var(--text-secondary);
+    background: transparent;
+}
+
+.btn-outline-secondary:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+/* Form prvky */
+.form-control {
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 999px;
+    border: 1px solid var(--border-soft);
+    color: var(--text-primary);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.7);
+    background: rgba(15, 23, 42, 0.95);
+}
+
+/* Login / Register stránky – ať nevypadají jak admin grid */
+.page-login {
+    max-width: 420px;
+    margin: 3rem auto;
+}
+
+.page-login h3 {
+    font-family: "Cinzel", "Times New Roman", serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}

@@ -1,0 +1,9 @@
+@page "/test"
+@inject MercenariesAndBeasts.Infrastructure.GameDbContext Db
+
+<h3>Locations</h3>
+
+@foreach (var l in Db.Locations)
+{
+    <p>@l.Code — @l.NameEn</p>
+}
