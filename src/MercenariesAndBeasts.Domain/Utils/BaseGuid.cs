@@ -8,6 +8,7 @@ public class BaseGuid
     public int BaseLevel {get;set;} = 1;
     [Required]
     public string NameEn {get;set;} = String.Empty;
+    public string Code {get;set;} = String.Empty;
     public string DescriptionEn {get;set;} = String.Empty;
 
     public string? ImageUrl { get; set; }

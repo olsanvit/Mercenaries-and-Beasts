@@ -28,11 +28,20 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     .AddDefaultTokenProviders()
     .AddDefaultUI(); 
 
-builder.Services.AddSingleton(sp => new ChatGptAsker(
-    isSimple: true,      // nebo false, když chceš dražší model na generování
-    maxParallelism: 5,
-    maxRetries: 5,
-    baseDelayMs: 750));
+var openAiKey = builder.Configuration["OpenAI:ApiKey"];
+if (string.IsNullOrWhiteSpace(openAiKey))
+{
+    throw new InvalidOperationException("OpenAI:ApiKey is not configured in appsettings or environment.");
+}
+
+// ChatGptAsker – jeden společný klient
+builder.Services.AddSingleton(sp =>
+    new ChatGptAsker(
+        apiKey: openAiKey,
+        isSimple: true,
+        maxParallelism: 5,
+        maxRetries: 5,
+        baseDelayMs: 750));
 
 builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
 builder.Services.AddAuthorization();

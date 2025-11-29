@@ -1,5 +1,6 @@
 @page "/dungeons-admin"
 @using MercenariesAndBeasts.Domain.AI
+@using MercenariesAndBeasts.Domain.Combat
 @using MercenariesAndBeasts.Domain.Enums
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
@@ -14,9 +15,22 @@ else
 {
     <div class="mb-3">
     <button class="btn btn-primary" @onclick="NewDungeon">New dungeon</button>
-    <button class="btn btn-secondary ms-2" @onclick="GenerateNextDungeon">
-        Generate next dungeon (auto)
-    </button>
+    <button class="btn btn-secondary ms-2" @onclick="() => GenerateNextDungeon(false)">
+    Generate Next Dungeon
+</button>
+<!-- Vlastní název pro ruční generaci -->
+    <div class="input-group">
+        <input class="form-control dungeon-input"
+       @bind="manualDungeonName"
+       placeholder="Enter dungeon name…" />
+
+        <button class="btn btn-primary"
+                disabled="@IsManualGenerateDisabled"
+                @onclick="async () => await GenerateNextDungeon(true)">
+            Generate Dungeon (Manual)
+        </button>
+    </div>
+
 </div>
     @if (!dungeons.Any())
     {
@@ -30,6 +44,7 @@ else
                     <th>Code</th>
                     <th>Name</th>
                     <th>Level range</th>
+        <th>Stages</th> @* nový sloupec *@
                     <th></th>
                 </tr>
             </thead>
@@ -40,11 +55,81 @@ else
                     <td>@d.Code</td>
                     <td>@d.NameEn</td>
                     <td>@d.MinLevel - @d.MaxLevel</td>
+        <td>
+            @(d.Stages?.Count ?? 0)
+            <button class="btn btn-sm btn-outline-info ms-2"
+                    @onclick="() => ToggleDungeonStages(d.Id)">
+                @(expandedDungeonIds.Contains(d.Id) ? "Hide" : "Show")
+            </button>
+        </td>
                     <td>
                         <button class="btn btn-sm btn-secondary me-1" @onclick="() => EditDungeon(d)">Edit</button>
                         <button class="btn btn-sm btn-danger" @onclick="() => DeleteDungeon(d.Id)">Delete</button>
                     </td>
                 </tr>
+                @if (expandedDungeonIds.Contains(d.Id))
+    {
+        <tr class="table-secondary">
+            <td colspan="5">
+                @if (d.Stages == null || d.Stages.Count == 0)
+                {
+                    <em>No stages defined.</em>
+                }
+                else
+                {
+                    <div class="accordion" id="acc-@d.Id">
+                        <div class="accordion-item bg-dark text-light">
+                            <h2 class="accordion-header" id="heading-@d.Id">
+                                <button class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse-@d.Id"
+                                        aria-expanded="false"
+                                        aria-controls="collapse-@d.Id">
+                                    Stages &amp; monsters
+                                </button>
+                            </h2>
+                            <div id="collapse-@d.Id"
+                                 class="accordion-collapse collapse show"
+                                 aria-labelledby="heading-@d.Id">
+                                <div class="accordion-body">
+                                    <table class="table table-sm table-dark mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Stage type</th>
+                                                <th>Monster</th>
+                                                <th>Level</th>
+                                                <th>Element</th>
+                                                <th>HP</th>
+                                                <th>Attack</th>
+                                                <th>Defense</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var s in d.Stages.OrderBy(s => s.StageIndex))
+                                        {
+                                            <tr>
+                                                <td>@s.StageIndex</td>
+                                                <td>@s.StageType</td>
+                                                <td>@s.MonsterTemplate?.NameEn</td>
+                                                <td>@s.MonsterTemplate?.BaseLevel</td>
+                                                <td>@s.MonsterTemplate?.Element</td>
+                                                <td>@s.MonsterTemplate?.BaseStats?.MaxHp</td>
+                                                <td>@s.MonsterTemplate?.BaseStats?.Attack</td>
+                                                <td>@s.MonsterTemplate?.BaseStats?.Defense</td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </td>
+        </tr>
+    }
             }
             </tbody>
         </table>
@@ -89,6 +174,9 @@ else
     private bool isLoading = true;
     private List<Dungeon> dungeons = new();
     private Dungeon? editModel;
+    private string manualDungeonName = string.Empty;
+    private bool IsManualGenerateDisabled =>
+        isLoading || string.IsNullOrWhiteSpace(manualDungeonName);
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,11 +186,12 @@ else
     private async Task LoadDungeons()
     {
         isLoading = true;
-        dungeons = await Db.Dungeons
+        dungeons = await Db.Dungeons.Include(x=>x.Stages).ThenInclude(x=>x.MonsterTemplate)
             .OrderBy(d => d.MinLevel)
             .ThenBy(d => d.Code)
             .ToListAsync();
         isLoading = false;
+        StateHasChanged();
     }
 
     private void NewDungeon()
@@ -151,7 +240,15 @@ else
         editModel = null;
         await LoadDungeons();
     }
+private HashSet<Guid> expandedDungeonIds = new();
 
+private void ToggleDungeonStages(Guid dungeonId)
+{
+    if (expandedDungeonIds.Contains(dungeonId))
+        expandedDungeonIds.Remove(dungeonId);
+    else
+        expandedDungeonIds.Add(dungeonId);
+}
     private async Task DeleteDungeon(Guid id)
     {
         var d = await Db.Dungeons.FirstOrDefaultAsync(x => x.Id == id);
@@ -166,197 +263,135 @@ else
     {
         editModel = null;
     }
-    private async Task GenerateNextDungeon()
+    private async Task GenerateNextDungeon(bool current)
 {
     isLoading = true;
 
-    // Najdi dungeon s nejvyšším MaxLevel (a UnlockOrder, pokud máš)
-    var lastDungeon = await Db.Dungeons
-        .OrderByDescending(d => d.MaxLevel)
-        .FirstOrDefaultAsync();
-
-    int nextMinLevel;
-    int nextMaxLevel;
-    int nextUnlockOrder;
-
-    if (lastDungeon is null)
+    try
     {
-        // první dungeon ve hře
-        nextMinLevel = 1;
-        nextMaxLevel = 5;
-        nextUnlockOrder = 1;
+         string dungeonName;
+        // 1) Najdi poslední dungeon
+        var lastDungeon  = await Db.Dungeons
+                .OrderByDescending(d => d.UnlockOrder)
+                .FirstOrDefaultAsync();
+            if(lastDungeon is null){
+                lastDungeon = new Dungeon();
+                lastDungeon.MinLevel = 1;
+                lastDungeon.MaxLevel = 5;
+            }
+        if (!current)
+        {
+            // vezmeme poslední dungeon v DB
+            lastDungeon = await Db.Dungeons
+                .OrderByDescending(d => d.UnlockOrder)
+                .FirstOrDefaultAsync();
+
+            dungeonName = lastDungeon?.NameEn ?? "Bausia";
+        }
+        else
+        {
+            // ruční název z inputu
+            dungeonName = manualDungeonName.Trim();
+            lastDungeon.NameEn = dungeonName;
+        }
+
+        // volání AI generátoru
+        var options = new DungeonGenerationOptions
+        {
+            Name = dungeonName
+        };
+        // 2) Nech AI vygenerovat celý dungeon včetně monster/stages
+        var generated = await DungeonAi.GenerateNextDungeonAsync(lastDungeon, current);
+        if (generated is null)
+        {
+            // AI selhalo → nic nevytvářej
+            isLoading = false;
+            return;
+        }
+
+        // 3) Spočítej unlock order
+        int nextUnlockOrder = lastDungeon is null
+            ? 1
+            : lastDungeon.UnlockOrder + 1;
+
+        // 4) Vytvoř Dungeon entitu
+        var dungeon = new Dungeon
+        {
+            Id = Guid.NewGuid(),
+            Code = $"DUN_{generated.NameEn.ToUpper()}",
+            NameEn = generated.NameEn,
+            DescriptionEn = generated.DescriptionEn,
+            MinLevel = generated.MinLevel,
+            MaxLevel = generated.MaxLevel,
+            UnlockOrder = nextUnlockOrder
+        };
+
+        Db.Dungeons.Add(dungeon);
+
+        // 5) Z každého stage vytvoř MonsterTemplate + DungeonStage
+        foreach (var st in generated.Stages.OrderBy(s => s.StageNumber))
+        {
+            var m = st.Monster;
+
+            // MonsterTemplate – přizpůsob podle své entity
+            var monster = new MonsterTemplate
+            {
+                Id = Guid.NewGuid(),
+                Code = $"{dungeon.Code}_{m.NameEn.ToUpper()}",
+                NameEn = m.NameEn,
+                DescriptionEn = m.DescriptionEn,
+                Element = Enum.TryParse<ElementType>(m.Element.ToString(), true, out var el)
+                    ? el
+                    : ElementType.Void, // fallback
+                BaseLevel = m.BaseLevel,
+                BaseStats = new StatBlock
+                {
+                    //MaxHp = m.Health,
+                    //Attack = m.Attack,
+                    //Defense = m.Defense,
+                    //Speed = m.Speed,
+                    //CritChance = m.CritChance,
+                    //CritDamage = m.CritDamage
+                }
+            };
+
+            Db.MonsterTemplates.Add(monster);
+
+            var stage = new DungeonStage
+            {
+                Id = Guid.NewGuid(),
+                Code = $"{dungeon.Code}_{st.StageNumber}",
+                DungeonId = dungeon.Id,
+                StageIndex = st.StageNumber,
+                
+                StageType = Enum.TryParse<DungeonStageType>(
+                    st.StageType.ToString(),
+                    ignoreCase: true,
+                    out var stType)
+                    ? stType
+                    : DungeonStageType.DS1_Feeble, // fallback
+                MonsterTemplateId = monster.Id
+            };
+
+            Db.DungeonStages.Add(stage);
+        }
+
+        await Db.SaveChangesAsync();
+        await LoadDungeons();
     }
-    else
+    finally
     {
-        // navážeme na předchozí → další level „blok“
-        var span = lastDungeon.MaxLevel - lastDungeon.MinLevel;
-        if (span <= 0) span = 4; // fallback
-
-        nextMinLevel = lastDungeon.MaxLevel + 1;
-        nextMaxLevel = nextMinLevel + span;
-        nextUnlockOrder = (lastDungeon.UnlockOrder) + 1;
-    }
-
-    var dungeon = new Dungeon
-    {
-        Id = Guid.NewGuid(),
-        Code = $"DUN_{nextMinLevel}_{nextMaxLevel}",
-        NameEn = $"Dungeon {nextMinLevel}-{nextMaxLevel}",
-        MinLevel = nextMinLevel,
-        MaxLevel = nextMaxLevel,
-        UnlockOrder = nextUnlockOrder
-    };
-
-    Db.Dungeons.Add(dungeon);
-
-    // Najdi monstra vhodná pro tenhle rozsah levelů
-    var monstersQuery = Db.MonsterTemplates
-        .Where(m => m.BaseLevel >= nextMinLevel && m.BaseLevel <= nextMaxLevel)
-        //.OrderBy(m => m.StageType)
-        .OrderBy(m => m.BaseLevel);
-
-    var monsters = await monstersQuery.Take(10).ToListAsync();
-
-    // Kdyby jich bylo málo, doplníme z globálního poolu
-    if (monsters.Count < 10)
-    {
-        var fallback = await Db.MonsterTemplates
-            .OrderBy(m => m.BaseLevel)
-            .Take(10 - monsters.Count)
-            .ToListAsync();
-
-        monsters.AddRange(fallback);
-    }
-
-    if (monsters.Count == 0)
-    {
-        // není žádné monstrum → zrušíme generování
         isLoading = false;
-        return;
     }
-
-    // Mapování 10 stage → různé obtížnosti
-    var stageTypesOrdered = new[]
-    {
-        DungeonStageType.DS1_Feeble,
-        DungeonStageType.DS2_Lesser,
-        DungeonStageType.DS3_Wild,
-        DungeonStageType.DS4_Hardened,
-        DungeonStageType.DS5_Corrupted,   // 5 = miniboss
-        DungeonStageType.DS6_Empowered,
-        DungeonStageType.DS7_Twisted,
-        DungeonStageType.DS8_Prime,
-        DungeonStageType.DS9_Monstrous,
-        DungeonStageType.DS10_Tyrant      // 10 = boss
-    };
-
-    for (int i = 0; i < 10; i++)
-    {
-        var monster = monsters[i % monsters.Count];
-
-        var stage = new DungeonStage
-        {
-            Id = Guid.NewGuid(),
-            DungeonId = dungeon.Id,
-            StageIndex = i + 1,
-            StageType = stageTypesOrdered[i],
-            MonsterTemplateId = monster.Id
-        };
-
-        Db.DungeonStages.Add(stage);
-    }
-
-    await Db.SaveChangesAsync();
-    await LoadDungeons();
-    isLoading = false;
 }
-private async Task GenerateAiDungeon()
-{
-    isLoading = true;
+    private static ElementType ParseElement(string raw)
+  {
+      raw = (raw ?? "").Trim();
 
-    // najdi dungeon s nejvyšším MaxLevel, ať víme navázat
-    Dungeon? lastDungeon = await Db.Dungeons
-        .OrderByDescending(d => d.MaxLevel)
-        .FirstOrDefaultAsync();
+      if (Enum.TryParse<ElementType>(raw, ignoreCase: true, out var parsed))
+          return parsed;
 
-    int targetMinLevel;
-    int targetMaxLevel;
-    int unlockOrder;
-
-    if (lastDungeon is null)
-    {
-        targetMinLevel = 1;
-        targetMaxLevel = 5;
-        unlockOrder = 1;
-    }
-    else
-    {
-        var span = lastDungeon.MaxLevel - lastDungeon.MinLevel;
-        if (span <= 0) span = 4;
-
-        targetMinLevel = lastDungeon.MaxLevel + 1;
-        targetMaxLevel = targetMinLevel + span;
-        unlockOrder = lastDungeon.UnlockOrder + 1;
-    }
-
-    // AI options
-    var aiOptions = new DungeonGenerationOptions
-    {
-        Name = lastDungeon!.NameEn,
-        TargetMinLevel = targetMinLevel,
-        TargetMaxLevel = targetMaxLevel,
-        FocusElement = null // nebo třeba ElementType.Void / Fire podle designu
-    };
-
-    var result = await DungeonAi.GenerateAsync(aiOptions);
-
-    // vytvoř Dungeon entity
-    var dungeon = new Dungeon
-    {
-        Id = Guid.NewGuid(),
-        Code = result.Code,
-        NameEn = result.NameEn,
-        MinLevel = result.MinLevel,
-        MaxLevel = result.MaxLevel,
-        UnlockOrder = unlockOrder,
-        DescriptionEn = result.DescriptionEn
-    };
-
-    Db.Dungeons.Add(dungeon);
-
-    // pro každý stage vytvoř / ulož monstera a stage
-    foreach (var stageDef in result.Stages)
-    {
-        // MonsterTemplate
-        var monster = new MonsterTemplate
-        {
-            Id = Guid.NewGuid(),
-            Code = $"{dungeon.Code}_ST{stageDef.StageNumber}",
-            NameEn = stageDef.Monster.NameEn,
-            DescriptionEn = stageDef.Monster.DescriptionEn,
-            Element = stageDef.Monster.Element,
-            BaseLevel = stageDef.Monster.BaseLevel,
-            //StageType = stageDef.StageType,
-            //Stats = stageDef.Monster.Stats,
-            //ImageUrl = null
-        };
-
-        Db.MonsterTemplates.Add(monster);
-
-        var stage = new DungeonStage
-        {
-            Id = Guid.NewGuid(),
-            DungeonId = dungeon.Id,
-            StageIndex = stageDef.StageNumber,
-            StageType = stageDef.StageType,
-            MonsterTemplateId = monster.Id
-        };
-
-        Db.DungeonStages.Add(stage);
-    }
-
-    await Db.SaveChangesAsync();
-    await LoadDungeons();
-    isLoading = false;
-}
+      // jednoduchý fallback – když AI hodí kravinu
+      return ElementType.Void; // nebo nějaký tvůj "Unknown"
+  }
 }

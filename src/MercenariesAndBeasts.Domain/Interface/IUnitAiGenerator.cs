@@ -5,8 +5,6 @@ using MercenariesAndBeasts.Domain.Dto;
 namespace MercenariesAndBeasts.Domain.Interface;
 public interface IUnitAiGenerator
 {
-     Task<ExpeditionGenerationResult> GenerateAsync(ExpeditionGenerationOptions options, CancellationToken ct = default);
-
-    Task<DungeonGenerationResult> GenerateAsync(DungeonGenerationOptions options, CancellationToken ct = default);
-
+    Task<DungeonGenerationResult> GenerateNextDungeonAsync(Dungeon previousDungeon, bool current, CancellationToken ct = default);
+    Task<ExpeditionGenerationResult> GenerateNextLocationAsync(Location previousDungeon, bool current, CancellationToken ct = default);
 }

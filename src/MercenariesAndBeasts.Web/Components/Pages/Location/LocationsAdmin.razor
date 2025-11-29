@@ -1,5 +1,7 @@
 @page "/locations-admin"
 @using MercenariesAndBeasts.Domain.AI
+@using MercenariesAndBeasts.Domain.Combat
+@using MercenariesAndBeasts.Domain.Enums
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
@@ -14,9 +16,21 @@ else
 {
     <div class="mb-3">
         <button class="btn btn-primary" @onclick="NewLocation">New location</button>
-        <button class="btn btn-secondary" @onclick="GenerateAiLocation">
+        <button class="btn btn-secondary" @onclick="() =>GenerateNextLocation(false)">
             AI generate location
         </button>
+        <div class="input-group">
+        <input class="form-control dungeon-input"
+       @bind="manualLocationName"
+       placeholder="Enter location name…" />
+
+        <button class="btn btn-primary"
+                disabled="@IsManualGenerateDisabled"
+                @onclick="async () => await GenerateNextLocation(true)">
+            Generate Location (Manual)
+        </button>
+    </div>
+
     </div>
     @if (!locations.Any())
     {
@@ -31,6 +45,7 @@ else
                     <th>Name</th>
                     <th>Type</th>
                     <th>Level range</th>
+        <th>Stages</th> @* nový sloupec *@
                     <th></th>
                 </tr>
             </thead>
@@ -40,12 +55,81 @@ else
                 <tr>
                     <td>@loc.Code</td>
                     <td>@loc.NameEn</td>
-                    <td>@loc.MinLevel - @loc.MaxLevel</td>
+                    <td>@loc.MinLevel - @loc.MaxLevel</td> <td>
+            @(loc.Stages?.Count ?? 0)
+            <button class="btn btn-sm btn-outline-info ms-2"
+                    @onclick="() => ToggleDungeonStages(loc.Id)">
+                @(expandedLocationIds.Contains(loc.Id) ? "Hide" : "Show")
+            </button>
+        </td>
                     <td>
                         <button class="btn btn-sm btn-secondary me-1" @onclick="() => EditLocation(loc)">Edit</button>
                         <button class="btn btn-sm btn-danger" @onclick="() => DeleteLocation(loc.Id)">Delete</button>
                     </td>
                 </tr>
+                @if (expandedLocationIds.Contains(loc.Id))
+    {
+        <tr class="table-secondary">
+            <td colspan="5">
+                @if (loc.Stages == null || loc.Stages.Count == 0)
+                {
+                    <em>No stages defined.</em>
+                }
+                else
+                {
+                    <div class="accordion" id="acc-@loc.Id">
+                        <div class="accordion-item bg-dark text-light">
+                            <h2 class="accordion-header" id="heading-@loc.Id">
+                                <button class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse-@loc.Id"
+                                        aria-expanded="false"
+                                        aria-controls="collapse-@loc.Id">
+                                    Stages &amp; monsters
+                                </button>
+                            </h2>
+                            <div id="collapse-@loc.Id"
+                                 class="accordion-collapse collapse show"
+                                 aria-labelledby="heading-@loc.Id">
+                                <div class="accordion-body">
+                                    <table class="table table-sm table-dark mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Stage type</th>
+                                                <th>Monster</th>
+                                                <th>Level</th>
+                                                <th>Element</th>
+                                                <th>HP</th>
+                                                <th>Attack</th>
+                                                <th>Defense</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var s in loc.Stages.OrderBy(s => s.StageNumber))
+                                        {
+                                            <tr>
+                                                <td>@s.StageNumber</td>
+                                                <td>@s.Difficulty</td>
+                                                <td>@s.Enemy?.NameEn</td>
+                                                <td>@s.Enemy?.BaseLevel</td>
+                                                <td>@s.Enemy?.Element</td>
+                                                <td>@s.Enemy?.BaseStats?.MaxHp</td>
+                                                <td>@s.Enemy?.BaseStats?.Attack</td>
+                                                <td>@s.Enemy?.BaseStats?.Defense</td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </td>
+        </tr>
+    }
             }
             </tbody>
         </table>
@@ -90,6 +174,9 @@ else
     private bool isLoading = true;
     private List<Location> locations = new();
     private Location? editModel;
+    private string manualLocationName = string.Empty;
+    private bool IsManualGenerateDisabled =>
+        isLoading || string.IsNullOrWhiteSpace(manualLocationName);
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,6 +187,7 @@ else
     {
         isLoading = true;
         locations = await Db.Locations
+        .Include(x=>x.Stages).ThenInclude(x=>x.Enemy)
             .OrderBy(l => l.MinLevel)
             .ThenBy(l => l.Code)
             .ToListAsync();
@@ -156,6 +244,15 @@ else
         await LoadLocations();
     }
 
+private HashSet<Guid> expandedLocationIds = new();
+
+private void ToggleDungeonStages(Guid locationId)
+{
+    if (expandedLocationIds.Contains(locationId))
+        expandedLocationIds.Remove(locationId);
+    else
+        expandedLocationIds.Add(locationId);
+}
     private async Task DeleteLocation(Guid id)
     {
         var loc = await Db.Locations.FirstOrDefaultAsync(l => l.Id == id);
@@ -170,89 +267,126 @@ else
     {
         editModel = null;
     }
-    private async Task GenerateAiLocation()
+    private async Task GenerateNextLocation(bool current)
 {
     isLoading = true;
 
-    // najdi lokaci s nejvyšším MaxLevel, ať víme navázat
-    var lastLocation = await Db.Locations
-        .OrderByDescending(l => l.MaxLevel)
-        .FirstOrDefaultAsync();
-
-    int targetMinLevel;
-    int targetMaxLevel;
-    int unlockOrder;
-
-    if (lastLocation is null)
+    try
     {
-        targetMinLevel = 1;
-        targetMaxLevel = 5;
-        unlockOrder = 1;
-    }
-    else
-    {
-        var span = lastLocation.MaxLevel - lastLocation.MinLevel;
-        if (span <= 0) span = 4;
+         string dungeonName;
+        // 1) Najdi poslední dungeon
+        var lastDungeon  = await Db.Locations
+                .OrderByDescending(d => d.UnlockOrder)
+                .FirstOrDefaultAsync();
+            if(lastDungeon is null){
+                lastDungeon = new Location();
+                lastDungeon.MinLevel = 1;
+                lastDungeon.MaxLevel = 5;
+            }
+        if (!current)
+        {
+            // vezmeme poslední dungeon v DB
+            lastDungeon = await Db.Locations
+                .OrderByDescending(d => d.UnlockOrder)
+                .FirstOrDefaultAsync();
 
-        targetMinLevel = lastLocation.MaxLevel + 1;
-        targetMaxLevel = targetMinLevel + span;
-        unlockOrder = lastLocation.UnlockOrder + 1;
-    }
+            dungeonName = lastDungeon?.NameEn ?? "Bausia";
+        }
+        else
+        {
+            // ruční název z inputu
+            dungeonName = manualLocationName.Trim();
+            lastDungeon.NameEn = dungeonName;
+        }
 
-    var aiOptions = new ExpeditionGenerationOptions
-    {
-        Name = lastLocation!.NameEn,
-        TargetMinLevel = targetMinLevel,
-        TargetMaxLevel = targetMaxLevel,
-        FocusElement = null // nebo podle designu (Fire, Earth...)
-    };
+        // volání AI generátoru
+        var options = new DungeonGenerationOptions
+        {
+            Name = dungeonName
+        };
+        // 2) Nech AI vygenerovat celý dungeon včetně monster/stages
+        var generated = await DungeonAi.GenerateNextLocationAsync(lastDungeon, current);
+        if (generated is null)
+        {
+            // AI selhalo → nic nevytvářej
+            isLoading = false;
+            return;
+        }
 
-    var result = await DungeonAi.GenerateAsync(aiOptions);
+        // 3) Spočítej unlock order
+        int nextUnlockOrder = lastDungeon is null
+            ? 1
+            : lastDungeon.UnlockOrder + 1;
 
-    var location = new Location
-    {
-        Id = Guid.NewGuid(),
-        Code = result.Code,
-        NameEn = result.NameEn,
-        MinLevel = result.MinLevel,
-        MaxLevel = result.MaxLevel,
-        UnlockOrder = unlockOrder,
-        DescriptionEn = result.DescriptionEn
-    };
-
-    Db.Locations.Add(location);
-
-    foreach (var stageDef in result.Stages)
-    {
-        var merc = new MercenaryTemplate
+        // 4) Vytvoř Dungeon entitu
+        var dungeon = new Location
         {
             Id = Guid.NewGuid(),
-            Code = $"{location.Code}_ST{stageDef.StageNumber}",
-            NameEn = stageDef.Mercenary.NameEn,
-            DescriptionEn = stageDef.Mercenary.DescriptionEn,
-            Element = stageDef.Mercenary.Element,
-            BaseLevel = stageDef.Mercenary.BaseLevel,
-            //StageType = stageDef.StageType,
-            //Stats = stageDef.Mercenary.Stats,
-            //ImageUrl = null
+            Code = $"DUN_{generated.NameEn.ToUpper()}",
+            NameEn = generated.NameEn,
+            DescriptionEn = generated.DescriptionEn,
+            MinLevel = generated.MinLevel,
+            MaxLevel = generated.MaxLevel,
+            UnlockOrder = nextUnlockOrder
         };
 
-        Db.MercenaryTemplates.Add(merc);
+        Db.Locations.Add(dungeon);
 
-        var stage = new ExpeditionStage
+        // 5) Z každého stage vytvoř MonsterTemplate + DungeonStage
+        foreach (var st in generated.Stages.OrderBy(s => s.StageNumber))
         {
-            Id = Guid.NewGuid(),
-            LocationId = location.Id,
-            StageNumber = stageDef.StageNumber,
-            //StageType = stageDef.StageType,
-            EnemyMercenaryId = merc.Id
-        };
+            var m = st.Mercenary;
 
-        Db.ExpeditionStages.Add(stage);
+            // MonsterTemplate – přizpůsob podle své entity
+            MercenaryTemplate? monster = new MercenaryTemplate
+            {
+                Id = Guid.NewGuid(),
+                Code = $"{dungeon.Code}_{m.NameEn.ToUpper()}",
+                NameEn = m.NameEn,
+                DescriptionEn = m.DescriptionEn,
+                Element = Enum.TryParse<ElementType>(m.Element.ToString(), true, out var el)
+                    ? el
+                    : ElementType.Void, // fallback
+                BaseLevel = m.BaseLevel,
+                BaseStats = new StatBlock
+                {
+                    //MaxHp = m.Health,
+                    //Attack = m.Attack,
+                    //Defense = m.Defense,
+                    //Speed = m.Speed,
+                    //CritChance = m.CritChance,
+                    //CritDamage = m.CritDamage
+                }
+            };
+
+            Db.MercenaryTemplates.Add(monster);
+
+            var stage = new ExpeditionStage
+            {
+                Id = Guid.NewGuid(),
+                Code = $"{dungeon.Code}_{st.StageNumber}",
+                LocationId = dungeon.Id,
+                StageNumber = st.StageNumber,
+                
+                Difficulty  = Enum.TryParse<ExpeditionStageType>(
+                    st.StageType.ToString(),
+                    ignoreCase: true,
+                    out var stType)
+                    ? stType
+                    : ExpeditionStageType.ES1_Novice, // fallback
+                 EnemyId = monster.Id
+            };
+
+            Db.ExpeditionStages.Add(stage);
+        }
+
+        await Db.SaveChangesAsync();
+        await LoadLocations();
     }
-
-    await Db.SaveChangesAsync();
-    await LoadLocations(); // tvoje metoda pro reload seznamu
-    isLoading = false;
+    finally
+    {
+        isLoading = false;
+    }
 }
+  
 }

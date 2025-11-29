@@ -76,6 +76,7 @@ body {
     min-height: 100vh;
 }
 
+
 /* Sidebar – „chrám“ / ovládací panel */
 .sidebar {
     width: 260px;
@@ -223,4 +224,23 @@ table.table tbody tr:hover {
     font-family: "Cinzel", "Times New Roman", serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+}.dungeon-input {
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 999px;
+    border: 1px solid var(--accent-primary);
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important; /* Safari/Chrome */
+}
+
+/* placeholder ať je taky vidět */
+.dungeon-input::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 1; /* některé browsery dávají nízkou opacitu */
+}
+
+/* zruš případné globální text-gradient hacky */
+.dungeon-input,
+.dungeon-input:focus {
+    background-clip: border-box !important;
+    -webkit-background-clip: border-box !important;
 }

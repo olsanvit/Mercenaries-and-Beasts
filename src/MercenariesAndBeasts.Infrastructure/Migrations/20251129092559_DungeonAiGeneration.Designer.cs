@@ -3,6 +3,7 @@ using System;
 using MercenariesAndBeasts.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MercenariesAndBeasts.Infrastructure.Migrations
 {
     [DbContext(typeof(GameDbContext))]
-    partial class GameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251129092559_DungeonAiGeneration")]
+    partial class DungeonAiGeneration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,32 +79,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("BaseLevel")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("DifficultyRating")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("DungeonId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
-
                     b.Property<Guid>("MonsterTemplateId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("NameEn")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int>("RecommendedLevel")
                         .HasColumnType("integer");
@@ -127,35 +112,20 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("BaseLevel")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("Difficulty")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("EnemyId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("EnemyMercenaryId")
+                        .HasColumnType("uuid");
+
                     b.Property<int?>("FixedLevel")
                         .HasColumnType("integer");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
-
                     b.Property<Guid>("LocationId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("NameEn")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int>("StageNumber")
                         .HasColumnType("integer");
@@ -303,10 +273,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<int>("BaseLevel")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("CreatedUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -440,10 +406,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<int>("BaseLevel")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -511,10 +473,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("BaseLevel")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
@@ -623,10 +581,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("BaseLevel")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
@@ -762,10 +716,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("BaseLevel")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionEn")
                         .IsRequired()

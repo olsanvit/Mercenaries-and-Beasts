@@ -5,6 +5,7 @@ namespace MercenariesAndBeasts.Domain.AI;
 public sealed class DungeonGenerationOptions
 {
     public string Name { get; set; }
+    public string Code { get; set; }
     public int TargetMinLevel { get; set; }
     public int TargetMaxLevel { get; set; }
 

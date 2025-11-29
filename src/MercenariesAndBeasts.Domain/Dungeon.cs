@@ -11,12 +11,6 @@ public class Dungeon : BaseGuid
     [MaxLength(64)]
     public string Code { get; set; } = default!; 
 
-    [Required]
-    [MaxLength(128)]
-    public string NameEn { get; set; } = default!;
-    public string DescriptionEn { get; set; } = default!;
-
-
     // Physical, Fire, Ice, Poison, Lightning, Shadow, Light...
     [Required, MaxLength(32)]
     public string Element { get; set; } = "Physical";
@@ -30,12 +24,12 @@ public class Dungeon : BaseGuid
     public int MaxLevel { get; set; }
 
 
-        public ICollection<DungeonStage> Stages { get; set; } = new List<DungeonStage>();
+        public List<DungeonStage> Stages { get; set; } = new List<DungeonStage>();
 
 }
-public class DungeonStage
+public class DungeonStage : BaseGuid
     {
-        public Guid Id { get; set; }
+        
 
         public Guid DungeonId { get; set; }
         public Dungeon Dungeon { get; set; } = null!;

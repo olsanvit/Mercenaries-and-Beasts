@@ -30,19 +30,18 @@ public class Location: BaseGuid
 
     public List<ExpeditionStage> Stages { get; set; } = new();
 }
-public class ExpeditionStage
+public class ExpeditionStage: BaseGuid
     {
-        public Guid Id { get; set; }
 
         public Guid LocationId { get; set; }
         public Location Location { get; set; } = null!;
 
         public int StageNumber { get; set; }   // 1–10
 
-        public ExpeditionStageType Difficulty { get; set; }
+        public ExpeditionStageType Difficulty { get; set; } = ExpeditionStageType.ES1_Novice;
 
         // Enemy mercenary for this stage
-        public Guid EnemyMercenaryId { get; set; }
+        public Guid EnemyId { get; set; }
         public MercenaryTemplate Enemy { get; set; } = null!;
 
         public int? FixedLevel { get; set; }   // volitelné stupňování podle lokace

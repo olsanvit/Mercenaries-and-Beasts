@@ -25,7 +25,7 @@ namespace MercenariesAndBeasts.Domain.Combat
         /// </summary>
         public double CritMultiplier { get; set; }
 
-        public ElementType Element { get; set; }
+        public string Element { get; set; } = string.Empty;
 
         /// <summary>
         /// Volitelné procentuální bonusy (např. dmg vs element).
@@ -42,7 +42,7 @@ namespace MercenariesAndBeasts.Domain.Combat
             Speed = 0,
             CritChance = 0,
             CritMultiplier = 1.5,
-            Element = ElementType.None,
+            Element = ElementType.None.ToString(),
             ElementalDamageBonus = 0,
             ElementalResistance = 0
         };

@@ -6,8 +6,10 @@ namespace MercenariesAndBeasts.Domain.AI;
 
 public sealed class DungeonStageDefinition
 {
+    public string Code { get; set; } = string.Empty;
     public int StageNumber { get; set; }            // 1–10
-    public DungeonStageType StageType { get; set; } // DS1_... DS10_...
+    
+    public string StageType { get; set; } = string.Empty;
 
     public DungeonMonsterDefinition Monster { get; set; } = new();
 }

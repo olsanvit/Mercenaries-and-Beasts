@@ -42,12 +42,12 @@ namespace MercenariesAndBeasts.Infrastructure.AI
         private readonly int _baseDelayMs;
 
         public ChatGptAsker(
+            string apiKey,
             bool isSimple,
             int maxParallelism = 5,
             int maxRetries = 5,
             int baseDelayMs = 750)
         {
-            var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
             if (string.IsNullOrWhiteSpace(apiKey))
                 throw new InvalidOperationException("OPENAI_API_KEY environment variable is not set.");
 
