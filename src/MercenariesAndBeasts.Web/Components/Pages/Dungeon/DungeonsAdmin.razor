@@ -5,7 +5,7 @@
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
-<h1>Dungeons</h1>
+<h1>@S["Dungeons"]</h1>
 
 @if (isLoading)
 {
@@ -14,9 +14,9 @@
 else
 {
     <div class="mb-3">
-    <button class="btn btn-primary" @onclick="NewDungeon">New dungeon</button>
+        <button class="btn btn-primary" @onclick="NewDungeon">@S["NewDungeon"]</button>
     <button class="btn btn-secondary ms-2" @onclick="() => GenerateNextDungeon(false)">
-    Generate Next Dungeon
+            @S["AiGenLocation"]
 </button>
 <!-- Vlastní název pro ruční generaci -->
     <div class="input-group">
@@ -43,6 +43,8 @@ else
                 <tr>
                     <th>Code</th>
                     <th>Name</th>
+                    <th>Element</th>
+                    <th>Unlock Order</th>
                     <th>Level range</th>
         <th>Stages</th> @* nový sloupec *@
                     <th></th>
@@ -52,8 +54,10 @@ else
             @foreach (var d in dungeons)
             {
                 <tr>
-                    <td>@d.Code</td>
-                    <td>@d.NameEn</td>
+                        <td>@d.Code</td>
+                        <td>@d.NameEn</td>
+                        <td>@d.Element</td>
+                        <td>@d.UnlockOrder</td>
                     <td>@d.MinLevel - @d.MaxLevel</td>
         <td>
             @(d.Stages?.Count ?? 0)
@@ -103,7 +107,12 @@ else
                                                 <th>Element</th>
                                                 <th>HP</th>
                                                 <th>Attack</th>
-                                                <th>Defense</th>
+                                                                <th>Defense</th>
+                                                                <th>Speed</th>
+                                                                <th>CritChance</th>
+                                                                <th>CritMultiplier</th>
+                                                                <th>ElementalDamageBonus</th>
+                                                                <th>ElementalResistance</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -117,7 +126,12 @@ else
                                                 <td>@s.MonsterTemplate?.Element</td>
                                                 <td>@s.MonsterTemplate?.BaseStats?.MaxHp</td>
                                                 <td>@s.MonsterTemplate?.BaseStats?.Attack</td>
-                                                <td>@s.MonsterTemplate?.BaseStats?.Defense</td>
+                                                                    <td>@s.MonsterTemplate?.BaseStats?.Defense</td>
+                                                                    <td>@s.MonsterTemplate?.BaseStats?.Speed</td>
+                                                                    <td>@s.MonsterTemplate?.BaseStats?.CritChance</td>
+                                                                    <td>@s.MonsterTemplate?.BaseStats?.CritMultiplier</td>
+                                                                    <td>@s.MonsterTemplate?.BaseStats?.ElementalDamageBonus</td>
+                                                                    <td>@s.MonsterTemplate?.BaseStats?.ElementalResistance</td>
                                             </tr>
                                         }
                                         </tbody>
@@ -240,15 +254,15 @@ else
         editModel = null;
         await LoadDungeons();
     }
-private HashSet<Guid> expandedDungeonIds = new();
+    private HashSet<Guid> expandedDungeonIds = new();
 
-private void ToggleDungeonStages(Guid dungeonId)
-{
-    if (expandedDungeonIds.Contains(dungeonId))
-        expandedDungeonIds.Remove(dungeonId);
-    else
-        expandedDungeonIds.Add(dungeonId);
-}
+    private void ToggleDungeonStages(Guid dungeonId)
+    {
+        if (expandedDungeonIds.Contains(dungeonId))
+            expandedDungeonIds.Remove(dungeonId);
+        else
+            expandedDungeonIds.Add(dungeonId);
+    }
     private async Task DeleteDungeon(Guid id)
     {
         var d = await Db.Dungeons.FirstOrDefaultAsync(x => x.Id == id);
@@ -264,22 +278,27 @@ private void ToggleDungeonStages(Guid dungeonId)
         editModel = null;
     }
     private async Task GenerateNextDungeon(bool current)
-{
-    isLoading = true;
-
-    try
     {
-         string dungeonName;
-        // 1) Najdi poslední dungeon
-        var lastDungeon  = await Db.Dungeons
-                .OrderByDescending(d => d.UnlockOrder)
-                .FirstOrDefaultAsync();
+        isLoading = true;
+
+        try
+        {
+            string dungeonName;
+            var newDungeon = new Dungeon();
+            // 1) Najdi poslední dungeon
+            var lastDungeon  = await Db.Dungeons
+                    .OrderByDescending(d => d.UnlockOrder)
+                    .FirstOrDefaultAsync();
             if(lastDungeon is null){
-                lastDungeon = new Dungeon();
-                lastDungeon.MinLevel = 1;
-                lastDungeon.MaxLevel = 5;
+                newDungeon = new Dungeon();
+                newDungeon.MinLevel = 1;
+                newDungeon.MaxLevel = 5;
+            } else
+            {
+                newDungeon.MinLevel = lastDungeon.MinLevel;
+                newDungeon.MaxLevel = lastDungeon.MaxLevel;
             }
-        if (!current)
+            if (!current)
         {
             // vezmeme poslední dungeon v DB
             lastDungeon = await Db.Dungeons
@@ -292,7 +311,7 @@ private void ToggleDungeonStages(Guid dungeonId)
         {
             // ruční název z inputu
             dungeonName = manualDungeonName.Trim();
-            lastDungeon.NameEn = dungeonName;
+                newDungeon.NameEn = dungeonName;
         }
 
         // volání AI generátoru
@@ -301,7 +320,7 @@ private void ToggleDungeonStages(Guid dungeonId)
             Name = dungeonName
         };
         // 2) Nech AI vygenerovat celý dungeon včetně monster/stages
-        var generated = await DungeonAi.GenerateNextDungeonAsync(lastDungeon, current);
+            var generated = await DungeonAi.GenerateNextDungeonAsync(lastDungeon, newDungeon, current);
         if (generated is null)
         {
             // AI selhalo → nic nevytvářej
@@ -320,7 +339,10 @@ private void ToggleDungeonStages(Guid dungeonId)
             Id = Guid.NewGuid(),
             Code = $"DUN_{generated.NameEn.ToUpper()}",
             NameEn = generated.NameEn,
-            DescriptionEn = generated.DescriptionEn,
+                DescriptionEn = generated.DescriptionEn,
+                Element = Enum.TryParse<ElementType>(generated.Element.ToString(), true, out var el)
+                            ? el
+                            : ElementType.None, // fallback
             MinLevel = generated.MinLevel,
             MaxLevel = generated.MaxLevel,
             UnlockOrder = nextUnlockOrder
@@ -340,18 +362,20 @@ private void ToggleDungeonStages(Guid dungeonId)
                 Code = $"{dungeon.Code}_{m.NameEn.ToUpper()}",
                 NameEn = m.NameEn,
                 DescriptionEn = m.DescriptionEn,
-                Element = Enum.TryParse<ElementType>(m.Element.ToString(), true, out var el)
-                    ? el
+                Element = Enum.TryParse<ElementType>(m.Element.ToString(), true, out var el2)
+                    ? el2
                     : ElementType.Void, // fallback
                 BaseLevel = m.BaseLevel,
                 BaseStats = new StatBlock
                 {
-                    //MaxHp = m.Health,
-                    //Attack = m.Attack,
-                    //Defense = m.Defense,
-                    //Speed = m.Speed,
-                    //CritChance = m.CritChance,
-                    //CritDamage = m.CritDamage
+                    MaxHp = m.Stats.MaxHp,
+                        Attack = m.Stats.Attack,
+                        Defense = m.Stats.Defense,
+                        Speed = m.Stats.Speed,
+                        CritChance = m.Stats.CritChance,
+                        CritMultiplier = m.Stats.CritMultiplier,
+                        ElementalDamageBonus = m.Stats.ElementalDamageBonus,
+                        ElementalResistance = m.Stats.ElementalResistance
                 }
             };
 

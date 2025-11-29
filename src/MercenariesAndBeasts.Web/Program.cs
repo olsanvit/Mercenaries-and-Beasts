@@ -1,10 +1,13 @@
-using MercenariesAndBeasts.Web.Components;
-using MercenariesAndBeasts.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using MercenariesAndBeasts.Domain.Interface;
+using MercenariesAndBeasts.Infrastructure;
 using MercenariesAndBeasts.Infrastructure.AI;
+using MercenariesAndBeasts.Web.Components;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using OpenAI;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +16,29 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddRazorPages();
-var cs = builder.Configuration.GetConnectionString("GameDatabase");
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources"); 
+var supportedCultures = new[]
+{
+    new CultureInfo("en"),
+    new CultureInfo("cs"),
+    new CultureInfo("de")
+};
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("en");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+
+    // pořadí providerů: query string -> cookie -> browser
+    options.RequestCultureProviders = new List<IRequestCultureProvider>
+    {
+        new QueryStringRequestCultureProvider(),
+        new CookieRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider()
+    };
+});
+//var cs = builder.Configuration.GetConnectionString("MacGameDatabase");
+var cs = builder.Configuration.GetConnectionString("NBGameDatabase");
 builder.Services.AddDbContext<GameDbContext>(o => o.UseNpgsql(cs));
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -54,7 +79,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 var app = builder.Build();
-
+var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
+app.UseRequestLocalization(locOptions.Value);
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

@@ -1,0 +1,28 @@
+﻿@using Microsoft.AspNetCore.Localization
+@using System.Globalization
+@inject NavigationManager Nav
+
+<select class="form-select form-select-sm lang-switcher"
+        @onchange="ChangeCulture">
+    <option value="en">EN</option>
+    <option value="cs">CS</option>
+    <option value="de">DE</option>
+</select>
+
+@code {
+    private string currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+    private void ChangeCulture(ChangeEventArgs e)
+    {
+        var culture = e.Value?.ToString() ?? "en";
+
+        // dotazník -> use RequestLocalization + cookie
+        var uri = new Uri(Nav.Uri);
+        var baseUri = uri.GetLeftPart(UriPartial.Path);
+
+        var target = $"{baseUri}?culture={culture}&ui-culture={culture}";
+
+        // force reload, aby se kulturou přepnula i server side část
+        Nav.NavigateTo(target, forceLoad: true);
+    }
+}

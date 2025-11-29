@@ -7,13 +7,9 @@ namespace MercenariesAndBeasts.Domain;
 public class Dungeon : BaseGuid
 {
 
-    [Required]
-    [MaxLength(64)]
-    public string Code { get; set; } = default!; 
-
     // Physical, Fire, Ice, Poison, Lightning, Shadow, Light...
     [Required, MaxLength(32)]
-    public string Element { get; set; } = "Physical";
+    public ElementType Element { get; set; } = ElementType.None;
 
     [Range(1, 999)]
     public int UnlockOrder { get; set; } = 1;

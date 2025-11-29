@@ -10,7 +10,10 @@ using Microsoft.Extensions.Logging;
 namespace MercenariesAndBeasts.Infrastructure.AI;
 public class AiUnitGeneratorService : IUnitAiGenerator
 {
-     private readonly ChatGptAsker _asker;
+    private string GameTheme => 
+        "a fantasy role-playing game with subtle futuristic and arcane-tech elements. " +
+        "The world is rich in magic, advanced technology, and diverse landscapes, inhabited by various monsters and mercenaries.";
+    private readonly ChatGptAsker _asker;
     private readonly GameDbContext _db;
     private readonly ILogger<AiUnitGeneratorService> _logger;
 
@@ -25,21 +28,51 @@ public class AiUnitGeneratorService : IUnitAiGenerator
         _logger = logger;
     }
 
-    public async Task<DungeonGenerationResult?> GenerateNextDungeonAsync(Dungeon? previousDungeon, bool currentDungeon, CancellationToken ct = default)
+    public async Task<DungeonGenerationResult?> GenerateNextDungeonAsync(Dungeon? previousDungeon, Dungeon? currDungeon, bool currentDungeon, CancellationToken ct = default)
     {
-        int prevMin = previousDungeon?.MinLevel ?? 1;
-        int prevMax = previousDungeon?.MaxLevel ?? 5;
+        int nextMin;
+        int nextMax;
 
-        int nextMin = previousDungeon is null ? 1 : prevMax + 1;
-        int span = previousDungeon is null ? 4 : Math.Max(1, prevMax - prevMin);
-        int nextMax = nextMin + span;
-        if(prevMin == 1)
+        if (currentDungeon)
         {
-            nextMin = prevMin;
-            nextMax=prevMax;
+
+            if (previousDungeon is null)
+            {
+                // vůbec nic ještě neexistuje → první lokace
+                nextMin = 1;
+                nextMax = 5;   // nebo co používáš jako default
+            }
+            else
+            {
+                var prevMin = previousDungeon.MinLevel;
+                var prevMax = previousDungeon.MaxLevel;
+
+                var span = Math.Max(1, prevMax - prevMin);
+                nextMin = prevMax + 1;
+                nextMax = nextMin + span;
+            }
+        }
+        else
+        {
+            // ✅ Generujeme „další“ lokaci v progresi
+            if (previousDungeon is null)
+            {
+                // první lokace
+                nextMin = 1;
+                nextMax = 5;
+            }
+            else
+            {
+                var prevMin = previousDungeon.MinLevel;
+                var prevMax = previousDungeon.MaxLevel;
+
+                var span = Math.Max(1, prevMax - prevMin);
+                nextMin = prevMax + 1;
+                nextMax = nextMin + span;
+            }
         }
 
-      var stageTypeNames = Enum.GetNames(typeof(DungeonStageType));
+        var stageTypeNames = Enum.GetNames(typeof(DungeonStageType));
         var stageCount = stageTypeNames.Length; // ← počet stagí = počet enum hodnot
         var previousName = previousDungeon?.NameEn ?? "None";
 
@@ -53,7 +86,7 @@ public class AiUnitGeneratorService : IUnitAiGenerator
         if (currentDungeon)
         {
             currentOrNext = $@"
-        The player provided a manual dungeon name: ""{previousName}"".
+        The player provided a manual dungeon name: ""{currDungeon?.NameEn}"".
         Generate THIS dungeon, do NOT create a next one.
         Use exactly this name for the dungeon.
         ";
@@ -65,7 +98,7 @@ Generate the NEXT dungeon in the progression.
 ";
         }
     var systemPrompt = $@"
-You are an assistant generating procedural dungeons for a dark fantasy RPG with subtle futuristic/arcane-tech elements.
+You are an assistant generating procedural dungeons for {GameTheme}.
 
 You MUST ALWAYS return ONLY valid JSON.
 The JSON MUST be deserializable into this C#-like shape:
@@ -89,6 +122,12 @@ Constraints:
 - Each stageType value from the allowed enum list must be used exactly once across all stages
   (no stageType is repeated, no stageType is missing).
 - Stats (attack, defense, health, etc.) should scale with baseLevel so that later stages feel harder.
+
+Element rules:
+- Each monster's ""element"" must be one of: {elementEnumValues}.
+- Across the WHOLE dungeon (all stages), you may use at most TWO distinct elements in total.
+- First, implicitly choose up to two elements that fit the dungeon theme, then use only those elements for all monsters and the boss.
+- Do NOT use more than two different element values in the entire dungeon.
 Monster naming rules:
 - Monster names MUST NOT be forced to include the element.
 - Names may include element flavoring only when it makes sense, but it is optional.
@@ -108,23 +147,55 @@ Return ONLY JSON object that matches the described shape. No markdown, no commen
     }
     public async Task<ExpeditionGenerationResult?> GenerateNextLocationAsync(
     Location? previousLocation,
+    Location? currLocation,
     bool currentLocation,
     CancellationToken ct = default)
 {
-    int prevMin = previousLocation?.MinLevel ?? 1;
-    int prevMax = previousLocation?.MaxLevel ?? 5;
+        int nextMin;
+        int nextMax;
 
-    int nextMin = previousLocation is null ? 1 : prevMax + 1;
-        int span = previousLocation is null ? 4 : Math.Max(1, prevMax - prevMin);
-        int nextMax = nextMin + span;
-        if(prevMin == 1)
+        if (currentLocation)
         {
-            nextMin = prevMin;
-            nextMax=prevMax;
+            // ✅ Generujeme „aktuální“ lokaci – nepřehazuj level range
+
+            if (previousLocation is null)
+            {
+                // vůbec nic ještě neexistuje → první lokace
+                nextMin = 1;
+                nextMax = 5;   // nebo co používáš jako default
+            }
+            else
+            {
+                var prevMin = previousLocation.MinLevel;
+                var prevMax = previousLocation.MaxLevel;
+
+                var span = Math.Max(1, prevMax - prevMin);
+                nextMin = prevMax + 1;
+                nextMax = nextMin + span;
+            }
+        }
+        else
+        {
+            // ✅ Generujeme „další“ lokaci v progresi
+            if (previousLocation is null)
+            {
+                // první lokace
+                nextMin = 1;
+                nextMax = 5;
+            }
+            else
+            {
+                var prevMin = previousLocation.MinLevel;
+                var prevMax = previousLocation.MaxLevel;
+
+                var span = Math.Max(1, prevMax - prevMin);
+                nextMin = prevMax + 1;
+                nextMax = nextMin + span;
+            }
         }
 
-    // počet stagí podle enumu expedic
-    var stageTypeNames = Enum.GetNames(typeof(ExpeditionStageType));
+        // počet stagí podle enumu expedic
+        var stageTypeNames = Enum.GetNames(typeof(ExpeditionStageType));
     var stageCount     = stageTypeNames.Length;
 
     var previousName = previousLocation?.NameEn ?? "None";
@@ -140,7 +211,7 @@ Return ONLY JSON object that matches the described shape. No markdown, no commen
     if (currentLocation)
     {
         currentOrNext = $@"
-The player provided a manual location name: ""{previousName}"".
+The player provided a manual location name: ""{currLocation?.NameEn}"".
 Generate THIS expedition location, do NOT create a next one.
 Use exactly this name for the location (NameEn).";
     }
@@ -152,7 +223,7 @@ Generate the NEXT location in the progression.";
     }
 
     var systemPrompt = $@"
-You are an assistant generating procedural expedition locations for a fantasy RPG
+You are an assistant generating procedural expedition locations for {GameTheme}
 with subtle futuristic/arcane-tech elements.
 
 You MUST ALWAYS return ONLY valid JSON.
@@ -187,8 +258,13 @@ Constraints:
   (no StageType is repeated, no StageType is missing).
 - Enemy stats (attack, defense, health, etc.) should scale with BaseLevel so that later stages feel harder.
 
-Enemy naming rules:
-- Enemy names MUST NOT be forced to include the element.
+Element rules:
+- Each mercenary's ""element"" must be one of: {elementEnumValues}.
+- Across the WHOLE dungeon (all stages), you may use at most TWO distinct elements in total.
+- First, implicitly choose up to two elements that fit the dungeon theme, then use only those elements for all mercenaries and the boss.
+- Do NOT use more than two different element values in the entire dungeon.
+Mercenary naming rules:
+- Mercenary names MUST NOT be forced to include the element.
 - Names may include elemental flavoring only when it makes sense, but this is optional.
 - Avoid literal names like ""Fire Soldier"", ""Water Archer"", ""Poison Bandit"".
 - Use creative, mercenary/bandit/raider-like names fitting a fantasy-tech world.

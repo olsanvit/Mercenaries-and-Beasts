@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Components.Forms
 @using MercenariesAndBeasts.Infrastructure
+@using Microsoft.AspNetCore.Localization
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 @inject NavigationManager Nav
@@ -97,6 +98,11 @@
 
         // 4) Přihlásit
         await SignInManager.SignInAsync(user, isPersistent: true);
+
+        // pokud má user nastavenu preferovanou kulturu:
+        var culture = user.PreferredCulture ?? "en";
+        var cookie = CookieRequestCultureProvider.MakeCookieValue(
+            new RequestCulture(culture, culture));
 
         Nav.NavigateTo("/");
     }

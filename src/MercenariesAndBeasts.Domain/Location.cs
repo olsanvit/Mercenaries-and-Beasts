@@ -8,16 +8,8 @@ namespace MercenariesAndBeasts.Domain;
 public class Location: BaseGuid
 {
 
-    [Required]
-    [MaxLength(64)]
-    public string Code { get; set; } = default!; // např. "NORTHERN_TRADE_ROAD"
-
-    [Required]
-    [MaxLength(128)]
-    public string NameEn { get; set; } = default!;
-
     [Required, MaxLength(32)]
-    public string Element { get; set; } = "Physical";
+    public ElementType Element { get; set; } = ElementType.None;
 
     [Range(1, 999)]
     public int UnlockOrder { get; set; } = 1;
