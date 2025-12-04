@@ -10,9 +10,17 @@ using Microsoft.Extensions.Logging;
 namespace MercenariesAndBeasts.Infrastructure.AI;
 public class AiUnitGeneratorService : IUnitAiGenerator
 {
-    private string GameTheme => 
+    private string GameTheme =>
+    "a dark fantasy role-playing game with subtle arcane-tech elements. " +
+    "The tone is mysterious, atmospheric and slightly grim. " +
+    "Naming style: premium RPG, evocative, memorable and lore-friendly. " +
+    "Names should feel unique, not generic, easy to pronounce, without numbers or MMO-style tags. " +
+    "Avoid clichés like 'of Doom', 'of the Ancients', 'the Ultimate', 'Extreme', etc."; 
+    /*private string GameTheme => 
         "a fantasy role-playing game with subtle futuristic and arcane-tech elements. " +
-        "The world is rich in magic, advanced technology, and diverse landscapes, inhabited by various monsters and mercenaries.";
+        "The world is rich in magic, advanced technology, and diverse landscapes, inhabited by various monsters and mercenaries." +
+        "Names should be atmospheric, imaginative, lore-friendly, and unique — taking inspiration from both fantasy and light futuristic. " +
+        "Avoid generic names.";    */
     private readonly ChatGptAsker _asker;
     private readonly GameDbContext _db;
     private readonly ILogger<AiUnitGeneratorService> _logger;
@@ -85,14 +93,27 @@ public class AiUnitGeneratorService : IUnitAiGenerator
     string currentOrNext = string.Empty;
         if (currentDungeon)
         {
-            currentOrNext = $@"
-        The player provided a manual dungeon name: ""{currDungeon?.NameEn}"".
-        Generate THIS dungeon, do NOT create a next one.
-        Use exactly this name for the dungeon.
-        ";
+           var originalName = currDungeon?.NameEn ?? "Unknown";
+
+    currentOrNext = $@"
+The player provided a manual dungeon name in natural language: ""{originalName}"".
+
+IMPORTANT:
+- The provided name may be Czech or any other non-English language.
+- You MUST translate/adapt this name into smooth, natural ENGLISH.
+- The translated English name MUST preserve the meaning and theme.
+- Put the translated English name into ""NameEn"".
+
+STRICT RULES:
+- ALWAYS return the English version in ""NameEn"".
+- NEVER return the non-English input name in the JSON.
+- NEVER include diacritics or non-ASCII characters in ""NameEn"" or ""Code"".
+
+Generate THIS dungeon (based on the translated English name), do NOT create the next one.
+";
         } else
         {  
-            currentOrNext = $@"
+             currentOrNext = $@"
 The player has just completed a dungeon named ""{previousName}"".
 Generate the NEXT dungeon in the progression.
 ";
@@ -112,7 +133,12 @@ Rules:
 ";
 
     var userPrompt = $@"
-    {currentOrNext}
+{currentOrNext}
+
+Dungeon naming rules:
+- The dungeon ""NameEn"" must be short (2–4 words), vivid and unique.
+- It should hint at the place's identity or history, not just its element.
+- Avoid generic names like ""Fire Dungeon"", ""Dark Cave"", ""Poison Lair"", ""Ancient Dungeon"".
 
 Constraints:
 - recommendedMinLevel = {nextMin}
@@ -128,9 +154,13 @@ Element rules:
 - Across the WHOLE dungeon (all stages), you may use at most TWO distinct elements in total.
 - First, implicitly choose up to two elements that fit the dungeon theme, then use only those elements for all monsters and the boss.
 - Do NOT use more than two different element values in the entire dungeon.
+
 Monster naming rules:
-- Monster names MUST NOT be forced to include the element.
-- Names may include element flavoring only when it makes sense, but it is optional.
+- Each monster must have a distinct, flavorful name that would fit a high-quality RPG bestiary.
+- Avoid plain labels like ""Fire Beast"", ""Stone Golem"", ""Dark Archer"", ""Poison Spider"".
+- Names may include elemental flavoring only when it makes sense (e.g. ""Cinderfang Hound""), but it is optional.
+- MiniBoss and Boss monsters should have more epic, memorable names than regular monsters.
+
 Return ONLY JSON object that matches the described shape. No markdown, no comments, no extra text.
 ";
 
@@ -210,14 +240,27 @@ Return ONLY JSON object that matches the described shape. No markdown, no commen
     string currentOrNext;
     if (currentLocation)
     {
-        currentOrNext = $@"
-The player provided a manual location name: ""{currLocation?.NameEn}"".
+      var originalName = currLocation?.NameEn ?? "Unknown";
+
+    currentOrNext = $@"
+The player provided a manual location name in natural language: ""{originalName}"".
 Generate THIS expedition location, do NOT create a next one.
-Use exactly this name for the location (NameEn).";
+
+IMPORTANT:
+- The provided name may be Czech or any other non-English language.
+- You MUST translate/adapt this name into smooth, natural ENGLISH.
+- The translated English name MUST preserve the meaning and theme.
+- Put the translated English name into ""NameEn"".
+
+STRICT RULES:
+- ALWAYS return the English version in ""NameEn"".
+- NEVER return the non-English input name in the JSON.
+- NEVER include diacritics or non-ASCII characters in ""NameEn"" or ""Code"".
+";
     }
     else
     {
-        currentOrNext = $@"
+         currentOrNext = $@"
 The player has just completed an expedition location named ""{previousName}"".
 Generate the NEXT location in the progression.";
     }
@@ -246,8 +289,13 @@ Rules:
     - No randomness, no suffix hashes, no diacritics.
 ";
 
-    var userPrompt = $@"
+   var userPrompt = $@"
 {currentOrNext}
+
+Location naming rules:
+- ""NameEn"" must be 2–4 words, atmospheric and memorable.
+- It should evoke a place you would want to explore in a fantasy RPG (e.g. ""Ashen Lantern Fields"", ""Glimmering Rift"", ""Shattered Grove"").
+- Avoid ultra-generic names like ""Forest Camp"", ""Old Village"", ""Mountain Pass"".
 
 Constraints:
 - MinLevel = {nextMin}
@@ -260,14 +308,15 @@ Constraints:
 
 Element rules:
 - Each mercenary's ""element"" must be one of: {elementEnumValues}.
-- Across the WHOLE dungeon (all stages), you may use at most TWO distinct elements in total.
-- First, implicitly choose up to two elements that fit the dungeon theme, then use only those elements for all mercenaries and the boss.
-- Do NOT use more than two different element values in the entire dungeon.
+- Across the WHOLE location (all stages), you may use at most TWO distinct elements in total.
+- First, implicitly choose up to two elements that fit the location theme, then use only those elements for all mercenaries and the boss.
+- Do NOT use more than two different element values in the entire location.
+
 Mercenary naming rules:
-- Mercenary names MUST NOT be forced to include the element.
-- Names may include elemental flavoring only when it makes sense, but this is optional.
-- Avoid literal names like ""Fire Soldier"", ""Water Archer"", ""Poison Bandit"".
-- Use creative, mercenary/bandit/raider-like names fitting a fantasy-tech world.
+- Mercenary names must sound like individual characters or notable foes, not generic mobs.
+- Avoid plain labels like ""Fire Soldier"", ""Water Archer"", ""Poison Bandit"", ""Dark Mage"".
+- Prefer evocative names like ""Ashbreaker Scout"", ""Gloomsworn Cutthroat"", ""Verdant Pike-Leader"", etc.
+- Boss-type mercenaries can have slightly grander titles, but still without clichés like ""of Doom"".
 
 Return ONLY a JSON object that matches the described shape. No markdown, no comments, no extra text.
 ";
@@ -280,6 +329,62 @@ Return ONLY a JSON object that matches the described shape. No markdown, no comm
     catch (Exception ex)
     {
         _logger.LogError(ex, "Error generating location via OpenAI.");
+        return null;
+    }
+}
+public async Task<LocalizedNameResult?> GenerateLocalizedNamesAsync(
+    string entityKind,            // "dungeon", "location", "monster", "mercenary"...
+    string nameEn,
+    string? descriptionEn,
+    CancellationToken ct = default)
+{
+    // C# shape pro LLM
+    var jsonShape = LlmSchemaBuilder.BuildJsonShape<LocalizedNameResult>();
+
+    var systemPrompt = $@"
+You are a localization assistant for {GameTheme}.
+
+You receive the BASE ENGLISH name and optional English description
+of a game entity (dungeon, location, monster, mercenary, etc.).
+Your job is to produce localized names and descriptions in Czech (cs)
+and German (de), keeping the style, tone and flavor.
+
+You MUST ALWAYS return ONLY valid JSON that can be deserialized into
+this C#-like structure:
+
+{jsonShape}
+
+General rules:
+- Keep NameEn and DescriptionEn in English. You MAY slightly polish them
+  (fix grammar, make them sound more premium), but preserve the meaning.
+- NameCs and DescriptionCs must be natural, fluent Czech with correct diacritics.
+- NameDe and DescriptionDe must be natural, fluent German.
+- Preserve the fantasy tone and the entity role (dungeon, location, monster, mercenary).
+- Do NOT invent completely new lore; just adapt style and nuance.
+- Avoid overly literal translations if they sound awkward; prioritize what
+  would sound cool in a high-quality RPG in that language.
+";
+
+    var userPrompt = $@"
+EntityKind: {entityKind}
+
+Base English:
+- NameEn: {nameEn}
+- DescriptionEn: {(string.IsNullOrWhiteSpace(descriptionEn) ? "(none)" : descriptionEn)}
+";
+
+    try
+    {
+        var result = await _asker.AskJsonAsync<LocalizedNameResult>(
+            systemPrompt,
+            userPrompt,
+            ct);
+
+        return result;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error generating localized names via OpenAI.");
         return null;
     }
 }

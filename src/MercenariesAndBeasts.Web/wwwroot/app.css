@@ -165,6 +165,7 @@ table.table tbody tr:hover {
 
 /* Tlačítka – fantasy/future styl */
 .btn {
+    margin: 2px;
     border-radius: 999px;
     border-width: 1px;
     font-weight: 500;
@@ -253,4 +254,138 @@ table.table tbody tr:hover {
     color: var(--text-secondary);
     font-size: 0.8rem;
     padding-inline: 0.5rem;
+}
+.page > main {
+    min-width: 0;
+}
+
+.content {
+    min-width: 0;
+}
+.table {
+    width: 100%;
+    table-layout: fixed; /* sloupce se neroztahují nekonečně */
+}
+
+.table th,
+.table td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap; /* nebo normal pokud chceš zalamovat */
+}
+.card-like,
+.table,
+.content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+.dungeon-name,
+.location-name {
+    width: 20%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Karta s tabulkou nepřetéká ven */
+.stages-card {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Wrapper, který případně scrolluje do strany */
+.stages-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px; /* trochu místa pod scrollbarem */
+}
+
+/* Tabulka sama se má vejít do obalu */
+.table-stages {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* sloupce se neroztahují donekonečna */
+}
+
+/* Buňky: kompaktnější a nelezou přes sebe */
+.table-stages th,
+.table-stages td {
+    padding: 0.25rem 0.4rem;
+    white-space: nowrap;        /* jeden řádek */
+    overflow: hidden;
+    text-overflow: ellipsis;    /* ... místo přetékání textu */
+}
+
+/* Na menších šířkách klidně dovol zalomení textu */
+@media (max-width: 900px) {
+    .table-stages th,
+    .table-stages td {
+        white-space: normal;
+    }
+}
+/* obal hlavní tabulky, aby dashboard nepřetékal */
+.dungeons-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* hlavní tabulka dungeonu */
+.table-stages {
+    width: 100%;
+    table-layout: fixed;       /* sloupce mají pevný layout */
+}
+
+/* buňky hlavní tabulky */
+.table-stages th,
+.table-stages td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* název dungeonu má víc místa */
+.location-name {
+    min-width: 220px;
+    max-width: 380px;
+}
+
+/* detailní panel */
+.dungeon-detail {
+    max-width: 100%;
+}
+
+/* wrapper vnořené tabulky – klíč proti zmenšování */
+.stages-subtable-wrap {
+    width: 100%;
+    overflow-x: auto;       /* scrolluje jen uvnitř, ne hlavní tabulka */
+    padding-top: 0.5rem;
+}
+
+/* vnitřní tabulka si může být širší než hlavní */
+.stages-inner-table {
+    width: max-content;     /* vezme si šířku podle obsahu */
+    min-width: 100%;        /* ale minimálně jako rodič */
+}
+/* obecné nastavení pro hlavní tabulky může zůstat s ellipsou */
+.table-stages th,
+.table-stages td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ale u vnitřní tabulky chci celý text, klidně na více řádků */
+.stages-inner-table th,
+.stages-inner-table td {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+/* 2. sloupec = Stage, 3. sloupec = Monster (podle tvého headeru) */
+.stages-inner-table th:nth-child(2),
+.stages-inner-table td:nth-child(2),
+.stages-inner-table th:nth-child(3),
+.stages-inner-table td:nth-child(3) {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 }

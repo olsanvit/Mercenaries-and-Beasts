@@ -1,43 +1,332 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace MercenariesAndBeasts.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AdAi : Migration
+    public partial class LocationAiGenerationCode2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "BaseLevel",
-                table: "Locations",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
+            migrationBuilder.CreateTable(
+                name: "AspNetRoles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                });
 
-            migrationBuilder.AddColumn<string>(
-                name: "DescriptionEn",
-                table: "Locations",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "boolean", nullable: false),
+                    PreferredCulture = table.Column<string>(type: "character varying(5)", maxLength: 5, nullable: true),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
 
-            migrationBuilder.AddColumn<int>(
-                name: "BaseLevel",
-                table: "Dungeons",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
+            migrationBuilder.CreateTable(
+                name: "Dungeons",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Element = table.Column<int>(type: "integer", maxLength: 32, nullable: false),
+                    UnlockOrder = table.Column<int>(type: "integer", nullable: false),
+                    MinLevel = table.Column<int>(type: "integer", nullable: false),
+                    MaxLevel = table.Column<int>(type: "integer", nullable: false),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    NameEn = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Dungeons", x => x.Id);
+                });
 
-            migrationBuilder.AddColumn<string>(
-                name: "DescriptionEn",
-                table: "Dungeons",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.CreateTable(
+                name: "ItemTemplates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    NameEn = table.Column<string>(type: "text", nullable: false),
+                    ItemType = table.Column<int>(type: "integer", nullable: false),
+                    Slot = table.Column<int>(type: "integer", nullable: true),
+                    BaseStats_MaxHp = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Attack = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Defense = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Speed = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_Element = table.Column<string>(type: "text", nullable: false),
+                    BaseStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false),
+                    BaseQuality = table.Column<int>(type: "integer", nullable: false),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItemTemplates", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Locations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Element = table.Column<int>(type: "integer", maxLength: 32, nullable: false),
+                    UnlockOrder = table.Column<int>(type: "integer", nullable: false),
+                    MinLevel = table.Column<int>(type: "integer", nullable: false),
+                    MaxLevel = table.Column<int>(type: "integer", nullable: false),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    NameEn = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Locations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MercenaryTemplates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Element = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_MaxHp = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Attack = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Defense = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Speed = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_Element = table.Column<string>(type: "text", nullable: false),
+                    BaseStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    NameEn = table.Column<string>(type: "text", nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MercenaryTemplates", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MonsterTemplates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    Element = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_MaxHp = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Attack = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Defense = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_Speed = table.Column<int>(type: "integer", nullable: false),
+                    BaseStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_Element = table.Column<string>(type: "text", nullable: false),
+                    BaseStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
+                    BaseStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    NameEn = table.Column<string>(type: "text", nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MonsterTemplates", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Players",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Level = table.Column<int>(type: "integer", nullable: false),
+                    Experience = table.Column<long>(type: "bigint", nullable: false),
+                    Energy = table.Column<int>(type: "integer", nullable: false),
+                    MaxEnergy = table.Column<int>(type: "integer", nullable: false),
+                    Gold = table.Column<long>(type: "bigint", nullable: false),
+                    ActiveMercenaryTeamId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ActiveMonsterTeamId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    NameEn = table.Column<string>(type: "text", nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Players", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetRoleClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserLogins",
+                columns: table => new
+                {
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserRoles",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserTokens",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "DungeonAchievements",
@@ -59,6 +348,36 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         principalTable: "Dungeons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ItemEffect",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    EffectType = table.Column<int>(type: "integer", nullable: false),
+                    Value = table.Column<double>(type: "double precision", nullable: false),
+                    Duration = table.Column<TimeSpan>(type: "interval", nullable: true),
+                    TargetStat = table.Column<string>(type: "text", nullable: true),
+                    ItemTemplateId = table.Column<Guid>(type: "uuid", nullable: true),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    NameEn = table.Column<string>(type: "text", nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItemEffect", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ItemEffect_ItemTemplates_ItemTemplateId",
+                        column: x => x.ItemTemplateId,
+                        principalTable: "ItemTemplates",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -84,130 +403,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ItemTemplates",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Code = table.Column<string>(type: "text", nullable: false),
-                    NameEn = table.Column<string>(type: "text", nullable: false),
-                    ItemType = table.Column<int>(type: "integer", nullable: false),
-                    Slot = table.Column<int>(type: "integer", nullable: true),
-                    BaseStats_MaxHp = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Attack = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Defense = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Speed = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_Element = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false),
-                    BaseQuality = table.Column<int>(type: "integer", nullable: false),
-                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ItemTemplates", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MercenaryTemplates",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Code = table.Column<string>(type: "text", nullable: false),
-                    NameEn = table.Column<string>(type: "text", nullable: false),
-                    Element = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_MaxHp = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Attack = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Defense = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Speed = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_Element = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false),
-                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MercenaryTemplates", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MonsterTemplates",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Code = table.Column<string>(type: "text", nullable: false),
-                    Element = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_MaxHp = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Attack = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Defense = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_Speed = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_Element = table.Column<int>(type: "integer", nullable: false),
-                    BaseStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
-                    BaseStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false),
-                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
-                    NameEn = table.Column<string>(type: "text", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MonsterTemplates", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Players",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    Level = table.Column<int>(type: "integer", nullable: false),
-                    Experience = table.Column<long>(type: "bigint", nullable: false),
-                    Energy = table.Column<int>(type: "integer", nullable: false),
-                    MaxEnergy = table.Column<int>(type: "integer", nullable: false),
-                    Gold = table.Column<long>(type: "bigint", nullable: false),
-                    ActiveMercenaryTeamId = table.Column<Guid>(type: "uuid", nullable: true),
-                    ActiveMonsterTeamId = table.Column<Guid>(type: "uuid", nullable: true),
-                    CreatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
-                    NameEn = table.Column<string>(type: "text", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Players", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ItemEffect",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    EffectType = table.Column<int>(type: "integer", nullable: false),
-                    Value = table.Column<double>(type: "double precision", nullable: false),
-                    Duration = table.Column<TimeSpan>(type: "interval", nullable: true),
-                    TargetStat = table.Column<string>(type: "text", nullable: true),
-                    ItemTemplateId = table.Column<Guid>(type: "uuid", nullable: true),
-                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
-                    NameEn = table.Column<string>(type: "text", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ItemEffect", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ItemEffect_ItemTemplates_ItemTemplateId",
-                        column: x => x.ItemTemplateId,
-                        principalTable: "ItemTemplates",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ExpeditionStages",
                 columns: table => new
                 {
@@ -215,9 +410,17 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     LocationId = table.Column<Guid>(type: "uuid", nullable: false),
                     StageNumber = table.Column<int>(type: "integer", nullable: false),
                     Difficulty = table.Column<int>(type: "integer", nullable: false),
-                    EnemyMercenaryId = table.Column<Guid>(type: "uuid", nullable: false),
                     EnemyId = table.Column<Guid>(type: "uuid", nullable: false),
-                    FixedLevel = table.Column<int>(type: "integer", nullable: true)
+                    FixedLevel = table.Column<int>(type: "integer", nullable: true),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    NameEn = table.Column<string>(type: "text", nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -246,7 +449,16 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     StageType = table.Column<int>(type: "integer", nullable: false),
                     MonsterTemplateId = table.Column<Guid>(type: "uuid", nullable: false),
                     RecommendedLevel = table.Column<int>(type: "integer", nullable: false),
-                    DifficultyRating = table.Column<int>(type: "integer", nullable: false)
+                    DifficultyRating = table.Column<int>(type: "integer", nullable: false),
+                    BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    NameEn = table.Column<string>(type: "text", nullable: false),
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -266,32 +478,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerDungeonAchievements",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    PlayerId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AchievementId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlayerDungeonAchievements", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PlayerDungeonAchievements_DungeonAchievements_AchievementId",
-                        column: x => x.AchievementId,
-                        principalTable: "DungeonAchievements",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PlayerDungeonAchievements_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalTable: "Players",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PlayerDungeonProgresses",
                 columns: table => new
                 {
@@ -302,8 +488,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     IsCompleted = table.Column<bool>(type: "boolean", nullable: false),
                     LastUpdatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
                     NameEn = table.Column<string>(type: "text", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "text", nullable: false)
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -323,32 +515,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerExpeditionAchievements",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    PlayerId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AchievementId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CompletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlayerExpeditionAchievements", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PlayerExpeditionAchievements_ExpeditionAchievements_Achieve~",
-                        column: x => x.AchievementId,
-                        principalTable: "ExpeditionAchievements",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PlayerExpeditionAchievements_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalTable: "Players",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PlayerExpeditionProgresses",
                 columns: table => new
                 {
@@ -359,8 +525,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     IsCompleted = table.Column<bool>(type: "boolean", nullable: false),
                     LastUpdatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
                     NameEn = table.Column<string>(type: "text", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "text", nullable: false)
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -394,7 +566,7 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     BonusStats_Speed = table.Column<int>(type: "integer", nullable: false),
                     BonusStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
                     BonusStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
-                    BonusStats_Element = table.Column<int>(type: "integer", nullable: false),
+                    BonusStats_Element = table.Column<string>(type: "text", nullable: false),
                     BonusStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
                     BonusStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false),
                     PrefixCode = table.Column<string>(type: "text", nullable: true),
@@ -432,12 +604,18 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     BonusStats_Speed = table.Column<int>(type: "integer", nullable: false),
                     BonusStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
                     BonusStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
-                    BonusStats_Element = table.Column<int>(type: "integer", nullable: false),
+                    BonusStats_Element = table.Column<string>(type: "text", nullable: false),
                     BonusStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
                     BonusStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false),
                     BaseLevel = table.Column<int>(type: "integer", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
                     NameEn = table.Column<string>(type: "text", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "text", nullable: false)
+                    DescriptionEn = table.Column<string>(type: "text", nullable: false),
+                    NameCs = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionCs = table.Column<string>(type: "text", nullable: true),
+                    NameDe = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DescriptionDe = table.Column<string>(type: "text", nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -471,7 +649,7 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     BonusStats_Speed = table.Column<int>(type: "integer", nullable: false),
                     BonusStats_CritChance = table.Column<double>(type: "double precision", nullable: false),
                     BonusStats_CritMultiplier = table.Column<double>(type: "double precision", nullable: false),
-                    BonusStats_Element = table.Column<int>(type: "integer", nullable: false),
+                    BonusStats_Element = table.Column<string>(type: "text", nullable: false),
                     BonusStats_ElementalDamageBonus = table.Column<double>(type: "double precision", nullable: false),
                     BonusStats_ElementalResistance = table.Column<double>(type: "double precision", nullable: false)
                 },
@@ -492,10 +670,105 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PlayerDungeonAchievements",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PlayerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AchievementId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlayerDungeonAchievements", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PlayerDungeonAchievements_DungeonAchievements_AchievementId",
+                        column: x => x.AchievementId,
+                        principalTable: "DungeonAchievements",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlayerDungeonAchievements_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlayerExpeditionAchievements",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PlayerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AchievementId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlayerExpeditionAchievements", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PlayerExpeditionAchievements_ExpeditionAchievements_Achieve~",
+                        column: x => x.AchievementId,
+                        principalTable: "ExpeditionAchievements",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlayerExpeditionAchievements_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetRoleClaims_RoleId",
+                table: "AspNetRoleClaims",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "RoleNameIndex",
+                table: "AspNetRoles",
+                column: "NormalizedName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserClaims_UserId",
+                table: "AspNetUserClaims",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserLogins_UserId",
+                table: "AspNetUserLogins",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserRoles_RoleId",
+                table: "AspNetUserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "EmailIndex",
+                table: "AspNetUsers",
+                column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "UserNameIndex",
+                table: "AspNetUsers",
+                column: "NormalizedUserName",
+                unique: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_DungeonAchievements_DungeonId",
                 table: "DungeonAchievements",
                 column: "DungeonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Dungeons_Code",
+                table: "Dungeons",
+                column: "Code",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_DungeonStages_DungeonId",
@@ -526,6 +799,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                 name: "IX_ItemEffect_ItemTemplateId",
                 table: "ItemEffect",
                 column: "ItemTemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Locations_Code",
+                table: "Locations",
+                column: "Code",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PlayerDungeonAchievements_AchievementId",
@@ -602,6 +881,21 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AspNetRoleClaims");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserClaims");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserLogins");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserRoles");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
                 name: "DungeonStages");
 
             migrationBuilder.DropTable(
@@ -632,6 +926,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                 name: "PlayerMonsters");
 
             migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
                 name: "DungeonAchievements");
 
             migrationBuilder.DropTable(
@@ -649,21 +949,11 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
             migrationBuilder.DropTable(
                 name: "Players");
 
-            migrationBuilder.DropColumn(
-                name: "BaseLevel",
-                table: "Locations");
+            migrationBuilder.DropTable(
+                name: "Dungeons");
 
-            migrationBuilder.DropColumn(
-                name: "DescriptionEn",
-                table: "Locations");
-
-            migrationBuilder.DropColumn(
-                name: "BaseLevel",
-                table: "Dungeons");
-
-            migrationBuilder.DropColumn(
-                name: "DescriptionEn",
-                table: "Dungeons");
+            migrationBuilder.DropTable(
+                name: "Locations");
         }
     }
 }

@@ -38,7 +38,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     };
 });
 //var cs = builder.Configuration.GetConnectionString("MacGameDatabase");
-var cs = builder.Configuration.GetConnectionString("NBGameDatabase");
+var cs = builder.Configuration.GetConnectionString("MacGameDatabase");
 builder.Services.AddDbContext<GameDbContext>(o => o.UseNpgsql(cs));
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -118,4 +118,19 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
     await GameSeed.SeedBaseContentAsync(db, userManager, roleManager);
 }
+app.MapGet("/set-culture", (string culture, string returnUrl, HttpContext httpContext) =>
+{
+    var requestCulture = new RequestCulture(culture);
+
+    httpContext.Response.Cookies.Append(
+        CookieRequestCultureProvider.DefaultCookieName,
+        CookieRequestCultureProvider.MakeCookieValue(requestCulture),
+        new CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddYears(1),
+            IsEssential = true
+        });
+
+    return Results.Redirect(returnUrl);
+});
 app.Run();

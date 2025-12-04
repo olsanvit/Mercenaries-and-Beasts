@@ -7,6 +7,7 @@
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Localization
 @using Microsoft.JSInterop
 @using MercenariesAndBeasts.Web
 @using MercenariesAndBeasts.Web.Components
@@ -17,11 +18,13 @@
 @using Microsoft.AspNetCore.Authorization
 @using MercenariesAndBeasts.Infrastructure
 @using MercenariesAndBeasts.Domain.Units
+@using MercenariesAndBeasts.Domain.AI
+@using MercenariesAndBeasts.Domain.Combat
+@using MercenariesAndBeasts.Domain.Enums
 @inject GameDbContext Db
 
 @inject IUnitAiGenerator DungeonAi
 
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
-@using MercenariesAndBeasts.Web.Localization
-@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResources> S
+@inject IStringLocalizer<SharedResources> S

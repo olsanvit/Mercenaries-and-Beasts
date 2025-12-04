@@ -7,9 +7,8 @@ namespace MercenariesAndBeasts.Domain.Units
 {
     public class MercenaryTemplate: BaseGuid
     {
-        public string Code { get; set; } = string.Empty;   
 
-        public ElementType Element { get; set; }
+        public ElementType Element { get; set; } = ElementType.None;
 
         public StatBlock BaseStats { get; set; } = StatBlock.Zero;
     }

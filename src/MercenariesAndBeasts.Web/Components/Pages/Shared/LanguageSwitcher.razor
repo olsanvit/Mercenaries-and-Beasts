@@ -1,28 +1,41 @@
-﻿@using Microsoft.AspNetCore.Localization
-@using System.Globalization
+﻿@using System.Globalization
 @inject NavigationManager Nav
+@rendermode InteractiveServer
 
-<select class="form-select form-select-sm lang-switcher"
-        @onchange="ChangeCulture">
-    <option value="en">EN</option>
-    <option value="cs">CS</option>
-    <option value="de">DE</option>
+<select class="form-select form-select-sm"
+        @bind="currentCulture"
+        @bind:after="OnCultureChanged">
+
+    @foreach (var opt in _options)
+    {
+        <option value="@opt.Culture">
+            @opt.Flag @opt.Label
+        </option>
+    }
 </select>
 
 @code {
+    private sealed record LangOption(string Culture, string Flag, string Label);
+
+    private readonly LangOption[] _options =
+    [
+        new("en", "🇬🇧", "English"),
+        new("cs", "🇨🇿", "Čeština"),
+        new("de", "🇩🇪", "Deutsch")
+    ];
+
     private string currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
-    private void ChangeCulture(ChangeEventArgs e)
+    private void OnCultureChanged()
     {
-        var culture = e.Value?.ToString() ?? "en";
+        var culture = currentCulture ?? "en";
 
-        // dotazník -> use RequestLocalization + cookie
         var uri = new Uri(Nav.Uri);
-        var baseUri = uri.GetLeftPart(UriPartial.Path);
+        var returnUrl = Uri.EscapeDataString(uri.GetLeftPart(UriPartial.Path));
 
-        var target = $"{baseUri}?culture={culture}&ui-culture={culture}";
+        // nastaví cookie a vrátí zpět na stránku
+        var target = $"/set-culture?culture={culture}&returnUrl={returnUrl}";
 
-        // force reload, aby se kulturou přepnula i server side část
         Nav.NavigateTo(target, forceLoad: true);
     }
 }

@@ -13,39 +13,27 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="dungeons">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Dungeon
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @S["Dungeons"]
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="locations">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Location
+            <NavLink class="nav-link" href="expeditions">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @S["Locations"]
             </NavLink>
         </div>
         <AuthorizeView Roles="Admin">
     <Authorized>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="/locations-admin">
-                <span class="oi oi-list-rich"></span> Locations Admin
+                <span class="oi oi-list-rich"></span> @S["Locations"] Admin
             </NavLink>
         </li>
 
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="/dungeons-admin">
-                <span class="oi oi-fire"></span> Dungeons Admin
+                <span class="oi oi-fire"></span> @S["Dungeons"] Admin
             </NavLink>
         </li>
     </Authorized>

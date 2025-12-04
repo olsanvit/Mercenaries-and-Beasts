@@ -36,14 +36,19 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Element")
-                        .IsRequired()
+                    b.Property<int>("Element")
                         .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasColumnType("integer");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
@@ -53,6 +58,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("MinLevel")
                         .HasColumnType("integer");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -83,6 +96,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -98,6 +117,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<Guid>("MonsterTemplateId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -134,6 +161,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -152,6 +185,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<Guid>("LocationId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -185,6 +226,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -194,6 +241,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("ItemType")
                         .HasColumnType("integer");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -254,14 +309,19 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Element")
-                        .IsRequired()
+                    b.Property<int>("Element")
                         .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasColumnType("integer");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
@@ -271,6 +331,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("MinLevel")
                         .HasColumnType("integer");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -310,6 +378,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -331,6 +405,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("MaxEnergy")
                         .HasColumnType("integer");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -444,6 +526,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -462,6 +550,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("MaxStageReached")
                         .HasColumnType("integer");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -516,6 +612,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -534,6 +636,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("MaxStageReached")
                         .HasColumnType("integer");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -564,6 +674,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -573,6 +689,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -596,6 +720,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -605,6 +735,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -628,6 +766,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -637,6 +781,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("Level")
                         .HasColumnType("integer");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -732,6 +884,10 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("PreferredCulture")
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -767,6 +923,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionCs")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionDe")
+                        .HasColumnType("text");
+
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -782,6 +944,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<Guid?>("ItemTemplateId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("NameCs")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NameDe")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
