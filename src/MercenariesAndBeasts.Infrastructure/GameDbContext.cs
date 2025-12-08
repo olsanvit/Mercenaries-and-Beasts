@@ -10,6 +10,15 @@ namespace MercenariesAndBeasts.Infrastructure;
 
 public class GameDbContext : IdentityDbContext<AppUser>
 {
+    /*
+    dotnet ef migrations add AddImagePathToEntities \
+  -p src/MercenariesAndBeasts.Infrastructure \
+  -s src/MercenariesAndBeasts.Web
+
+dotnet ef database update \
+  -p src/MercenariesAndBeasts.Infrastructure \
+  -s src/MercenariesAndBeasts.Web
+  */
     public GameDbContext(DbContextOptions<GameDbContext> options)
         : base(options) { }
 

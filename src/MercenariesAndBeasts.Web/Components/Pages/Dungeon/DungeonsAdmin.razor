@@ -5,7 +5,7 @@
 @rendermode InteractiveServer
 
 <h1>@S["Dungeons"]</h1>
-
+<ImagePreviewer @ref="imagePreviewer" />
 @if (isLoading)
 {
     <p>Loading...</p>
@@ -47,6 +47,7 @@ else
                     <th>Unlock Order</th>
                     <th>Level range</th>
         <th>Stages</th> @* nový sloupec *@
+        <th>Preview</th>
                     <th></th>
                 </tr>
             </thead>
@@ -55,7 +56,7 @@ else
             {
                 <tr>
                         <td title="@d.Code">@d.Code</td>
-                        <td title="@LocalizationExtensions.NameForCurrentCulture(d)" class="location-name">@LocalizationExtensions.NameForCurrentCulture(d)</td>
+                        <td title="@LocalizationExtensions.NameForCurrentCulture(d)" class="location-name ellipsis">@LocalizationExtensions.NameForCurrentCulture(d)</td>
                         <td>@d.Element</td>
                         <td>@d.UnlockOrder</td>
                     <td>@d.MinLevel - @d.MaxLevel</td>
@@ -66,6 +67,24 @@ else
                 @(expandedDungeonIds.Contains(d.Id) ? "Hide" : "Show")
             </button>
         </td>
+        <td style="width:150px;">
+    @if (!string.IsNullOrWhiteSpace(d.ImagePath))
+    {
+        <img src="@d.ImagePath"
+             class="img-thumbnail"
+             style="max-height: 80px; cursor:pointer;"
+             @onclick="() => ShowImage(d.ImagePath)" />
+    }
+    else
+    {
+        <span class="text-muted">No image</span>
+    }
+
+    <button class="btn btn-sm btn-outline-warning mt-1"
+            @onclick="() => GenerateDungeonImage(d)">
+        Generate Image
+    </button>
+</td>
                     <td>
                         <button class="btn btn-sm btn-secondary me-1" @onclick="() => EditDungeon(d)">Edit</button>
                         <button class="btn btn-sm btn-danger" @onclick="() => DeleteDungeon(d.Id)">Delete</button>
@@ -74,7 +93,7 @@ else
                 @if (expandedDungeonIds.Contains(d.Id))
     {
                     <tr class="table-secondary dungeon-detail-row">
-            <td colspan="7">
+            <td colspan="8">
                         <td class="location-name">@LocalizationExtensions.DescriptionForCurrentCulture(d)</td>
                 @if (d.Stages == null || d.Stages.Count == 0)
                 {
@@ -98,41 +117,47 @@ else
                                  class="accordion-collapse collapse show"
                                  aria-labelledby="heading-@d.Id">
                                 <div class="accordion-body">
-                                    <table class="table table-sm table-dark mb-0">
+                                    <table class="table table-sm table-dark mb-0 table-stages">
                                         <thead>
                                             <tr>
-                                                <th>#</th>
-                                                <th>Stage type</th>
-                                                <th>Monster</th>
-                                                <th>Level</th>
-                                                <th>Element</th>
-                                                <th>HP</th>
-                                                <th>Attack</th>
-                                                                <th>Defense</th>
-                                                                <th>Speed</th>
-                                                                <th>CritChance</th>
-                                                                <th>CritMultiplier</th>
-                                                                <th>ElementalDamageBonus</th>
-                                                                <th>ElementalResistance</th>
+            <th class="num">#</th>
+            <th class="stage-type">Stage type</th>
+            <th class="wrap">Monster</th>
+            <th class="num">Level</th>
+            <th class="wrap">Element</th>
+            <th class="num">HP</th>
+            <th class="num">Attack</th>
+            <th class="num">Defense</th>
+            <th class="num">Speed</th>
+            <th class="num">CritChance</th>
+            <th class="num">CritMultiplier</th>
+            <th class="num">ElementalDamageBonus</th>
+            <th class="num">ElementalResistance</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                         @foreach (var s in d.Stages.OrderBy(s => s.StageIndex))
                                         {
                                             <tr>
-                                                <td>@s.StageIndex</td>
-                                                <td>@s.StageType</td>
-                                                <td title="@LocalizationExtensions.NameForCurrentCulture(s.MonsterTemplate)" class="location-name">@LocalizationExtensions.NameForCurrentCulture(s.MonsterTemplate)</td>                   
-                                                <td>@s.MonsterTemplate?.BaseLevel</td>
-                                                <td>@s.MonsterTemplate?.Element</td>
-                                                <td>@s.MonsterTemplate?.BaseStats?.MaxHp</td>
-                                                <td>@s.MonsterTemplate?.BaseStats?.Attack</td>
-                                                                    <td>@s.MonsterTemplate?.BaseStats?.Defense</td>
-                                                                    <td>@s.MonsterTemplate?.BaseStats?.Speed</td>
-                                                                    <td>@s.MonsterTemplate?.BaseStats?.CritChance</td>
-                                                                    <td>@s.MonsterTemplate?.BaseStats?.CritMultiplier</td>
-                                                                    <td>@s.MonsterTemplate?.BaseStats?.ElementalDamageBonus</td>
-                                                                    <td>@s.MonsterTemplate?.BaseStats?.ElementalResistance</td>
+                                               <td class="num">@s.StageIndex</td>
+                                                <td class="stage-type">@s.StageType</td>
+
+                                                <td class="wrap" 
+                                                    title="@LocalizationExtensions.NameForCurrentCulture(s.MonsterTemplate)">
+                                                    @LocalizationExtensions.NameForCurrentCulture(s.MonsterTemplate)
+                                                </td>
+
+                                                <td class="num">@s.MonsterTemplate?.BaseLevel</td>
+                                                <td class="wrap">@s.MonsterTemplate?.Element</td>
+
+                                                <td class="num">@s.MonsterTemplate?.BaseStats?.MaxHp</td>
+                                                <td class="num">@s.MonsterTemplate?.BaseStats?.Attack</td>
+                                                <td class="num">@s.MonsterTemplate?.BaseStats?.Defense</td>
+                                                <td class="num">@s.MonsterTemplate?.BaseStats?.Speed</td>
+                                                <td class="num">@s.MonsterTemplate?.BaseStats?.CritChance</td>
+                                                <td class="num">@s.MonsterTemplate?.BaseStats?.CritMultiplier</td>
+                                                <td class="num">@s.MonsterTemplate?.BaseStats?.ElementalDamageBonus</td>
+                                                <td class="num">@s.MonsterTemplate?.BaseStats?.ElementalResistance</td>
                                             </tr>
                                         }
                                         </tbody>
@@ -201,81 +226,110 @@ else
 
     private async Task LoadDungeons()
     {
-        isLoading = true;
-        dungeons = await Db.Dungeons.Include(x=>x.Stages).ThenInclude(x=>x.MonsterTemplate)
+      isLoading = true;
+
+    try
+    {
+        dungeons = await Db.Dungeons
+            .Include(x => x.Stages).ThenInclude(x => x.MonsterTemplate)
             .OrderBy(d => d.MinLevel)
             .ThenBy(d => d.Code)
             .ToListAsync();
+
+        await EnsureLocalizationAsync();
+
+        Toasts.Success("Dungeons loaded", $"Loaded {dungeons.Count} dungeons.");
+    }
+    catch (Exception ex)
+    {
+        Toasts.Error("Failed to load dungeons", ex.Message);
+    }
+    finally
+    {
         isLoading = false;
         StateHasChanged();
-        await EnsureLocalizationAsync();
+    }
     }
 
 private async Task EnsureLocalizationAsync()
 {
-    foreach (var dungeon in dungeons)
+    try
     {
-        bool needsDungeonLocalization =
-            string.IsNullOrWhiteSpace(dungeon.NameCs) ||
-            string.IsNullOrWhiteSpace(dungeon.NameDe);
+        bool anyChanges = false;
 
-        if (needsDungeonLocalization)
+        foreach (var dungeon in dungeons)
         {
-            var loc = await DungeonAi.GenerateLocalizedNamesAsync(
-                entityKind: "dungeon",
-                 dungeon.NameEn,
-                dungeon.DescriptionEn
-            );
+            bool needsDungeonLocalization =
+                string.IsNullOrWhiteSpace(dungeon.NameCs) ||
+                string.IsNullOrWhiteSpace(dungeon.NameDe);
 
-            if (loc != null)
+            if (needsDungeonLocalization)
             {
-                dungeon.NameEn = loc.NameEn;
-                dungeon.NameCs = loc.NameCs;
-                dungeon.NameDe = loc.NameDe;
-
-                dungeon.DescriptionEn = loc.DescriptionEn;
-                dungeon.DescriptionCs = loc.DescriptionCs;
-                dungeon.DescriptionDe = loc.DescriptionDe;
-
-                Db.Dungeons.Update(dungeon);
-            }
-        }
-
-        // 🔥 Projít monstra
-        foreach (var stage in dungeon.Stages)
-        {
-            var m = stage.MonsterTemplate;
-            if (m == null) continue;
-
-            bool needsMonsterLocalization =
-                string.IsNullOrWhiteSpace(m.NameCs) ||
-                string.IsNullOrWhiteSpace(m.NameDe);
-
-            if (needsMonsterLocalization)
-            {
-                var locM = await DungeonAi.GenerateLocalizedNamesAsync(
-                    entityKind: "monster",
-                     m.NameEn,
-                     m.DescriptionEn
+                var loc = await DungeonAi.GenerateLocalizedNamesAsync(
+                    entityKind: "dungeon",
+                    nameEn: dungeon.NameEn,
+                    descriptionEn: dungeon.DescriptionEn
                 );
 
-                if (locM != null)
+                if (loc != null)
                 {
-                    m.NameEn = locM.NameEn;
-                    m.NameCs = locM.NameCs;
-                    m.NameDe = locM.NameDe;
+                    dungeon.NameEn        = loc.NameEn;
+                    dungeon.NameCs        = loc.NameCs;
+                    dungeon.NameDe        = loc.NameDe;
+                    dungeon.DescriptionEn = loc.DescriptionEn;
+                    dungeon.DescriptionCs = loc.DescriptionCs;
+                    dungeon.DescriptionDe = loc.DescriptionDe;
 
-                    m.DescriptionEn = locM.DescriptionEn;
-                    m.DescriptionCs = locM.DescriptionCs;
-                    m.DescriptionDe = locM.DescriptionDe;
+                    Db.Dungeons.Update(dungeon);
+                    anyChanges = true;
+                }
+            }
 
-                    Db.MonsterTemplates.Update(m);
+            // monstra v dungeon stages
+            foreach (var stage in dungeon.Stages)
+            {
+                var m = stage.MonsterTemplate;
+                if (m == null) continue;
+
+                bool needsMonsterLocalization =
+                    string.IsNullOrWhiteSpace(m.NameCs) ||
+                    string.IsNullOrWhiteSpace(m.NameDe);
+
+                if (needsMonsterLocalization)
+                {
+                    var locM = await DungeonAi.GenerateLocalizedNamesAsync(
+                        entityKind: "monster",
+                        nameEn: m.NameEn,
+                        descriptionEn: m.DescriptionEn
+                    );
+
+                    if (locM != null)
+                    {
+                        m.NameEn        = locM.NameEn;
+                        m.NameCs        = locM.NameCs;
+                        m.NameDe        = locM.NameDe;
+                        m.DescriptionEn = locM.DescriptionEn;
+                        m.DescriptionCs = locM.DescriptionCs;
+                        m.DescriptionDe = locM.DescriptionDe;
+
+                        Db.MonsterTemplates.Update(m);
+                        anyChanges = true;
+                    }
                 }
             }
         }
-    }
 
-    await Db.SaveChangesAsync();
+        if (anyChanges)
+        {
+            await Db.SaveChangesAsync();
+            Toasts.Success("Localization updated", "Some dungeon names/monsters were translated.");
+        }
+    }
+    catch (Exception ex)
+    {
+        // nepadat kvůli lokalizaci
+        Toasts.Error("Dungeon localization failed", ex.Message);
+    }
 }
     private void NewDungeon()
     {
@@ -301,8 +355,10 @@ private async Task EnsureLocalizationAsync()
     private async Task Save()
     {
         if (editModel is null)
-            return;
+        return;
 
+    try
+    {
         if (editModel.Id == Guid.Empty)
         {
             editModel.Id = Guid.NewGuid();
@@ -311,10 +367,14 @@ private async Task EnsureLocalizationAsync()
         else
         {
             var existing = await Db.Dungeons.FirstOrDefaultAsync(x => x.Id == editModel.Id);
-            if (existing is null) return;
+            if (existing is null)
+            {
+                Toasts.Error("Save failed", "Dungeon not found.");
+                return;
+            }
 
-            existing.Code = editModel.Code;
-            existing.NameEn = editModel.NameEn;
+            existing.Code     = editModel.Code;
+            existing.NameEn   = editModel.NameEn;
             existing.MinLevel = editModel.MinLevel;
             existing.MaxLevel = editModel.MaxLevel;
         }
@@ -322,6 +382,13 @@ private async Task EnsureLocalizationAsync()
         await Db.SaveChangesAsync();
         editModel = null;
         await LoadDungeons();
+
+        Toasts.Success("Dungeon saved", "The dungeon has been saved successfully.");
+    }
+    catch (Exception ex)
+    {
+        Toasts.Error("Failed to save dungeon", ex.Message);
+    }
     }
     private HashSet<Guid> expandedDungeonIds = new();
 
@@ -334,12 +401,25 @@ private async Task EnsureLocalizationAsync()
     }
     private async Task DeleteDungeon(Guid id)
     {
+       try
+    {
         var d = await Db.Dungeons.FirstOrDefaultAsync(x => x.Id == id);
-        if (d is null) return;
+        if (d is null)
+        {
+            Toasts.Error("Delete failed", "Dungeon not found.");
+            return;
+        }
 
         Db.Dungeons.Remove(d);
         await Db.SaveChangesAsync();
         await LoadDungeons();
+
+        Toasts.Success("Dungeon deleted", d.NameEn);
+    }
+    catch (Exception ex)
+    {
+        Toasts.Error("Failed to delete dungeon", ex.Message);
+    }
     }
 
     private void CancelEdit()
@@ -350,101 +430,93 @@ private async Task EnsureLocalizationAsync()
     {
         isLoading = true;
 
-        try
-        {
-            string dungeonName;
-            var newDungeon = new Dungeon();
-            // 1) Najdi poslední dungeon
-            var lastDungeon  = await Db.Dungeons
-                    .OrderByDescending(d => d.UnlockOrder)
-                    .FirstOrDefaultAsync();
-            if(lastDungeon is null){
-                newDungeon = new Dungeon();
-                newDungeon.MinLevel = 1;
-                newDungeon.MaxLevel = 5;
-            } else
-            {
-                newDungeon.MinLevel = lastDungeon.MinLevel;
-                newDungeon.MaxLevel = lastDungeon.MaxLevel;
-            }
-            if (!current)
-        {
-            // vezmeme poslední dungeon v DB
-            lastDungeon = await Db.Dungeons
-                .OrderByDescending(d => d.UnlockOrder)
-                .FirstOrDefaultAsync();
+    try
+    {
+        string dungeonName;
+        var newDungeon = new Dungeon();
 
+        // 1) poslední dungeon
+        var lastDungeon = await Db.Dungeons
+            .OrderByDescending(d => d.UnlockOrder)
+            .FirstOrDefaultAsync();
+
+        if (lastDungeon is null)
+        {
+            newDungeon.MinLevel = 1;
+            newDungeon.MaxLevel = 5;
+        }
+        else
+        {
+            newDungeon.MinLevel = lastDungeon.MinLevel;
+            newDungeon.MaxLevel = lastDungeon.MaxLevel;
+        }
+
+        if (!current)
+        {
             dungeonName = lastDungeon?.NameEn ?? "Bausia";
         }
         else
         {
-            // ruční název z inputu
             dungeonName = manualDungeonName.Trim();
-                newDungeon.NameEn = dungeonName;
+            newDungeon.NameEn = dungeonName;
         }
 
-        // volání AI generátoru
         var options = new DungeonGenerationOptions
         {
             Name = dungeonName
         };
-        // 2) Nech AI vygenerovat celý dungeon včetně monster/stages
-            var generated = await DungeonAi.GenerateNextDungeonAsync(lastDungeon, newDungeon, current);
+
+        var generated = await DungeonAi.GenerateNextDungeonAsync(lastDungeon, newDungeon, current);
         if (generated is null)
         {
-            // AI selhalo → nic nevytvářej
-            isLoading = false;
+            Toasts.Error("AI generation failed", "No dungeon was generated.");
             return;
         }
 
-        // 3) Spočítej unlock order
         int nextUnlockOrder = lastDungeon is null
             ? 1
             : lastDungeon.UnlockOrder + 1;
 
-        // 4) Vytvoř Dungeon entitu
         var dungeon = new Dungeon
         {
-            Id = Guid.NewGuid(),
-            Code = $"DUN_{generated.NameEn.ToUpper()}",
-            NameEn = generated.NameEn,
-                DescriptionEn = generated.DescriptionEn,
-                Element = Enum.TryParse<ElementType>(generated.Element.ToString(), true, out var el)
+            Id           = Guid.NewGuid(),
+            Code         = $"DUN_{generated.NameEn.ToUpper()}",
+            NameEn       = generated.NameEn,
+            DescriptionEn = generated.DescriptionEn,
+            Element      = Enum.TryParse<ElementType>(generated.Element.ToString(), true, out var el)
                             ? el
-                            : ElementType.None, // fallback
-            MinLevel = generated.MinLevel,
-            MaxLevel = generated.MaxLevel,
-            UnlockOrder = nextUnlockOrder
+                            : ElementType.None,
+            MinLevel     = generated.MinLevel,
+            MaxLevel     = generated.MaxLevel,
+            UnlockOrder  = nextUnlockOrder
         };
 
         Db.Dungeons.Add(dungeon);
 
-        // 5) Z každého stage vytvoř MonsterTemplate + DungeonStage
         foreach (var st in generated.Stages.OrderBy(s => s.StageNumber))
         {
             var m = st.Monster;
 
-            // MonsterTemplate – přizpůsob podle své entity
             var monster = new MonsterTemplate
             {
-                Id = Guid.NewGuid(),
-                Code = $"{dungeon.Code}_{m.NameEn.ToUpper()}",
-                NameEn = m.NameEn,
+                Id          = Guid.NewGuid(),
+                Code        = $"{dungeon.Code}_{m.NameEn.ToUpper()}",
+                NameEn      = m.NameEn,
                 DescriptionEn = m.DescriptionEn,
-                Element = Enum.TryParse<ElementType>(m.Element.ToString(), true, out var el2)
-                    ? el2
-                    : ElementType.Void, // fallback
-                BaseLevel = m.BaseLevel,
-                BaseStats = new StatBlock
+                Element     = Enum.TryParse<ElementType>(m.Element.ToString(), true, out var el2)
+                                ? el2
+                                : ElementType.Void,
+                BaseLevel   = m.BaseLevel,
+                BaseStats   = new StatBlock
                 {
-                    MaxHp = m.Stats.MaxHp,
-                        Attack = m.Stats.Attack,
-                        Defense = m.Stats.Defense,
-                        Speed = m.Stats.Speed,
-                        CritChance = m.Stats.CritChance,
-                        CritMultiplier = m.Stats.CritMultiplier,
-                        ElementalDamageBonus = m.Stats.ElementalDamageBonus,
-                        ElementalResistance = m.Stats.ElementalResistance
+                    MaxHp                = m.Stats.MaxHp,
+                    Attack               = m.Stats.Attack,
+                    Defense              = m.Stats.Defense,
+                    Speed                = m.Stats.Speed,
+                    CritChance           = m.Stats.CritChance,
+                    CritMultiplier       = m.Stats.CritMultiplier,
+                    ElementalDamageBonus = m.Stats.ElementalDamageBonus,
+                    ElementalResistance  = m.Stats.ElementalResistance
                 }
             };
 
@@ -452,17 +524,16 @@ private async Task EnsureLocalizationAsync()
 
             var stage = new DungeonStage
             {
-                Id = Guid.NewGuid(),
-                Code = $"{dungeon.Code}_{st.StageNumber}",
-                DungeonId = dungeon.Id,
-                StageIndex = st.StageNumber,
-                
-                StageType = Enum.TryParse<DungeonStageType>(
-                    st.StageType.ToString(),
-                    ignoreCase: true,
-                    out var stType)
-                    ? stType
-                    : DungeonStageType.DS1_Feeble, // fallback
+                Id               = Guid.NewGuid(),
+                Code             = $"{dungeon.Code}_{st.StageNumber}",
+                DungeonId        = dungeon.Id,
+                StageIndex       = st.StageNumber,
+                StageType        = Enum.TryParse<DungeonStageType>(
+                                        st.StageType.ToString(),
+                                        ignoreCase: true,
+                                        out var stType)
+                                        ? stType
+                                        : DungeonStageType.DS1_Feeble,
                 MonsterTemplateId = monster.Id
             };
 
@@ -471,6 +542,12 @@ private async Task EnsureLocalizationAsync()
 
         await Db.SaveChangesAsync();
         await LoadDungeons();
+
+        Toasts.Success("Dungeon created", dungeon.NameEn);
+    }
+    catch (Exception ex)
+    {
+        Toasts.Error("Failed to generate dungeon", ex.Message);
     }
     finally
     {
@@ -487,4 +564,44 @@ private async Task EnsureLocalizationAsync()
       // jednoduchý fallback – když AI hodí kravinu
       return ElementType.Void; // nebo nějaký tvůj "Unknown"
   }
+  private ImagePreviewer? imagePreviewer;
+  private void ShowImage(string? url)
+{
+    if (!string.IsNullOrWhiteSpace(url))
+        imagePreviewer?.Open(url);
+}
+private async Task GenerateDungeonImage(Dungeon d)
+{
+    isLoading = true;
+    StateHasChanged();
+
+    try
+    {
+        var path = await ImageAi.GenerateDungeonImageAsync(d);
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            Toasts.Error("Image generation failed", "AI did not return any image.");
+            return;
+        }
+
+        d.ImagePath = path;
+        Db.Dungeons.Update(d);
+
+        await Db.SaveChangesAsync();
+        await LoadDungeons();
+
+        Toasts.Success("Dungeon image generated", d.NameEn);
+    }
+    catch (Exception ex)
+    {
+        Toasts.Error("Failed to generate dungeon image", ex.Message);
+        Console.WriteLine("Image generation failed: " + ex);
+    }
+    finally
+    {
+        isLoading = false;
+        StateHasChanged();
+    }
+}
 }

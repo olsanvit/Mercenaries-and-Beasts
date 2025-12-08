@@ -1,0 +1,29 @@
+@inject ErrorService Errors
+
+<div class="alert-stack position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+    @foreach (var alert in Errors.Alerts)
+    {
+        <div class="alert @GetCss(alert.Level) alert-dismissible fade show mb-2" role="alert">
+            @alert.Message
+            <button type="button" class="btn-close" @onclick="@(() => Dismiss(alert.Id))"></button>
+        </div>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Errors.OnAlertsChanged += StateHasChanged;
+    }
+
+    private void Dismiss(Guid id) => Errors.Dismiss(id);
+
+    private static string GetCss(AlertLevel level) => level switch
+    {
+        AlertLevel.Info    => "alert-info",
+        AlertLevel.Success => "alert-success",
+        AlertLevel.Warning => "alert-warning",
+        AlertLevel.Error   => "alert-danger",
+        _                  => "alert-secondary"
+    };
+}

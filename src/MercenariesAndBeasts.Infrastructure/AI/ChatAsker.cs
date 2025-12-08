@@ -1,5 +1,6 @@
 using OpenAI;
 using OpenAI.Chat;
+using OpenAI.Images;
 using System;
 using System.ClientModel;
 using System.Collections.Generic;
@@ -40,6 +41,7 @@ namespace MercenariesAndBeasts.Infrastructure.AI
         private readonly int _maxParallelism;
         private readonly int _maxRetries;
         private readonly int _baseDelayMs;
+        private readonly ImageClient _imageClient;
 
         public ChatGptAsker(
             string apiKey,
@@ -54,6 +56,9 @@ namespace MercenariesAndBeasts.Infrastructure.AI
             var model = isSimple ? ModelGpt4 : ModelGpt5;
 
             _client = new ChatClient(model: model, apiKey: apiKey);
+            _imageClient = new ImageClient(
+                    model: "gpt-image-1",   // nebo "dall-e-3" pokud chceš
+                    apiKey: apiKey);
             _maxParallelism = Math.Max(1, maxParallelism);
             _throttle = new SemaphoreSlim(_maxParallelism);
             _maxRetries = Math.Max(0, maxRetries);
@@ -176,7 +181,31 @@ namespace MercenariesAndBeasts.Infrastructure.AI
                 AllowTrailingCommas = true
             };
 
+           
             return JsonSerializer.Deserialize<T>(json, options);
         }
+        public async Task<byte[]?> GenerateImageBytesAsync(
+    string prompt,
+    CancellationToken ct = default)
+            {
+                var options = new ImageGenerationOptions
+                {
+                    //Quality        = GeneratedImageQuality.High,
+                    //Size           = GeneratedImageSize.W1024xH1024
+                };
+
+                try
+                {
+                    GeneratedImage image = await _imageClient.GenerateImageAsync(prompt, options, ct);
+                    var bytes = image.ImageBytes;
+                    return bytes?.ToArray();
+                }
+                catch (Exception ex)
+                {
+                    // tady můžeš případně logovat – ChatGptAsker nemá logger, takže jen:
+                    Console.WriteLine($"Image generation failed: {ex.Message}");
+                    return null;
+                }
+            }
     }
 }

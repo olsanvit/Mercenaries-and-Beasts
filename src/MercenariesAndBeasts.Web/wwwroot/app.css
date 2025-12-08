@@ -262,26 +262,60 @@ table.table tbody tr:hover {
 .content {
     min-width: 0;
 }
-.table {
-    width: 100%;
-    table-layout: fixed; /* sloupce se neroztahují nekonečně */
-}
-
-.table th,
-.table td {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap; /* nebo normal pokud chceš zalamovat */
-}
-.card-like,
-.table,
-.content {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
 .dungeon-name,
 .location-name {
     width: 20%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Obecný wrapper, aby se dalo scrollovat do strany */
+.dungeons-table-wrap,
+.stages-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Hlavní tabulka stages */
+.table-stages {
+    width: 100%;
+    table-layout: auto; /* šířka podle obsahu */
+    border-collapse: collapse;
+}
+
+/* Základ pro buňky */
+.table-stages th,
+.table-stages td {
+    padding: 0.25rem 0.4rem;
+    vertical-align: middle;
+}
+
+/* Textové sloupce – můžou se zalamovat na víc řádků */
+.table-stages .wrap {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 220px; /* klidně uprav */
+}
+
+/* Stage type – taky text, klidně na 2 řádky */
+.table-stages .stage-type {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 180px;
+}
+
+/* Číselné sloupce – úzké a nezalamují se */
+.table-stages .num {
+    white-space: nowrap;
+    width: 1%;
+    text-align: right;
+}
+
+/* Název dungeonu/lokace v hlavní tabulce */
+.location-name,
+.dungeon-name {
+    min-width: 220px;
+    max-width: 380px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -388,4 +422,184 @@ table.table tbody tr:hover {
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
+}
+.table-stages {
+    table-layout: auto; /* sloupce se přizpůsobí obsahu */
+}
+
+.table-stages th,
+.table-stages td {
+    white-space: nowrap; /* malé sloupce se nezalamují */
+}
+
+.table-stages .wide-cell {
+    white-space: normal;     /* dovolím zalomení */
+    max-width: 250px;        /* maximum */
+}
+
+.table-stages .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
+    display: inline-block;
+    vertical-align: middle;
+}
+/* Tabulka dungeon stages */
+.table-stages {
+    table-layout: auto;
+    width: 100%;
+}
+
+/* Textové sloupce — mohou se zalamovat */
+.table-stages .wrap {
+    white-space: normal !important;
+    word-break: break-word;
+    max-width: 200px; /* můžeš upravit podle sebe */
+}
+
+/* Číselné sloupce – úzké, nezalamují se */
+.table-stages .num {
+    white-space: nowrap;
+    width: 1%; /* co nejmenší */
+    text-align: right;
+}
+
+/* Stage type — může být o něco širší */
+.table-stages .stage-type {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 160px;
+}
+
+/* Obecná tabulka pro sekce stages */
+.table-stages {
+    table-layout: auto;
+    width: 100%;
+}
+
+/* Text – může se zalamovat */
+.table-stages .wrap {
+    white-space: normal !important;
+    word-break: break-word;
+    max-width: 200px; /* úprava dle potřeby */
+}
+
+/* Číselné sloupce – úzké */
+.table-stages .num {
+    white-space: nowrap;
+    width: 1%; 
+    text-align: right;
+}
+
+/* Stage type — také se může zalamovat */
+.table-stages .stage-type {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 160px;
+}
+
+/* Zakázat useknutí textu, pokud jsi používal .ellipsis */
+.table-stages .ellipsis {
+    white-space: normal !important;
+    text-overflow: unset !important;
+}
+.toast-container-custom {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 5000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast-item {
+    min-width: 250px;
+    max-width: 350px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    animation: fadeIn 0.2s ease-out;
+    font-size: 14px;
+}
+
+.toast-success { background: #28a745; }
+.toast-error   { background: #dc3545; }
+.toast-info    { background: #17a2b8; }
+.toast-warning { background: #ffc107; color: black; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.toast-container-custom {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 5000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Bootstrap-like toast panel */
+.toast-item {
+    display: block;
+    width: 320px;
+    background: rgba(22, 27, 35, 0.92);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+    animation: toast-fadein 0.25s ease-out forwards;
+    color: white;
+}
+
+/* Header – Bootstrap style */
+.toast-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.toast-body {
+    padding: 12px;
+}
+
+/* Close (X) button styling */
+.btn-close {
+    filter: invert(0.9);
+    opacity: 0.7;
+    cursor: pointer;
+}
+.btn-close:hover {
+    opacity: 1.0;
+}
+
+/* Varianty */
+.toast-success  { border-left: 4px solid #28a745; }
+.toast-error    { border-left: 4px solid #dc3545; }
+.toast-info     { border-left: 4px solid #17a2b8; }
+.toast-warning  { border-left: 4px solid #ffc107; }
+
+/* Fade-in */
+@keyframes toast-fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade-out – na auto-dismiss */
+.toast-fadeout {
+    animation: toast-fadeout 0.25s ease-in forwards;
+}
+
+@keyframes toast-fadeout {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(8px); }
 }

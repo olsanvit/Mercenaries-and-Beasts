@@ -1,0 +1,57 @@
+@inject ToastService Toasts
+
+@rendermode InteractiveServer
+
+@if (Toasts.Toasts.Any())
+{
+    <div class="toast-container-custom">
+        @foreach (var toast in Toasts.Toasts)
+        {
+            <div class="toast-item @GetLevelClass(toast.Level) @(toast.IsClosing ? "toast-fadeout" : "")">
+                <div class="toast-header">
+                    <strong class="me-auto">@toast.Title</strong>
+                    <small>@toast.CreatedUtc.ToLocalTime().ToShortTimeString()</small>
+                    <button type="button"
+                            class="btn-close ms-2"
+                            aria-label="Close"
+                            @onclick="() => Close(toast.Id)">
+                    </button>
+                </div>
+                <div class="toast-body">
+                    @toast.Message
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Toasts.OnToastsUpdated += HandleToastsUpdated;
+    }
+
+    private void HandleToastsUpdated()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Toasts.OnToastsUpdated -= HandleToastsUpdated;
+    }
+
+    private void Close(Guid id)
+    {
+        Toasts.Close(id);
+    }
+
+    private static string GetLevelClass(ToastLevel level) => level switch
+    {
+        ToastLevel.Success => "toast-success",
+        ToastLevel.Error   => "toast-error",
+        ToastLevel.Info    => "toast-info",
+        ToastLevel.Warning => "toast-warning",
+        _ => string.Empty
+    };
+}

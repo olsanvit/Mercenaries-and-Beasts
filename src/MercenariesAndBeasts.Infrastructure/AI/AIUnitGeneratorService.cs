@@ -11,11 +11,16 @@ namespace MercenariesAndBeasts.Infrastructure.AI;
 public class AiUnitGeneratorService : IUnitAiGenerator
 {
     private string GameTheme =>
-    "a dark fantasy role-playing game with subtle arcane-tech elements. " +
-    "The tone is mysterious, atmospheric and slightly grim. " +
-    "Naming style: premium RPG, evocative, memorable and lore-friendly. " +
-    "Names should feel unique, not generic, easy to pronounce, without numbers or MMO-style tags. " +
-    "Avoid clichés like 'of Doom', 'of the Ancients', 'the Ultimate', 'Extreme', etc."; 
+    "A future-fantasy role-playing universe where mystical forces intertwine with advanced technology. " +
+    "Aesthetic: atmospheric, enigmatic, slightly grim, with echoes of ancient mysteries integrated into futuristic constructs. " +
+    "World tone: immersive, mysterious, premium RPG feeling. " +
+    "Technology appears as crystalline conduits, mystic energy cores, shimmering glyph-interfaces, and resonant constructs. " +
+    "Mystic energy feels ancient, cosmic, and intertwined with unknown dimensional principles. " +
+    "Naming style: unique, evocative, lore-friendly, and easy to pronounce; never generic. " +
+    "Names must NOT include numbers, hyphens, or MMO-style tags. " +
+    "Forbidden clichés: 'of Doom', 'of the Ancients', 'Ultimate', 'Extreme', 'Legendary', and similar patterns. " +
+    "Descriptions should be vivid, atmospheric, immersive, and consistent with the mystical future-fantasy tone. " +
+    "Output must respect linguistic accuracy and natural fluency in every target language.";
     /*private string GameTheme => 
         "a fantasy role-playing game with subtle futuristic and arcane-tech elements. " +
         "The world is rich in magic, advanced technology, and diverse landscapes, inhabited by various monsters and mercenaries." +
@@ -130,15 +135,42 @@ Rules:
 - ""stageType"" must be one of: {stageTypeEnumValues}
 - ""element"" must be one of: {elementEnumValues}
 - The 'stages' array MUST contain exactly {stageCount} items.
+- The ""Code"" MUST be generated directly from English translated ""NameEn"":
+    - Start with ""LOC_""
+    - Convert NameEn to UPPERCASE
+    - Remove all characters except A–Z, 0–9 and spaces
+    - Replace spaces with ""_""
+    - No randomness, no suffix hashes, no diacritics.
 ";
 
-    var userPrompt = $@"
+   var userPrompt = $@"
 {currentOrNext}
 
 Dungeon naming rules:
-- The dungeon ""NameEn"" must be short (2–4 words), vivid and unique.
-- It should hint at the place's identity or history, not just its element.
-- Avoid generic names like ""Fire Dungeon"", ""Dark Cave"", ""Poison Lair"", ""Ancient Dungeon"".
+- The dungeon ""NameEn"" must be short (2–4 words), vivid, unique and clearly future-fantasy themed.
+- It must strongly express the dungeon's identity, history or function, not just its element.
+- The new dungeon name must feel clearly different in tone and wording from the previous dungeon ""{previousName}"".
+- Avoid generic names like ""Fire Dungeon"", ""Dark Cave"", ""Poison Lair"", ""Ancient Dungeon"", ""Mystic Temple"", ""Forgotten Ruins"".
+
+Dungeon–monster cohesion rules:
+- All monsters must clearly belong in THIS specific dungeon.
+- Their visual concept, behaviour and role should feel shaped by the dungeon's environment, purpose and element(s).
+- At least some monster names should echo key ideas from the dungeon name or description
+  (materials, shapes, energies, relics, functions, myths).
+- The MiniBoss and Boss must be the strongest direct expression of the dungeon's core theme.
+
+Monster uniqueness rules:
+- Every monster in this dungeon MUST have a unique ""NameEn"" (no duplicates, no tiny variations like ""Guard"" / ""Guardian"").
+- Assume many other dungeons exist in the game: avoid overly generic or overused fantasy names.
+- Each monster should feel like a specific, memorable creature that could have its own bestiary entry.
+
+Monster naming rules:
+- Each monster name must fit a high-quality future-fantasy RPG bestiary: atmospheric, flavorful and easy to pronounce.
+- Avoid plain labels like ""Fire Beast"", ""Stone Golem"", ""Dark Archer"", ""Poison Spider"", ""Mutant Soldier"".
+- Names may include elemental or mystical flavoring only when it makes sense
+  (e.g. ""Cindercoil Warden"", ""Glassborn Pulse-Seer""), but this is optional.
+- MiniBoss and Boss monsters should have more epic, memorable names than regular monsters, but still avoid clichés
+  like ""of Doom"", ""the Ultimate"", ""the Eternal"", ""of the Ancients"".
 
 Constraints:
 - recommendedMinLevel = {nextMin}
@@ -147,19 +179,21 @@ Constraints:
 - stageIndex must go from 1 to {stageCount} (no duplicates, no gaps).
 - Each stageType value from the allowed enum list must be used exactly once across all stages
   (no stageType is repeated, no stageType is missing).
-- Stats (attack, defense, health, etc.) should scale with baseLevel so that later stages feel harder.
+
+Level scaling rules:
+- Each monster has a field ""BaseLevel"".
+- Stage 1 monster BaseLevel MUST be exactly MinLevel ({nextMin}).
+- Last stage (stageIndex = {stageCount}) monster BaseLevel MUST be exactly MaxLevel ({nextMax}).
+- For every stageIndex i < j, the monster at stage j MUST NOT have lower BaseLevel than the monster at stage i.
+- All BaseLevel values MUST be between MinLevel and MaxLevel (inclusive).
+- Stats (MaxHp, Attack, Defense, Speed, CritChance, CritMultiplier, ElementalDamageBonus, ElementalResistance)
+  MUST scale with BaseLevel so that later stages feel clearly harder.
 
 Element rules:
 - Each monster's ""element"" must be one of: {elementEnumValues}.
 - Across the WHOLE dungeon (all stages), you may use at most TWO distinct elements in total.
 - First, implicitly choose up to two elements that fit the dungeon theme, then use only those elements for all monsters and the boss.
 - Do NOT use more than two different element values in the entire dungeon.
-
-Monster naming rules:
-- Each monster must have a distinct, flavorful name that would fit a high-quality RPG bestiary.
-- Avoid plain labels like ""Fire Beast"", ""Stone Golem"", ""Dark Archer"", ""Poison Spider"".
-- Names may include elemental flavoring only when it makes sense (e.g. ""Cinderfang Hound""), but it is optional.
-- MiniBoss and Boss monsters should have more epic, memorable names than regular monsters.
 
 Return ONLY JSON object that matches the described shape. No markdown, no comments, no extra text.
 ";
@@ -266,8 +300,7 @@ Generate the NEXT location in the progression.";
     }
 
     var systemPrompt = $@"
-You are an assistant generating procedural expedition locations for {GameTheme}
-with subtle futuristic/arcane-tech elements.
+You are an assistant generating procedural expedition locations for {GameTheme}.
 
 You MUST ALWAYS return ONLY valid JSON.
 The JSON MUST be deserializable into this C#-like shape:
@@ -278,7 +311,7 @@ Rules:
 - ""StageType"" must be one of: {stageTypeEnumValues}
 - ""Element"" must be one of: {elementEnumValues}
 - The 'Stages' array MUST contain exactly {stageCount} items.
-- The ""Code"" MUST be generated directly from ""NameEn"":
+- The ""Code"" MUST be generated directly from English translated ""NameEn"":
     - Start with ""LOC_""
     - Convert NameEn to UPPERCASE
     - Remove all characters except A–Z, 0–9 and spaces
@@ -293,9 +326,29 @@ Rules:
 {currentOrNext}
 
 Location naming rules:
-- ""NameEn"" must be 2–4 words, atmospheric and memorable.
-- It should evoke a place you would want to explore in a fantasy RPG (e.g. ""Ashen Lantern Fields"", ""Glimmering Rift"", ""Shattered Grove"").
-- Avoid ultra-generic names like ""Forest Camp"", ""Old Village"", ""Mountain Pass"".
+- ""NameEn"" must be 2–4 words, atmospheric, memorable and clearly future-fantasy themed.
+- It should evoke a place you would want to explore in a premium future-fantasy RPG
+  (e.g. ""Ashen Lantern Fields"", ""Glimmering Rift"", ""Shattered Grove"", ""Neon Ember Warrens"").
+- The new location name must feel clearly different in tone and wording from the previous location ""{previousName}"".
+- Avoid ultra-generic names like ""Forest Camp"", ""Old Village"", ""Mountain Pass"", ""Ancient Ruins"", ""Mystic Valley"".
+
+Location–mercenary cohesion rules:
+- All mercenaries must clearly belong in THIS specific location.
+- Their gear, behavior and backstory should feel shaped by the location's terrain, hazards, culture and element(s).
+- At least some mercenary names should echo key ideas from the location name or description
+  (materials, energies, factions, relics, rituals, technology).
+- The final stage enemy (boss / leader) must be the strongest, most iconic expression of the location's core theme.
+
+Mercenary uniqueness rules:
+- Every mercenary in this location MUST have a unique ""NameEn"" (no duplicates, no tiny variants like ""Raider"" / ""Raider Captain"").
+- Assume many other locations exist in the game: avoid generic mercenary names that could fit anywhere.
+- Each mercenary should feel like a distinct, memorable character or notable foe.
+
+Mercenary naming rules:
+- Mercenary names must sound like individual characters or notable foes, not generic mobs.
+- Avoid plain labels like ""Fire Soldier"", ""Water Archer"", ""Poison Bandit"", ""Dark Mage"", ""Cyber Thug"".
+- Prefer evocative names like ""Ashbreaker Scout"", ""Gloomsworn Cutthroat"", ""Verdant Pike-Leader"", ""Lumenwire Saboteur"", etc.
+- Boss-type mercenaries can have slightly grander titles, but still without clichés like ""of Doom"", ""the Eternal"", ""of the Ancients"".
 
 Constraints:
 - MinLevel = {nextMin}
@@ -306,21 +359,23 @@ Constraints:
   (no StageType is repeated, no StageType is missing).
 - Enemy stats (attack, defense, health, etc.) should scale with BaseLevel so that later stages feel harder.
 
+Level scaling rules:
+- Each mercenary (enemy) has a field ""BaseLevel"".
+- Stage 1 mercenary BaseLevel MUST be exactly MinLevel ({nextMin}).
+- Last stage (StageNumber = {stageCount}) mercenary BaseLevel MUST be exactly MaxLevel ({nextMax}).
+- For every StageNumber i < j, the mercenary at stage j MUST NOT have lower BaseLevel than the one at stage i.
+- All BaseLevel values MUST be between MinLevel and MaxLevel (inclusive).
+- Enemy stats (MaxHp, Attack, Defense, Speed, CritChance, CritMultiplier, ElementalDamageBonus, ElementalResistance)
+  MUST scale with BaseLevel so that later stages feel clearly harder.
+
 Element rules:
 - Each mercenary's ""element"" must be one of: {elementEnumValues}.
 - Across the WHOLE location (all stages), you may use at most TWO distinct elements in total.
 - First, implicitly choose up to two elements that fit the location theme, then use only those elements for all mercenaries and the boss.
 - Do NOT use more than two different element values in the entire location.
 
-Mercenary naming rules:
-- Mercenary names must sound like individual characters or notable foes, not generic mobs.
-- Avoid plain labels like ""Fire Soldier"", ""Water Archer"", ""Poison Bandit"", ""Dark Mage"".
-- Prefer evocative names like ""Ashbreaker Scout"", ""Gloomsworn Cutthroat"", ""Verdant Pike-Leader"", etc.
-- Boss-type mercenaries can have slightly grander titles, but still without clichés like ""of Doom"".
-
 Return ONLY a JSON object that matches the described shape. No markdown, no comments, no extra text.
 ";
-
     try
     {
         var result = await _asker.AskJsonAsync<ExpeditionGenerationResult>(systemPrompt, userPrompt, ct);
@@ -342,35 +397,49 @@ public async Task<LocalizedNameResult?> GenerateLocalizedNamesAsync(
     var jsonShape = LlmSchemaBuilder.BuildJsonShape<LocalizedNameResult>();
 
     var systemPrompt = $@"
-You are a localization assistant for {GameTheme}.
+You are a professional localization assistant for {GameTheme}.
+You translate game entity names and descriptions into Czech (cs) and German (de),
+following strict linguistic rules.
 
-You receive the BASE ENGLISH name and optional English description
-of a game entity (dungeon, location, monster, mercenary, etc.).
-Your job is to produce localized names and descriptions in Czech (cs)
-and German (de), keeping the style, tone and flavor.
-
-You MUST ALWAYS return ONLY valid JSON that can be deserialized into
-this C#-like structure:
+You ALWAYS output ONLY valid JSON that matches this C# structure:
 
 {jsonShape}
 
-General rules:
-- Keep NameEn and DescriptionEn in English. You MAY slightly polish them
-  (fix grammar, make them sound more premium), but preserve the meaning.
-- NameCs and DescriptionCs must be natural, fluent Czech with correct diacritics.
-- NameDe and DescriptionDe must be natural, fluent German.
-- Preserve the fantasy tone and the entity role (dungeon, location, monster, mercenary).
-- Do NOT invent completely new lore; just adapt style and nuance.
-- Avoid overly literal translations if they sound awkward; prioritize what
-  would sound cool in a high-quality RPG in that language.
+### LANGUAGE RULES (MANDATORY)
+
+1) NameEn and DescriptionEn:
+   - Remain fully in English.
+   - You MAY polish style slightly, but DO NOT change meaning.
+
+2) NameCs and DescriptionCs:
+   - MUST be valid Czech.
+   - MUST contain ONLY Czech vocabulary, grammar and diacritics.
+   - NO English, NO German words allowed.
+
+3) NameDe and DescriptionDe:
+   - MUST be valid German.
+   - MUST contain ONLY German vocabulary and grammar.
+   - NO English, NO Czech words allowed.
+
+4) Style:
+   - High-quality fantasy RPG tone.
+   - Keep fantasy flavor, do not add new story or lore.
+   - If literal translation sounds bad, prefer a natural localized equivalent.
+
+5) JSON output:
+   - Output ONLY the JSON object.
+   - No comments, no markdown, no explanations.
 ";
 
-    var userPrompt = $@"
+   var userPrompt = $@"
 EntityKind: {entityKind}
 
-Base English:
+Base English Input:
 - NameEn: {nameEn}
 - DescriptionEn: {(string.IsNullOrWhiteSpace(descriptionEn) ? "(none)" : descriptionEn)}
+
+Translate into Czech and German according to the language rules.
+Return ONLY JSON.
 ";
 
     try

@@ -1,0 +1,42 @@
+@using MercenariesAndBeasts.Web.Services
+@inject ErrorService ErrorService
+
+@if (_lastMessage is not null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>@_lastMessage</strong>
+        @if (!string.IsNullOrEmpty(_lastDetails))
+        {
+            <div class="small text-muted mt-1">@_lastDetails</div>
+        }
+        <button type="button" class="btn-close" @onclick="Clear"></button>
+    </div>
+}
+
+@code {
+    private string? _lastMessage;
+    private string? _lastDetails;
+
+    protected override void OnInitialized()
+    {
+        ErrorService.OnError += HandleError;
+    }
+
+    private void HandleError(string message, string? details)   // ⬅ signatura MUSÍ sedět
+    {
+        _lastMessage = message;
+        _lastDetails = details;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void Clear()
+    {
+        _lastMessage = null;
+        _lastDetails = null;
+    }
+
+    public void Dispose()
+    {
+        ErrorService.OnError -= HandleError;
+    }
+}

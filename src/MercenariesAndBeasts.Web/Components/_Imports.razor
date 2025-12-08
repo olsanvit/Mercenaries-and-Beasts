@@ -21,10 +21,16 @@
 @using MercenariesAndBeasts.Domain.AI
 @using MercenariesAndBeasts.Domain.Combat
 @using MercenariesAndBeasts.Domain.Enums
+@using MercenariesAndBeasts.Web.Components.Pages.Shared
+@using MercenariesAndBeasts.Web.Services
+
 @inject GameDbContext Db
 
 @inject IUnitAiGenerator DungeonAi
-
+@inject ToastService Toasts
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IStringLocalizer<SharedResources> S
+@inject IAiImageGenerator ImageAi
+@inject ErrorService Alerts
+

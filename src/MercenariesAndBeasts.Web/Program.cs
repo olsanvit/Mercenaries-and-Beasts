@@ -2,6 +2,7 @@ using MercenariesAndBeasts.Domain.Interface;
 using MercenariesAndBeasts.Infrastructure;
 using MercenariesAndBeasts.Infrastructure.AI;
 using MercenariesAndBeasts.Web.Components;
+using MercenariesAndBeasts.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +54,11 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     .AddDefaultTokenProviders()
     .AddDefaultUI(); 
 
+builder.Services.AddSingleton<ErrorService>();
+builder.Services.AddTransient<HttpInterceptorHandler>();
+
+builder.Services.AddHttpClient("Backend")
+    .AddHttpMessageHandler<HttpInterceptorHandler>();
 var openAiKey = builder.Configuration["OpenAI:ApiKey"];
 if (string.IsNullOrWhiteSpace(openAiKey))
 {
@@ -69,6 +75,8 @@ builder.Services.AddSingleton(sp =>
         baseDelayMs: 750));
 
 builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
+builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();
+builder.Services.AddScoped<ToastService>();
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
@@ -77,6 +85,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
+builder.Services.AddScoped<ToastService>();
 
 var app = builder.Build();
 var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();

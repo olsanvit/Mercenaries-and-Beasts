@@ -21,6 +21,7 @@ public class BaseGuid
     public string? NameDe { get; set; }
     public string? DescriptionDe { get; set; }
 
-    public string? ImageUrl { get; set; }
+    public string? ImagePath { get; set; }           // např. "/images/monsters/XXX.webp"
+    public string? ImagePromptMeta { get; set; }     // volitelné – jaký AI prompt to vygeneroval
 }
 

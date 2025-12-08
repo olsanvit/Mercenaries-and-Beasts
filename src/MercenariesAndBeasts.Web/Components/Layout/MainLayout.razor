@@ -1,5 +1,6 @@
 ﻿@using MercenariesAndBeasts.Web.Components.Pages.Shared
 @using System.Globalization
+
 @inherits LayoutComponentBase
 
 <div class="page">
@@ -9,9 +10,13 @@
 
     <main>
         <div class="top-row px-4">
+               <span class="badge rounded-pill bg-info">
+                    🔔  @Toasts.Toasts.Count
+                </span>
             <div class="d-flex align-items-center gap-3 m-1">
                 <LanguageSwitcher />
             </div>
+            
         <AuthorizeView>
                 <Authorized>
                     <span>Hello @context.User.Identity?.Name!</span>
@@ -31,8 +36,30 @@
     </main>
 </div>
 
+        <ToastContainer />
+
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Toasts.OnToastsUpdated += StateHasChanged;
+    }
+
+    private void ShowToasts()
+    {
+        // jednou můžeš otevřít panel toastů nebo scrollovat dolů
+    }
+private void UpdateCount()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+    public void Dispose()
+    {
+        Toasts.OnToastsUpdated -= StateHasChanged;
+    }
+}
