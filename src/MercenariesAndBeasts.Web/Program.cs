@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenAI;
 using System.Globalization;
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,25 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     .AddDefaultTokenProviders()
     .AddDefaultUI(); 
 
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        var clientId = builder.Configuration["Authentication:Google:ClientId"];
+        var clientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+            throw new InvalidOperationException("Missing Google OAuth config (Authentication:Google:ClientId/ClientSecret).");
+
+        options.ClientId = clientId;
+        options.ClientSecret = clientSecret;
+
+        // důležité pro Identity external login flow
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+
+        // default callback je /signin-google (nech tak)
+        // options.CallbackPath = "/signin-google";
+    });
+
 builder.Services.AddSingleton<ErrorService>();
 builder.Services.AddTransient<HttpInterceptorHandler>();
 
@@ -85,7 +105,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
-builder.Services.AddScoped<ToastService>();
 
 var app = builder.Build();
 var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
