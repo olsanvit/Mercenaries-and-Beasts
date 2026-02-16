@@ -1,0 +1,558 @@
+@page "/items-admin"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using MercenariesAndBeasts.Domain.Enums
+@using MercenariesAndBeasts.Domain.Items
+@using MercenariesAndBeasts.Domain.Localization
+@using MercenariesAndBeasts.Domain.Combat
+
+<h1>Item Templates (Admin)</h1>
+
+<div class="alert alert-dark mt-2">
+    <div><b>Localization coverage</b> (locales: @_localeCount)</div>
+
+    <div class="mt-2">
+        <b>ItemTemplates:</b>
+        @_itemHaveRows / @_itemMaxRows rows
+        (@(_itemMaxRows == 0 ? "0" : ((100.0 * _itemHaveRows / _itemMaxRows).ToString("0.0")))%)
+        — fully localized: @_itemFullyLocalized / @_itemTotal
+    </div>
+
+    <div>
+        <b>ItemUpgradeResources:</b>
+        @_resHaveRows / @_resMaxRows rows
+        (@(_resMaxRows == 0 ? "0" : ((100.0 * _resHaveRows / _resMaxRows).ToString("0.0")))%)
+        — fully localized: @_resFullyLocalized / @_resTotal
+    </div>
+</div>
+
+@if (_isLoading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="card-like mb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-secondary">
+                Total: <b>@_items.Count</b>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <input class="form-control dungeon-input" style="max-width:320px"
+                       placeholder="Search code/name..."
+                       @bind="_search" @bind:event="oninput" />
+
+                <select class="form-select lang-switcher" style="min-width:220px"
+                        @bind="_slotFilter">
+                    <option value="">All slots</option>
+
+                    <optgroup label="Mercenary (1–99)">
+                        @foreach (var s in MercSlots)
+                        {
+                            <option value="@s.ToString()">@s</option>
+                        }
+                    </optgroup>
+
+                    <optgroup label="Beast (100–199)">
+                        @foreach (var s in BeastSlots)
+                        {
+                            <option value="@s.ToString()">@s</option>
+                        }
+                    </optgroup>
+                </select>
+
+                <select class="form-select lang-switcher" style="min-width:180px"
+                        @bind="_ownerFilter">
+                    <option value="">All owners</option>
+                    @foreach (var ok in Enum.GetValues<ItemOwnerKind>())
+                    {
+                        <option value="@ok.ToString()">@ok</option>
+                    }
+                </select>
+
+                <button class="btn btn-primary" @onclick="NewItem">+ New</button>
+                <button class="btn btn-outline-secondary" @onclick="LoadAsync">Reload</button>
+            </div>
+        </div>
+    </div>
+
+    @if (_edit is not null)
+    {
+        <div class="card-like mb-3">
+            <h3 class="m-0">@(_edit.Id == Guid.Empty ? "Create ItemTemplate" : "Edit ItemTemplate")</h3>
+            <div class="text-secondary mb-3">Code musí být unikátní.</div>
+
+            <EditForm Model="_edit" OnValidSubmit="SaveAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label">Code</label>
+                        <InputText class="form-control" @bind-Value="_edit.Code" />
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label class="form-label">NameEn</label>
+                        <InputText class="form-control" @bind-Value="_edit.NameEn" />
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label class="form-label">BaseQuality</label>
+                        <InputSelect class="form-select" @bind-Value="_edit.BaseQuality">
+                            @foreach (var q in Enum.GetValues<QualityTier>())
+                            {
+                                <option value="@q">@q</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Mercenary Slot (optional)</label>
+                        <InputSelect class="form-select" @bind-Value="_mercSlot">
+                            <option value="">(none)</option>
+                            @foreach (var s in MercSlots)
+                            {
+                                <option value="@s.ToString()">@s</option>
+                            }
+                        </InputSelect>
+                        <div class="text-secondary mt-1" style="font-size:0.85rem;">
+                            Vyber, pokud je to gear pro Mercenary. Nesmí být vyplněné zároveň s Beast slotem.
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Beast Slot (optional)</label>
+                        <InputSelect class="form-select" @bind-Value="_beastSlot">
+                            <option value="">(none)</option>
+                            @foreach (var s in BeastSlots)
+                            {
+                                <option value="@s.ToString()">@s</option>
+                            }
+                        </InputSelect>
+                        <div class="text-secondary mt-1" style="font-size:0.85rem;">
+                            Vyber, pokud je to gear pro Beast. Nesmí být vyplněné zároveň s Merc slotem.
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="text-secondary mt-2">
+                            OwnerKind se nastaví automaticky podle vybraného slotu.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+                    @if (_edit.Id != Guid.Empty)
+                    {
+                        <button type="button" class="btn btn-danger ms-auto" @onclick="() => DeleteAsync(_edit.Id)">Delete</button>
+                    }
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <div class="dungeons-table-wrap">
+        <table class="table table-dark table-stages">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>NameEn</th>
+                    <th>Owner</th>
+                    <th>Slot</th>
+                    <th>Quality</th>
+                    <th>Locales</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var it in Filtered())
+                {
+                    var slot = GetSlot(it);
+                    var locCnt = _itemLocaleCountById.TryGetValue(it.Id, out var c) ? c : 0;
+
+                    <tr>
+                        <td title="@it.Code">@it.Code</td>
+                        <td title="@it.NameEn" class="ellipsis">@it.NameEn</td>
+                        <td>@it.OwnerKind</td>
+                        <td>@(slot?.ToString() ?? "-")</td>
+                        <td>@it.BaseQuality</td>
+                        <td>
+                            @locCnt/@_localeCount
+                            @if (locCnt >= _localeCount && _localeCount > 0)
+                            {
+                                <span class="ms-1">✓</span>
+                            }
+                        </td>
+                        <td class="text-end" title="@it.Id">
+                            <button class="btn btn-sm btn-secondary" @onclick="() => Edit(it)">Edit</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-like mt-3">
+        <h3 class="m-0">ItemUpgradeResources</h3>
+        <div class="text-secondary mb-2">
+            Rows: @_resources.Count
+        </div>
+
+        <div class="dungeons-table-wrap">
+            <table class="table table-dark table-stages">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>NameEn</th>
+                        <th>Type</th>
+                        <th>Locales</th>
+                        <th>ItemTemplateId</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in _resources.OrderBy(x => x.Type).ThenBy(x => x.Code))
+                    {
+                        var cnt = _resLocaleCountById.TryGetValue(r.Id, out var c) ? c : 0;
+                        <tr>
+                            <td title="@r.Code">@r.Code</td>
+                            <td title="@r.NameEn" class="ellipsis">@r.NameEn</td>
+                            <td>@r.Type</td>
+                            <td>
+                                @cnt/@_localeCount
+                                @if (cnt >= _localeCount && _localeCount > 0)
+                                {
+                                    <span class="ms-1">✓</span>
+                                }
+                            </td>
+                            <td class="ellipsis" title="@r.ItemTemplateId">@r.ItemTemplateId</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isLoading = true;
+
+    private List<ItemTemplate> _items = new();
+    private List<ItemUpgradeResource> _resources = new();
+
+    private string _search = "";
+    private string _slotFilter = "";
+    private string _ownerFilter = "";
+
+    // editor
+    private ItemTemplate? _edit;
+    private string _mercSlot = "";
+    private string _beastSlot = "";
+
+    // ===== Localization stats =====
+    private int _localeCount => LocalizationConfig.SupportedLocales.Length;
+
+    private int _itemTotal;
+    private int _itemMaxRows;
+    private int _itemHaveRows;
+    private int _itemFullyLocalized;
+
+    private int _resTotal;
+    private int _resMaxRows;
+    private int _resHaveRows;
+    private int _resFullyLocalized;
+
+    private Dictionary<Guid, int> _itemLocaleCountById = new();
+    private Dictionary<Guid, int> _resLocaleCountById = new();
+
+    private static readonly List<ItemEquipSlot> MercSlots = Enum.GetValues<ItemEquipSlot>()
+        .Where(s => s != ItemEquipSlot.None && (int)s >= 1 && (int)s <= 99)
+        .OrderBy(s => (int)s)
+        .ToList();
+
+    private static readonly List<ItemEquipSlot> BeastSlots = Enum.GetValues<ItemEquipSlot>()
+        .Where(s => s != ItemEquipSlot.None && (int)s >= 100 && (int)s <= 199)
+        .OrderBy(s => (int)s)
+        .ToList();
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+
+            _items = await Db.ItemTemplates
+                .OrderBy(x => x.OwnerKind)
+                .ThenBy(x => x.Code)
+                .ToListAsync();
+
+            _resources = await Db.ItemUpgradeResources
+                .OrderBy(x => x.Type)
+                .ThenBy(x => x.Code)
+                .ToListAsync();
+
+            await LoadLocalizationStatsAsync();
+
+            Toasts.Success("Loaded", "Items");
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Items");
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadLocalizationStatsAsync()
+    {
+        var locales = LocalizationConfig.SupportedLocales;
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+
+        // ---- ItemTemplates ----
+        _itemTotal = _items.Count;
+        _itemMaxRows = _itemTotal * _localeCount;
+
+        if (_itemTotal == 0)
+        {
+            _itemHaveRows = 0;
+            _itemFullyLocalized = 0;
+            _itemLocaleCountById = new();
+        }
+        else
+        {
+            var itemIds = _items.Select(x => x.Id).ToList();
+
+            var itemCounts = await Db.LocalizedTexts
+                .Where(x => x.EntityType == nameof(ItemTemplate)
+                            && itemIds.Contains(x.EntityId)
+                            && locales.Contains(x.Culture)
+                            && x.Name != null && x.Name != "")
+                .GroupBy(x => x.EntityId)
+                .Select(g => new { EntityId = g.Key, Cnt = g.Count() })
+                .ToListAsync();
+
+            _itemHaveRows = itemCounts.Sum(x => x.Cnt);
+            _itemFullyLocalized = itemCounts.Count(x => x.Cnt >= _localeCount);
+
+            _itemLocaleCountById = itemCounts.ToDictionary(x => x.EntityId, x => x.Cnt);
+        }
+
+        // ---- ItemUpgradeResources ----
+        _resTotal = _resources.Count;
+        _resMaxRows = _resTotal * _localeCount;
+
+        if (_resTotal == 0)
+        {
+            _resHaveRows = 0;
+            _resFullyLocalized = 0;
+            _resLocaleCountById = new();
+        }
+        else
+        {
+            var resIds = _resources.Select(x => x.Id).ToList();
+
+            var resCounts = await Db.LocalizedTexts
+                .Where(x => x.EntityType == nameof(ItemUpgradeResource)
+                            && resIds.Contains(x.EntityId)
+                            && locales.Contains(x.Culture)
+                            && x.Name != null && x.Name != "")
+                .GroupBy(x => x.EntityId)
+                .Select(g => new { EntityId = g.Key, Cnt = g.Count() })
+                .ToListAsync();
+
+            _resHaveRows = resCounts.Sum(x => x.Cnt);
+            _resFullyLocalized = resCounts.Count(x => x.Cnt >= _localeCount);
+
+            _resLocaleCountById = resCounts.ToDictionary(x => x.EntityId, x => x.Cnt);
+        }
+    }
+
+    private static ItemEquipSlot? GetSlot(ItemTemplate it)
+        => it.MercenarySlot ?? it.MonsterSlot;
+
+    private static bool IsBeastSlot(ItemEquipSlot slot)
+        => (int)slot >= 100 && (int)slot <= 199;
+
+    private IEnumerable<ItemTemplate> Filtered()
+    {
+        IEnumerable<ItemTemplate> q = _items;
+
+        if (!string.IsNullOrWhiteSpace(_ownerFilter)
+            && Enum.TryParse<ItemOwnerKind>(_ownerFilter, out var owner))
+            q = q.Where(x => x.OwnerKind == owner);
+
+        if (!string.IsNullOrWhiteSpace(_slotFilter)
+            && Enum.TryParse<ItemEquipSlot>(_slotFilter, out var slot))
+            q = q.Where(x => x.MercenarySlot == slot || x.MonsterSlot == slot);
+
+        if (!string.IsNullOrWhiteSpace(_search))
+        {
+            var s = _search.Trim().ToLowerInvariant();
+            q = q.Where(x =>
+                (x.Code ?? "").ToLowerInvariant().Contains(s) ||
+                (x.NameEn ?? "").ToLowerInvariant().Contains(s));
+        }
+
+        return q;
+    }
+
+    private void NewItem()
+    {
+        _edit = new ItemTemplate
+        {
+            Id = Guid.Empty,
+            Code = "",
+            NameEn = "",
+            OwnerKind = ItemOwnerKind.None,
+            BaseQuality = QualityTier.Q1_Common,
+            BaseStats = StatBlock.Zero
+        };
+
+        _mercSlot = "";
+        _beastSlot = "";
+    }
+
+    private void Edit(ItemTemplate it)
+    {
+        _edit = new ItemTemplate
+        {
+            Id = it.Id,
+            Code = it.Code,
+            NameEn = it.NameEn,
+            OwnerKind = it.OwnerKind,
+            BaseQuality = it.BaseQuality,
+            BaseStats = it.BaseStats,
+            Effects = it.Effects,
+            MercenarySlot = it.MercenarySlot,
+            MonsterSlot = it.MonsterSlot,
+            DescriptionEn = it.DescriptionEn
+        };
+
+        _mercSlot = it.MercenarySlot?.ToString() ?? "";
+        _beastSlot = it.MonsterSlot?.ToString() ?? "";
+    }
+
+    private void CancelEdit() => _edit = null;
+
+    private async Task SaveAsync()
+    {
+        if (_edit is null) return;
+
+        try
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+
+            ItemEquipSlot? merc = null;
+            ItemEquipSlot? beast = null;
+
+            if (!string.IsNullOrWhiteSpace(_mercSlot) &&
+                Enum.TryParse<ItemEquipSlot>(_mercSlot, out var ms))
+                merc = ms;
+
+            if (!string.IsNullOrWhiteSpace(_beastSlot) &&
+                Enum.TryParse<ItemEquipSlot>(_beastSlot, out var bs))
+                beast = bs;
+
+            if (merc.HasValue && beast.HasValue)
+            {
+                Toasts.Error("Vyber jen jeden slot", "Nemůžeš mít MercenarySlot i MonsterSlot současně.");
+                return;
+            }
+
+            _edit.MercenarySlot = merc;
+            _edit.MonsterSlot = beast;
+
+            if (merc.HasValue)
+                _edit.OwnerKind = ItemOwnerKind.Mercenary;
+            else if (beast.HasValue)
+                _edit.OwnerKind = ItemOwnerKind.Beast;
+            else
+                _edit.OwnerKind = ItemOwnerKind.None;
+
+            if (_edit.MercenarySlot.HasValue && IsBeastSlot(_edit.MercenarySlot.Value))
+            {
+                Toasts.Error("Špatný slot", "Do MercenarySlot patří jen Merc_* (1..99).");
+                return;
+            }
+            if (_edit.MonsterSlot.HasValue && !IsBeastSlot(_edit.MonsterSlot.Value))
+            {
+                Toasts.Error("Špatný slot", "Do MonsterSlot patří jen Beast_* (100..199).");
+                return;
+            }
+
+            _edit.Validate();
+
+            if (_edit.Id == Guid.Empty)
+            {
+                _edit.Id = Guid.NewGuid();
+                Db.ItemTemplates.Add(_edit);
+            }
+            else
+            {
+                var existing = await Db.ItemTemplates.FirstOrDefaultAsync(x => x.Id == _edit.Id);
+                if (existing is null)
+                {
+                    Toasts.Error("ItemTemplate not found", "Items");
+                    return;
+                }
+
+                existing.Code = _edit.Code;
+                existing.NameEn = _edit.NameEn;
+
+                existing.OwnerKind = _edit.OwnerKind;
+                existing.MercenarySlot = _edit.MercenarySlot;
+                existing.MonsterSlot = _edit.MonsterSlot;
+
+                existing.BaseQuality = _edit.BaseQuality;
+                existing.BaseStats = _edit.BaseStats;
+
+                existing.DescriptionEn = _edit.DescriptionEn;
+            }
+
+            await Db.SaveChangesAsync();
+            Toasts.Success("ItemTemplate saved", "Items");
+
+            _edit = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Items");
+        }
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        try
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+
+            var existing = await Db.ItemTemplates.FirstOrDefaultAsync(x => x.Id == id);
+            if (existing is null) return;
+
+            Db.ItemTemplates.Remove(existing);
+            await Db.SaveChangesAsync();
+
+            Toasts.Success("ItemTemplate deleted", "Items");
+            _edit = null;
+
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Items");
+        }
+    }
+}

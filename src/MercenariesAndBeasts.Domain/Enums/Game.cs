@@ -13,7 +13,11 @@ namespace MercenariesAndBeasts.Domain.Enums
         Poison = 8,
         Metal = 9,
         Plasma = 10,
-        Void = 11
+        Void = 11,
+        Nature = 12,
+        Ice = 13,
+        Physical = 14,
+        Lightning = 15
     }
 
     /// <summary>
@@ -69,68 +73,122 @@ namespace MercenariesAndBeasts.Domain.Enums
         ES10_Dominion = 10,
         ES11_Ascendant = 11
     }
+public enum ItemEquipSlot
+{
+    None = 0,
 
-    public enum MercenaryItemSlot
-    {
-        MainHand = 1,
-        OffHand = 2,
-        Headgear = 3,
-        Chestguard = 4,
-        Legwear = 5,
-        Footgear = 6,
-        Shoulder = 7,
-        Back = 8,
-        Belt = 9,
-        Trinket = 10,
-        Relic = 11
-    }
+    // =========================================================
+    // MERCENARIES (ORDERS) — 1–99
+    // =========================================================
 
-    public enum MonsterItemSlot
-    {
-        Fang = 1,
-        Claw = 2,
-        Skull = 3,
-        Carapace = 4,
-        HindLeg = 5,
-        Talon = 6,
-        Spine = 7,
-        Dorsal = 8,
-        Girth = 9,
-        Essence = 10,
-        Core = 11
-    }
-    public enum ItemType
-    {
-        // EQUIPMENT
-    Gear = 0,          // equip do slotů (merc/monster)
+    // --- Core combat gear (1–19)
+    Merc_Entity      = 1,   // weapons, attack-focused
+    Merc_MainHand      = 2,   // weapons, attack-focused
+    Merc_OffHand       = 3,   // shields, foci, defense
+    Merc_Head          = 4,
+    Merc_Chest         = 5,
+    Merc_Legs          = 6,
+    Merc_Boots         = 7,
+    Merc_Shoulder      = 8,
+    Merc_Back          = 9,
+    Merc_Belt          = 10,
+    Merc_Trinket       = 11,
+    Merc_Relic         = 12,
 
-    // RESOURCES
-    Material = 1,      // crafting, upgrade, enhancement
-    Currency = 2,      // gold, shards, tokens
+    // --- Utility / tactical (30–49)
+    Merc_Consumable    = 30,  // potions, combat actives (choose one)
+    Merc_Mineral       = 31,  // battle crystals, one-use or passive
+    Merc_Artifact      = 32,  // powerful but limited passive
+    Merc_MiniPet       = 33,  // companion providing bonuses
+    Merc_Plant         = 34,  // seeds, spores, terrain buffs
 
-    // SUMMONING / UNIT-GAIN
-    Contract = 3,      // získání žoldáka
-    Egg = 4,           // získání monstra
+    // --- Future expansion (50–99 reserved)
+    Merc_Utility1      = 50,
+    Merc_Utility2      = 51,
 
-    // BOOST ITEMS
-    Consumable = 5,    // jednorázové (potiony, boost orby)
-    Buff = 6,          // časové buffy (XP boost, drop boost)
-    Passive = 7,       // permanentní pasivní bonus (account-wide / hero-wide)
 
-    // PROGRESSION ITEMS
-    Key = 8,           // odemyká dungeon / výpravu / bránu
-    Blueprint = 9,     // schémata na výrobu gearu
-    UpgradeCore = 10,  // zlepšení kvality, tierů, evoluce
+    // =========================================================
+    // BEASTS — 100–199
+    // =========================================================
 
-    // SPECIAL
-    QuestItem = 11,    // pro questy nebo eventy
-    Seasonal = 12,     // sezónní itemy
-    Cosmetic = 13,     // skiny, efekty, vizuály
+    // --- Core body parts (100–119)
+    Beast_Entity         = 100,
+    Beast_Fang         = 101,
+    Beast_Claw         = 102,
+    Beast_Skull        = 103,
+    Beast_Carapace     = 104,
+    Beast_HindLeg      = 105,
+    Beast_Talon        = 106,
+    Beast_Spine        = 107,
+    Beast_Dorsal       = 108,
+    Beast_Girth        = 109,
+    Beast_Essence      = 110,
+    Beast_Core         = 111,
 
-    // META
-    Container = 14,    // truhly, loot boxy, balíčky
-    Randomizer = 15    // reroll-točení (stats, prefixy, suffixy)
-    }
+    // --- Utility / combat additions (130–149)
+    Beast_Consumable   = 130, // combat organs, glands, injections
+    Beast_Mineral      = 131, // embedded crystals, ores
+    Beast_Artifact     = 132, // symbiotic relics
+    Beast_MiniPet      = 133, // parasites / symbiotes
+    Beast_Plant        = 134, // living growths, spores
+
+    // --- Future expansion (150–199 reserved)
+    Beast_Utility1     = 150,
+    Beast_Utility2     = 151
+}
+
+    public enum StatId
+{
+    // CORE
+    MaxHp,
+    Armor,
+    Attack,
+    Defense,
+    Speed,
+    MaxEnergy,
+
+    // CRIT / PEN
+    CriticalChance,
+    CriticalMultiplier,
+    ArmorPenetration,
+
+    // HIT / AVOID
+    Accuracy,
+    Evasion,
+    BlockChance,
+    CounterChance,
+
+    // DAMAGE MODIFIERS
+    DamageBonus,
+    DamageReduction,
+    TrueDamageBonus,
+    Thorns,
+
+    // TEMPO
+    TurnMeterGain,
+    EnergyCostReduction,
+
+    // SUSTAIN
+    LifeSteal,
+    HpRegen,
+    EnergyRegen,
+    HealingBonus,
+    HealingReduction,
+    ShieldBonus,
+
+    // STATUS
+    BleedChance,
+    PoisonChance,
+    BurnChance,
+    ShockChance,
+    FreezeChance,
+    StatusDurationBonus,
+    StatusResistance,
+    DotDamageBonus,
+    DotDamageReduction,
+    CleanseChance,
+    StatusPotency,
+}
     public enum ItemEffectType
 {
     None = 0,
@@ -156,9 +214,123 @@ namespace MercenariesAndBeasts.Domain.Enums
     TimedSpeedBoost = 27,          // haste buff
     TimedEvasionBoost = 28,        // +dodge na čas
 
-    // SPECIAL
-    OneTimeUse = 40,               // spotřební item (potion, orb…)
-    AccountWide = 41,              // permanentní účetní odemykání
-    PartyWide = 42                 // ovlivní celý tým (žoldáky/monstra)
+}
+public enum ItemOwnerKind
+{
+    None = 0,         // pro věci co se neequippují
+    Mercenary = 1,
+    Beast = 2
+}
+public enum UpgradeTarget
+{
+    None = 0,
+    Unit = 1,  // level/rank merc/beast
+    Gear = 2   // level/quality gearu
+}
+public enum ItemUpgradeResourceType
+{
+    Core,      // level
+    Catalyst, // quality
+    Essence   // traits / enchant / stability
+}
+public enum ItemBadgeTier
+{
+    None = 0,
+    // === ORGANIC / SOFT MATERIALS ===
+    Wood,
+    Peat,
+    Lignite,
+    Coal,
+    Amber,
+
+    // === SEDIMENTARY ROCKS ===
+    Clay,
+    Shale,
+    Sandstone,
+    Limestone,
+    Chalk,
+    Marl,
+    Siltstone,
+
+    // === METAMORPHIC (LOW) ===
+    Slate,
+    Phyllite,
+    Schist,
+    Gneiss,
+    Quartzite,
+    Marble,
+
+    // === COMMON IGNEOUS ===
+    Basalt,
+    Andesite,
+    Diorite,
+    Granite,
+    Obsidian,
+    Pumice,
+
+    // === COMMON METALS ===
+    Copper,
+    Tin,
+    Lead,
+    Zinc,
+    Nickel,
+    Iron,
+
+    // === ALLOYS ===
+    Bronze,
+    Brass,
+    Steel,
+    CastIron,
+    StainlessSteel,
+
+    // === SEMI-PRECIOUS MINERALS ===
+    Calcite,
+    Fluorite,
+    Dolomite,
+    Apatite,
+    Feldspar,
+    Tourmaline,
+    Garnet,
+
+    // === HARD METALS ===
+    Chromium,
+    Manganese,
+    Cobalt,
+    Vanadium,
+    Tungsten,
+    Molybdenum,
+
+    // === PRECIOUS METALS ===
+    Silver,
+    Gold,
+    Platinum,
+    Palladium,
+    Rhodium,
+    Iridium,
+    Osmium,
+
+    // === GEM MATERIALS ===
+    Jade,
+    Onyx,
+    Opal,
+    Topaz,
+    Sapphire,
+    Ruby,
+    Emerald,
+    Diamond,
+
+    // === RARE / EXTREME MATERIALS ===
+    Spinel,
+    Zircon,
+    Alexandrite,
+    Moissanite,
+    Tantalum,
+    Hafnium,
+    Rhenium,
+
+    // === ULTRA-DENSE / ENDGAME ===
+    Neutronium,
+    Adamantite,
+    Vibranium
 }
 }

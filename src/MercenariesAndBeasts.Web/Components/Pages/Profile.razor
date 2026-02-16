@@ -1,0 +1,267 @@
+@page "/profile"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+@using MercenariesAndBeasts.Domain.Localization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Domain
+@using MercenariesAndBeasts.Domain.Players
+@using System.Threading
+
+@inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IDbContextFactory<GameDbContext> DbFactory
+
+<h1>Profile</h1>
+
+@if (_loading)
+{
+    <p>Loading…</p>
+}
+else if (_player is null)
+{
+    <p class="text-danger">No player profile found.</p>
+}
+else
+{
+    <div class="card-like">
+        <h3 class="mb-2">Account</h3>
+        <div class="text-muted small mb-3">
+            User: <b>@_userName</b>
+        </div>
+
+        <hr />
+
+        <h3 class="mb-2">Country</h3>
+
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="form-label">Country (ISO2)</label>
+                <select class="form-select" @bind="_selectedCountry">
+                    <option value="">(not set)</option>
+                    @foreach (var c in Countries)
+                    {
+                        <option value="@c.Code">@c.Name (@c.Code)</option>
+                    }
+                </select>
+                <div class="text-muted small mt-1">
+                    Stored as ISO 3166-1 alpha-2 code (e.g. CZ, SK, DE).
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="text-muted small">Current</div>
+                <div class="fw-bold">@(_player.CountryCode ?? "(not set)")</div>
+
+                <div class="text-muted small mt-2">Last change</div>
+                <div>
+                    @(_player.CountryChangedUtc is null
+                        ? "-"
+                        : _player.CountryChangedUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm"))
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="text-muted small">Cost</div>
+                <div class="fw-bold">@_costSoft</div>
+
+                <div class="text-muted small mt-2">Cooldown</div>
+                <div class="fw-bold">@(_canChange ? "OK" : "Waiting")</div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-success" @onclick="SaveCountryAsync" disabled="@(!_canSave)">
+                Save
+            </button>
+            <button class="btn btn-outline-secondary" @onclick="ReloadAsync" disabled="@_loading">
+                Reload
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <div class="alert alert-danger mt-3">@_error</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(_ok))
+        {
+            <div class="alert alert-success mt-3">@_ok</div>
+        }
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private PlayerProfile? _player;
+    private string _userName = "";
+
+    private string _selectedCountry = "";
+    private string _error = "";
+    private string _ok = "";
+
+    private bool _canChange;
+    private long _costSoft;
+
+    private bool _canSave => _player != null && _canChange && !_loading;
+
+    private readonly SemaphoreSlim _gate = new(1, 1);
+
+    private static readonly IReadOnlyList<CountryCatalog.CountryOpt> Countries = CountryCatalog.GetAll();
+
+    protected override async Task OnInitializedAsync()
+        => await ReloadAsync();
+
+    private async Task ReloadAsync()
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            _loading = true;
+            _error = "";
+            _ok = "";
+            StateHasChanged();
+
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var principal = authState.User;
+
+            var appUser = await UserManager.GetUserAsync(principal);
+            if (appUser is null)
+                return;
+
+            _userName = appUser.UserName ?? appUser.Email ?? "Player";
+
+            await using var db = await DbFactory.CreateDbContextAsync();
+            _player = await db.Players.AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UserId == appUser.Id);
+
+            if (_player is null)
+                return;
+
+            _selectedCountry = _player.CountryCode ?? "";
+            RecomputeRules();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+            _gate.Release();
+            StateHasChanged();
+        }
+    }
+
+    private void RecomputeRules()
+    {
+        if (_player is null) return;
+
+        var now = DateTime.UtcNow;
+
+        // cooldown: 7 days after last change (first set is free)
+        if (string.IsNullOrWhiteSpace(_player.CountryCode) || _player.CountryChangedUtc is null)
+            _canChange = true;
+        else
+            _canChange = (now - _player.CountryChangedUtc.Value).TotalDays >= 7;
+
+        // cost: first change free, then escalating
+        _costSoft = _player.CountryChangeCount <= 0 ? 0 : 1000 * (long)Math.Pow(2, _player.CountryChangeCount - 1);
+    }
+
+    private static bool IsValidIso2(string? code)
+        => !string.IsNullOrWhiteSpace(code)
+           && code.Length == 2
+           && code.All(char.IsLetter);
+
+    private async Task SaveCountryAsync()
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            _loading = true;
+            _error = "";
+            _ok = "";
+            StateHasChanged();
+
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var principal = authState.User;
+
+            var appUser = await UserManager.GetUserAsync(principal);
+            if (appUser is null)
+                return;
+
+            var newCode = (_selectedCountry ?? "").Trim().ToUpperInvariant();
+
+            if (!string.IsNullOrWhiteSpace(newCode) && !IsValidIso2(newCode))
+            {
+                _error = "Invalid ISO2 code.";
+                return;
+            }
+
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            // ✅ fresh tracked entity
+            var player = await db.Players
+                .FirstOrDefaultAsync(p => p.UserId == appUser.Id);
+
+            if (player is null)
+            {
+                _error = "No player profile found.";
+                return;
+            }
+
+            var now = DateTime.UtcNow;
+
+            // cooldown: 7 days after last change (first set free)
+            bool canChange;
+            if (string.IsNullOrWhiteSpace(player.CountryCode) || player.CountryChangedUtc is null)
+                canChange = true;
+            else
+                canChange = (now - player.CountryChangedUtc.Value).TotalDays >= 7;
+
+            if (!canChange)
+            {
+                _error = "Country change is on cooldown.";
+                return;
+            }
+
+            long costSoft = player.CountryChangeCount <= 0
+                ? 0
+                : 1000 * (long)Math.Pow(2, player.CountryChangeCount - 1);
+
+            if (costSoft > 0 && player.SoftCurrency < costSoft)
+            {
+                _error = "Not enough currency to change country.";
+                return;
+            }
+
+            if (costSoft > 0)
+                player.SoftCurrency -= costSoft;
+
+            player.CountryCode = string.IsNullOrWhiteSpace(newCode) ? null : newCode;
+            player.CountryChangedUtc = now;
+            player.CountryChangeCount += 1;
+
+            await db.SaveChangesAsync();
+
+            _ok = "Country updated.";
+
+            // refresh UI state from saved entity
+            _player = player; // tracked instance, OK
+            _selectedCountry = player.CountryCode ?? "";
+            RecomputeRules();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+            _gate.Release();
+            StateHasChanged();
+        }
+    }
+}

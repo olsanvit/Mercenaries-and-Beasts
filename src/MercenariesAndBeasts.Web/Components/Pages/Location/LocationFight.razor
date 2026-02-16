@@ -1,0 +1,464 @@
+@page "/expeditions/{LocationId:guid}/fight"
+@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+
+@using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Domain.Progress
+@using MercenariesAndBeasts.Domain.Localization
+
+@inject IDbContextFactory<GameDbContext> DbFactory
+@inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<h1>Expedition Fight</h1>
+
+@if (isLoading)
+{
+    <p>Loading…</p>
+}
+else if (player is null || location is null)
+{
+    <p class="text-danger">Missing player or location.</p>
+}
+else
+{
+    <div class="card-like">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+                <h3 class="m-0">@LocName(location)</h3>
+                <div class="text-muted">Fight involves all 5 Orders.</div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary"
+                        disabled="@hasResolved || offers.Count != 5"
+                        @onclick="RunFightAsync">
+                    Simulate Fight (5v1)
+                </button>
+                <a class="btn btn-outline-secondary" href="/expeditions">Back</a>
+            </div>
+        </div>
+
+        <hr />
+
+        <h5>Orders participating (5)</h5>
+
+        @if (offers.Count == 0)
+        {
+            <div class="text-muted">No offers rolled.</div>
+        }
+        else
+        {
+            <div class="d-flex flex-column gap-2">
+                @foreach (var o in offers.OrderBy(x => x.SlotIndex))
+                {
+                    <div class="p-3 border rounded d-flex justify-content-between align-items-center">
+                        <div>
+                            <div><b>@o.Name</b></div>
+                            <div class="text-muted small">Slot @o.SlotIndex</div>
+                        </div>
+                        <div class="text-muted small">
+                            Lvl @o.BaseLevel · @o.Element
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (hasResolved)
+        {
+            <hr />
+            <h4 class="m-0">Result: @(didWin ? "Victory" : "Defeat")</h4>
+            <div class="text-muted mt-1">@resultText</div>
+
+            <hr />
+            <h5>New offers (5 Orders)</h5>
+            <ol class="mb-0">
+                @for (var i = 0; i < 5; i++)
+                {
+                    <li>@(newOfferNames.ElementAtOrDefault(i) ?? "—")</li>
+                }
+            </ol>
+
+            <hr />
+            <h5>Loot</h5>
+            <ul class="mb-0">
+                @foreach (var l in lootLines)
+                {
+                    <li>@l</li>
+                }
+            </ul>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public Guid LocationId { get; set; }
+
+    private bool isLoading = true;
+
+    private PlayerProfile? player;
+    private Location? location;
+    private PlayerExpeditionProgress? progress;
+
+    private bool hasResolved = false;
+    private bool didWin = false;
+    private string resultText = "";
+
+    private List<string> newOfferNames = new();
+    private List<string> lootLines = new();
+
+    private List<OrderVm> offers = new();
+
+    private sealed class OrderVm
+    {
+        public int SlotIndex { get; set; }      // 1..5
+        public Guid TemplateId { get; set; }
+        public string Name { get; set; } = "";
+        public int BaseLevel { get; set; }
+        public ElementType Element { get; set; }
+    }
+
+    // ===== LocalizedText cache =====
+    private List<LocalizedText> _locLocs = new();      // Location texts
+    private List<LocalizedText> _orderLocs = new();    // MercenaryTemplate texts
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(auth.User);
+            if (user is null) return;
+
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            player = await db.Players.FirstOrDefaultAsync(p => p.UserId == user.Id);
+            if (player is null) return;
+
+            location = await db.Locations.FirstOrDefaultAsync(l => l.Id == LocationId);
+            if (location is null) return;
+
+            // progress TRACKED in this db context
+            progress = await db.PlayerExpeditionProgresses
+                .FirstOrDefaultAsync(p => p.PlayerId == player.Id && p.LocationId == location.Id);
+
+            if (progress is null)
+            {
+                progress = new PlayerExpeditionProgress
+                {
+                    Id = Guid.NewGuid(),
+                    PlayerId = player.Id,
+                    LocationId = location.Id,
+                    MaxStageReached = 0,
+                    IsCompleted = false,
+                    LastUpdatedUtc = DateTime.UtcNow
+                };
+                db.PlayerExpeditionProgresses.Add(progress);
+                await db.SaveChangesAsync();
+            }
+
+            // ensure offers exist (writes to same db)
+            await EnsureOffers5Async(db, progress);
+
+            // preload localization
+            await LoadLocationLocalizationsAsync(db, new List<Guid> { location.Id });
+
+            // build VM (reads from same db)
+            await LoadOffersVmAsync(db, progress);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // ===========================
+    // Offers (5 slots) persistence
+    // ===========================
+    private async Task EnsureOffers5Async(GameDbContext db, PlayerExpeditionProgress pr)
+    {
+        if (HasAll5(pr))
+            return;
+
+        var pool = await db.MercenaryTemplates
+            .OrderBy(x => x.BaseLevel).ThenBy(x => x.Code)
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        if (pool.Count < 5)
+            throw new InvalidOperationException("Need at least 5 MercenaryTemplates (Orders).");
+
+        var seed = HashCode.Combine(player!.Id, pr.LocationId);
+        var rng = new Random(seed);
+
+        var picks = pool.OrderBy(_ => rng.Next()).Take(5).ToArray();
+
+        pr.EncounterOrder1TemplateId = picks[0];
+        pr.EncounterOrder2TemplateId = picks[1];
+        pr.EncounterOrder3TemplateId = picks[2];
+        pr.EncounterOrder4TemplateId = picks[3];
+        pr.EncounterOrder5TemplateId = picks[4];
+
+        pr.EncounterRolledUtc = DateTime.UtcNow;
+        pr.LastUpdatedUtc = DateTime.UtcNow;
+
+        await db.SaveChangesAsync();
+    }
+
+    private static bool HasAll5(PlayerExpeditionProgress pr)
+        => pr.EncounterOrder1TemplateId.HasValue
+        && pr.EncounterOrder2TemplateId.HasValue
+        && pr.EncounterOrder3TemplateId.HasValue
+        && pr.EncounterOrder4TemplateId.HasValue
+        && pr.EncounterOrder5TemplateId.HasValue;
+
+    private static Guid? GetOfferId(PlayerExpeditionProgress pr, int slot)
+        => slot switch
+        {
+            1 => pr.EncounterOrder1TemplateId,
+            2 => pr.EncounterOrder2TemplateId,
+            3 => pr.EncounterOrder3TemplateId,
+            4 => pr.EncounterOrder4TemplateId,
+            5 => pr.EncounterOrder5TemplateId,
+            _ => null
+        };
+
+    private static void SetOfferId(PlayerExpeditionProgress pr, int slot, Guid id)
+    {
+        if (slot == 1) pr.EncounterOrder1TemplateId = id;
+        if (slot == 2) pr.EncounterOrder2TemplateId = id;
+        if (slot == 3) pr.EncounterOrder3TemplateId = id;
+        if (slot == 4) pr.EncounterOrder4TemplateId = id;
+        if (slot == 5) pr.EncounterOrder5TemplateId = id;
+    }
+
+    private static List<Guid> GetAllOfferIds(PlayerExpeditionProgress pr)
+        => new[]
+        {
+            pr.EncounterOrder1TemplateId,
+            pr.EncounterOrder2TemplateId,
+            pr.EncounterOrder3TemplateId,
+            pr.EncounterOrder4TemplateId,
+            pr.EncounterOrder5TemplateId
+        }
+        .Where(x => x.HasValue)
+        .Select(x => x!.Value)
+        .ToList();
+
+    private async Task LoadOffersVmAsync(GameDbContext db, PlayerExpeditionProgress pr)
+    {
+        offers = new();
+
+        var ids = GetAllOfferIds(pr);
+        if (ids.Count == 0) return;
+
+        await LoadOrderLocalizationsAsync(db, ids);
+
+        var dict = await db.MercenaryTemplates
+            .Where(x => ids.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id);
+
+        for (int slot = 1; slot <= 5; slot++)
+        {
+            var id = GetOfferId(pr, slot);
+            if (!id.HasValue) continue;
+
+            if (!dict.TryGetValue(id.Value, out var tpl))
+                continue;
+
+            offers.Add(new OrderVm
+            {
+                SlotIndex = slot,
+                TemplateId = tpl.Id,
+                Name = Localize(_orderLocs, nameof(MercenaryTemplate), tpl.Id, "Name", tpl.NameEn),
+                BaseLevel = tpl.BaseLevel,
+                Element = tpl.Element
+            });
+        }
+    }
+
+    private async Task RerollAll5Async(GameDbContext db, PlayerExpeditionProgress pr)
+    {
+        var pool = await db.MercenaryTemplates.Select(x => x.Id).ToListAsync();
+        if (pool.Count < 5) return;
+
+        var rng = new Random(HashCode.Combine(player!.Id, pr.LocationId, DateTime.UtcNow.Ticks));
+
+        var picks = pool.OrderBy(_ => rng.Next()).Take(5).ToArray();
+        for (int i = 0; i < 5; i++)
+            SetOfferId(pr, i + 1, picks[i]);
+    }
+
+    private async Task RerollSomeAsync(GameDbContext db, PlayerExpeditionProgress pr, int count)
+    {
+        count = Math.Clamp(count, 1, 5);
+
+        var pool = await db.MercenaryTemplates.Select(x => x.Id).ToListAsync();
+        if (pool.Count == 0) return;
+
+        var rng = new Random(HashCode.Combine(player!.Id, pr.LocationId, "lose", DateTime.UtcNow.Ticks));
+        var slots = Enumerable.Range(1, 5).OrderBy(_ => rng.Next()).Take(count).ToList();
+
+        foreach (var slot in slots)
+        {
+            var newId = pool.OrderBy(_ => rng.Next()).First();
+            SetOfferId(pr, slot, newId);
+        }
+    }
+
+    private async Task LoadNewOfferNames5Async(GameDbContext db, PlayerExpeditionProgress pr)
+    {
+        var ids = GetAllOfferIds(pr);
+        await LoadOrderLocalizationsAsync(db, ids);
+
+        var dict = await db.MercenaryTemplates
+            .Where(x => ids.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.NameEn);
+
+        newOfferNames = new();
+        for (int slot = 1; slot <= 5; slot++)
+        {
+            var id = GetOfferId(pr, slot);
+            if (!id.HasValue) { newOfferNames.Add("—"); continue; }
+
+            var fallback = dict.TryGetValue(id.Value, out var n) ? n : "Unknown Order";
+            var localized = Localize(_orderLocs, nameof(MercenaryTemplate), id.Value, "Name", fallback);
+            newOfferNames.Add(localized);
+        }
+    }
+
+    // ===========================
+    // Fight
+    // ===========================
+    private async Task RunFightAsync()
+    {
+        if (hasResolved || player is null || location is null || progress is null)
+            return;
+
+        if (!HasAll5(progress))
+            return;
+
+        hasResolved = true;
+        lootLines = new();
+        newOfferNames = new();
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        // IMPORTANT: reload progress tracked in THIS db context
+        var pr = await db.PlayerExpeditionProgresses
+            .FirstOrDefaultAsync(p => p.PlayerId == player.Id && p.LocationId == location.Id);
+
+        if (pr is null)
+        {
+            didWin = false;
+            resultText = "Progress not found.";
+            return;
+        }
+
+        // deterministic RNG by current offers (stable on refresh)
+        var offerIds = GetAllOfferIds(pr);
+        var seed = HashCode.Combine(player.Id, location.Id,
+            offerIds.ElementAtOrDefault(0),
+            offerIds.ElementAtOrDefault(1),
+            offerIds.ElementAtOrDefault(2),
+            offerIds.ElementAtOrDefault(3),
+            offerIds.ElementAtOrDefault(4));
+
+        var rng = new Random(seed);
+
+        var winChance = 0.55;
+        didWin = rng.NextDouble() < winChance;
+
+        if (didWin)
+        {
+            resultText = "You won. All 5 Orders were replaced.";
+            await RerollAll5Async(db, pr);
+
+            lootLines.Add($"+10 Order shards (from location)");
+            lootLines.Add($"+2 Upgrade stones (merc)");
+        }
+        else
+        {
+            resultText = "You lost. Two Orders were replaced.";
+            await RerollSomeAsync(db, pr, count: 2);
+
+            lootLines.Add("No loot.");
+        }
+
+        pr.LastUpdatedUtc = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+
+        // sync UI cache copy (detached -> copy fields)
+        progress.EncounterOrder1TemplateId = pr.EncounterOrder1TemplateId;
+        progress.EncounterOrder2TemplateId = pr.EncounterOrder2TemplateId;
+        progress.EncounterOrder3TemplateId = pr.EncounterOrder3TemplateId;
+        progress.EncounterOrder4TemplateId = pr.EncounterOrder4TemplateId;
+        progress.EncounterOrder5TemplateId = pr.EncounterOrder5TemplateId;
+        progress.LastUpdatedUtc = pr.LastUpdatedUtc;
+
+        await LoadNewOfferNames5Async(db, pr);
+        await LoadOffersVmAsync(db, pr);
+
+        StateHasChanged();
+    }
+
+    // ===========================
+    // Localization helpers
+    // ===========================
+    private async Task LoadLocationLocalizationsAsync(GameDbContext db, List<Guid> locationIds)
+    {
+        if (locationIds.Count == 0) { _locLocs = new(); return; }
+
+        _locLocs = await db.LocalizedTexts
+            .Where(x => x.EntityType == nameof(Location) && locationIds.Contains(x.EntityId))
+            .ToListAsync();
+    }
+
+    private async Task LoadOrderLocalizationsAsync(GameDbContext db, List<Guid> orderIds)
+    {
+        if (orderIds.Count == 0) { _orderLocs = new(); return; }
+
+        _orderLocs = await db.LocalizedTexts
+            .Where(x => x.EntityType == nameof(MercenaryTemplate) && orderIds.Contains(x.EntityId))
+            .ToListAsync();
+    }
+
+    private string LocName(Location l)
+        => Localize(_locLocs, nameof(Location), l.Id, "Name", l.NameEn);
+
+    private static string Localize(
+        List<LocalizedText> cache,
+        string entityType,
+        Guid entityId,
+        string field,
+        string fallback)
+    {
+        var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+        var loc = cache.FirstOrDefault(x =>
+            x.EntityType == entityType &&
+            x.EntityId == entityId &&
+            x.Culture == culture);
+
+        if (loc is null)
+            return fallback;
+
+        string? text = field switch
+        {
+            "Name" => loc.Name,
+            "Description" => loc.Description,
+            _ => null
+        };
+
+        return string.IsNullOrWhiteSpace(text) ? fallback : text!;
+    }
+}

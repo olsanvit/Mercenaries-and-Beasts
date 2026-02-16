@@ -1,0 +1,389 @@
+@page "/dungeons/{DungeonId:guid}/fight"
+@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+
+@using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Infrastructure.Fights
+@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Domain.Progress
+@using MercenariesAndBeasts.Domain.Localization
+
+@inject IDbContextFactory<GameDbContext> DbFactory
+@inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+@inject IFightService FightService
+
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<h1>Dungeon Fight</h1>
+
+@if (isLoading)
+{
+    <p>Loading…</p>
+}
+else if (player is null || dungeon is null)
+{
+    <p class="text-danger">Missing player or dungeon.</p>
+}
+else
+{
+    <div class="card-like">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+                <h3 class="m-0">@DngName(dungeon)</h3>
+                <div class="text-muted">Stage @currentStage / 11</div>
+                <div class="text-muted">
+                    Enemy:
+                    <b>@(enemy is null ? "—" : MonsterName(enemy))</b>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary"
+                        disabled="@hasResolved || enemy is null"
+                        @onclick="RunFightAsync">
+                    Simulate Fight
+                </button>
+                <a class="btn btn-outline-secondary" href="/dungeons">Back</a>
+            </div>
+        </div>
+
+        @if (hasResolved)
+        {
+            <hr />
+            <h4 class="m-0">Result: @(didWin ? "Victory" : "Defeat")</h4>
+            <div class="text-muted mt-1">@resultText</div>
+
+            @if (fightLog.Count > 0)
+            {
+                <hr />
+                <h5>Fight log</h5>
+                <ul class="mb-0">
+                    @foreach (var line in fightLog)
+                    {
+                        <li>@line</li>
+                    }
+                </ul>
+            }
+
+            <div class="mt-3">
+                <div><b>New stage:</b> @newStage / 11</div>
+                @if (progress?.IsCompleted == true)
+                {
+                    <span class="badge bg-success mt-2">Dungeon Completed</span>
+                }
+            </div>
+
+            <hr />
+            <h5>Loot</h5>
+            <ul class="mb-0">
+                @foreach (var l in lootLines)
+                {
+                    <li>@l</li>
+                }
+            </ul>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public Guid DungeonId { get; set; }
+
+    private bool isLoading = true;
+
+    private PlayerProfile? player;
+    private Dungeon? dungeon;
+    private PlayerDungeonProgress? progress;
+
+    private int currentStage = 1;
+    private MonsterTemplate? enemy;
+
+    private bool hasResolved = false;
+    private bool didWin = false;
+    private string resultText = "";
+    private int newStage = 1;
+    private List<string> lootLines = new();
+    private List<string> fightLog = new();
+
+    // ===== LocalizedText cache =====
+    private List<LocalizedText> _dngLocs = new();
+    private List<LocalizedText> _monsterLocs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(auth.User);
+            if (user is null) return;
+
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            player = await db.Players.FirstOrDefaultAsync(p => p.UserId == user.Id);
+            if (player is null) return;
+
+            dungeon = await db.Dungeons
+                .Include(d => d.Stages)
+                    .ThenInclude(s => s.MonsterTemplate)
+                .FirstOrDefaultAsync(d => d.Id == DungeonId);
+
+            if (dungeon is null) return;
+
+            progress = await db.PlayerDungeonProgresses
+                .FirstOrDefaultAsync(p => p.PlayerId == player.Id && p.DungeonId == dungeon.Id);
+
+            if (progress is null)
+            {
+                progress = new PlayerDungeonProgress
+                {
+                    Id = Guid.NewGuid(),
+                    PlayerId = player.Id,
+                    DungeonId = dungeon.Id,
+                    MaxStageReached = 0,
+                    IsCompleted = false,
+                    LastUpdatedUtc = DateTime.UtcNow
+                };
+
+                db.PlayerDungeonProgresses.Add(progress);
+                await db.SaveChangesAsync();
+            }
+
+            currentStage = Math.Max(1, progress.MaxStageReached == 0 ? 1 : progress.MaxStageReached);
+
+            var maxStageDefined = dungeon.Stages?.Count > 0
+                ? dungeon.Stages.Max(s => s.StageIndex)
+                : 11;
+
+            currentStage = Math.Clamp(currentStage, 1, Math.Max(1, maxStageDefined));
+
+            await LoadDungeonLocalizationsAsync(db, new List<Guid> { dungeon.Id });
+
+            enemy = PickDungeonEnemy(dungeon, currentStage);
+
+            if (enemy is not null)
+                await LoadMonsterLocalizationsAsync(db, new List<Guid> { enemy.Id });
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static MonsterTemplate? PickDungeonEnemy(Dungeon dng, int stage)
+    {
+        var st = dng.Stages?
+            .OrderBy(s => s.StageIndex)
+            .FirstOrDefault(s => s.StageIndex == stage);
+
+        if (st?.MonsterTemplate is not null)
+            return st.MonsterTemplate;
+
+        var nearest = dng.Stages?
+            .Where(s => s.StageIndex <= stage)
+            .OrderByDescending(s => s.StageIndex)
+            .FirstOrDefault();
+
+        if (nearest?.MonsterTemplate is not null)
+            return nearest.MonsterTemplate;
+
+        return dng.Stages?
+            .OrderBy(s => s.StageIndex)
+            .FirstOrDefault()
+            ?.MonsterTemplate;
+    }
+
+    private async Task RunFightAsync()
+    {
+        if (hasResolved || player is null || dungeon is null || enemy is null)
+            return;
+
+        hasResolved = true;
+        fightLog = new();
+        lootLines = new();
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        // reload progress tracked in THIS db
+        var pr = await db.PlayerDungeonProgresses
+            .FirstOrDefaultAsync(p => p.PlayerId == player.Id && p.DungeonId == dungeon.Id);
+
+        if (pr is null)
+        {
+            didWin = false;
+            resultText = "Progress not found.";
+            return;
+        }
+
+        // ===========================
+        // Build fight input
+        // ===========================
+
+        // Enemy stats (fallback safe)
+        var enemyStats = (enemy.BaseStats ?? StatBlock.Zero).Clone();
+
+        // TODO: Load player party + compute final StatBlocks (materialize here!)
+        var playerUnits = new List<FightUnitInput>();
+
+        // Example skeleton (replace with your real party model):
+        // var party = await db.PlayerPartyUnits
+        //     .Where(x => x.PlayerId == player.Id)
+        //     .Include(x => x.MercenaryTemplate)
+        //     .Include(x => x.EquippedItems)
+        //     .ToListAsync();
+        //
+        // foreach (var u in party)
+        // {
+        //     var stats = BuildFinalStats(u); // StatBlock
+        //     playerUnits.Add(new FightUnitInput(u.Id, u.DisplayName, stats));
+        // }
+
+        if (playerUnits.Count == 0)
+        {
+            didWin = false;
+            resultText = "No player units configured for fight yet.";
+            return;
+        }
+
+        var fightInput = new FightRequest
+        {
+            PlayerId = player.Id,
+            DungeonId = dungeon.Id,
+            Stage = currentStage,
+            Seed = HashCode.Combine(player.Id, dungeon.Id, currentStage, enemy.Id),
+            PlayerUnits = playerUnits,
+            Enemy = new FightUnitInput(enemy.Id, enemy.NameEn ?? "Enemy", enemyStats)
+        };
+
+        // ===========================
+        // Run FightService
+        // ===========================
+        FightResult fightResult;
+        try
+        {
+            fightResult = await FightService.ResolveDungeonFightAsync(fightInput, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            didWin = false;
+            resultText = $"FightService error: {ex.Message}";
+            return;
+        }
+
+        didWin = fightResult.DidWin;
+        resultText = fightResult.Summary ?? (didWin ? "Victory." : "Defeat.");
+        fightLog = fightResult.LogLines?.Take(200).ToList() ?? new();
+
+        // ===========================
+        // Apply dungeon progress
+        // ===========================
+        if (didWin)
+        {
+            newStage = Math.Min(11, currentStage + 1);
+
+            if (currentStage >= 11)
+            {
+                pr.IsCompleted = true;
+                newStage = 11;
+            }
+
+            pr.MaxStageReached = Math.Max(pr.MaxStageReached, newStage);
+        }
+        else
+        {
+            newStage = Math.Max(1, currentStage - 1);
+        }
+
+        pr.LastUpdatedUtc = DateTime.UtcNow;
+
+        // Loot from service (fallback if empty)
+        foreach (var line in fightResult.LootLines ?? Enumerable.Empty<string>())
+            lootLines.Add(line);
+
+        if (lootLines.Count == 0)
+        {
+            if (didWin)
+            {
+                var shards = 5 + currentStage;
+                var stones = 1 + (currentStage / 3);
+                lootLines.Add($"+{shards} Beast shards (from dungeon)");
+                lootLines.Add($"+{stones} Upgrade stones (beast)");
+            }
+            else
+            {
+                lootLines.Add("No loot.");
+            }
+        }
+
+        await db.SaveChangesAsync();
+
+        // update UI cache copy
+        if (progress is not null)
+        {
+            progress.MaxStageReached = pr.MaxStageReached;
+            progress.IsCompleted = pr.IsCompleted;
+            progress.LastUpdatedUtc = pr.LastUpdatedUtc;
+        }
+
+        StateHasChanged();
+    }
+
+    // ===========================
+    // Localization helpers
+    // ===========================
+    private async Task LoadDungeonLocalizationsAsync(GameDbContext db, List<Guid> dungeonIds)
+    {
+        if (dungeonIds.Count == 0) { _dngLocs = new(); return; }
+
+        _dngLocs = await db.LocalizedTexts
+            .Where(x => x.EntityType == nameof(Dungeon) && dungeonIds.Contains(x.EntityId))
+            .ToListAsync();
+    }
+
+    private async Task LoadMonsterLocalizationsAsync(GameDbContext db, List<Guid> monsterIds)
+    {
+        if (monsterIds.Count == 0) { _monsterLocs = new(); return; }
+
+        _monsterLocs = await db.LocalizedTexts
+            .Where(x => x.EntityType == nameof(MonsterTemplate) && monsterIds.Contains(x.EntityId))
+            .ToListAsync();
+    }
+
+    private string DngName(Dungeon d)
+        => Localize(_dngLocs, nameof(Dungeon), d.Id, "Name", d.NameEn);
+
+    private string MonsterName(MonsterTemplate m)
+        => Localize(_monsterLocs, nameof(MonsterTemplate), m.Id, "Name", m.NameEn);
+
+    private static string Localize(
+        List<LocalizedText> cache,
+        string entityType,
+        Guid entityId,
+        string field,
+        string fallback)
+    {
+        var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+        var loc = cache.FirstOrDefault(x =>
+            x.EntityType == entityType &&
+            x.EntityId == entityId &&
+            x.Culture == culture);
+
+        if (loc is null)
+            return fallback;
+
+        string? value = field switch
+        {
+            "Name" => loc.Name,
+            "Description" => loc.Description,
+            _ => null
+        };
+
+        return string.IsNullOrWhiteSpace(value) ? fallback : value!;
+    }
+}

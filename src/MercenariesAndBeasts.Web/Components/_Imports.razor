@@ -1,6 +1,7 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
 @using MercenariesAndBeasts.Domain.Interface
+@using MercenariesAndBeasts.Infrastructure.Players
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
@@ -17,14 +18,11 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Authorization
 @using MercenariesAndBeasts.Infrastructure
-@using MercenariesAndBeasts.Domain.Units
-@using MercenariesAndBeasts.Domain.AI
 @using MercenariesAndBeasts.Domain.Combat
 @using MercenariesAndBeasts.Domain.Enums
 @using MercenariesAndBeasts.Web.Components.Pages.Shared
 @using MercenariesAndBeasts.Web.Services
 
-@inject GameDbContext Db
 
 @inject IUnitAiGenerator DungeonAi
 @inject ToastService Toasts
@@ -33,4 +31,9 @@
 @inject IStringLocalizer<SharedResources> S
 @inject IAiImageGenerator ImageAi
 @inject ErrorService Alerts
+
+@inject IDbContextFactory<GameDbContext> DbFactory
+
+@inject PlayerOnboardingService Onboarding
+@inject GameSeed GameSeed
 

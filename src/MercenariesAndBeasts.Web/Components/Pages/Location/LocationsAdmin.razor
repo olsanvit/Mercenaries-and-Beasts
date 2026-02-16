@@ -1,216 +1,248 @@
 @page "/locations-admin"
 @using System.Globalization
-@using MercenariesAndBeasts.Domain.Utils
+@using System.Reflection
+@using Microsoft.EntityFrameworkCore
+@using MercenariesAndBeasts.Domain.Combat
+@using MercenariesAndBeasts.Domain.Items
+@using MercenariesAndBeasts.Domain.Localization
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
-<h1>@S["Locations"]</h1>
+<h1>Locations</h1>
+
+<div class="alert alert-dark mt-2">
+    <div><b>Localization coverage</b> (locales: @_localeCount)</div>
+
+    <div class="mt-2">
+        <b>Locations:</b>
+        @_locationHaveRows / @_locationMaxRows rows
+        (@(_locationMaxRows == 0 ? "0" : ((100.0 * _locationHaveRows / _locationMaxRows).ToString("0.0")))%)
+        — fully localized: @_locationFullyLocalized / @_locationTotal
+    </div>
+
+    <div>
+        <b>Orders (MercenaryTemplates):</b>
+        @_orderHaveRows / @_orderMaxRows rows
+        (@(_orderMaxRows == 0 ? "0" : ((100.0 * _orderHaveRows / _orderMaxRows).ToString("0.0")))%)
+        — fully localized: @_orderFullyLocalized / @_orderTotal
+        — has ItemTemplate: @_orderWithItemTemplates / @_orderTotal
+    </div>
+</div>
+
 <ImagePreviewer @ref="imagePreviewer" />
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <p>Loading…</p>
 }
 else
 {
     <div class="mb-3">
-        <button class="btn btn-primary" @onclick="NewLocation">@S["NewLocation"]</button>
-        <button class="btn btn-secondary" @onclick="() =>GenerateNextLocation(false)">
-            @S["AiGenLocation"]
-        </button>
-        <div class="input-group">
-        <input class="form-control dungeon-input"
-       @bind="manualLocationName"
-       placeholder="Enter location name…" />
+        <button class="btn btn-primary" @onclick="NewLocation">New Location</button>
 
-        <button class="btn btn-primary"
-                disabled="@IsManualGenerateDisabled"
-                @onclick="async () => await GenerateNextLocation(true)">
-            Generate Location (Manual)
+        <button class="btn btn-secondary ms-2"
+                @onclick="() => GenerateNextLocation(false)">
+            Generate Location (AI)
         </button>
+
+        <div class="input-group mt-2">
+            <input class="form-control"
+                   @bind="manualLocationName"
+                   placeholder="Enter location name…" />
+
+            <button class="btn btn-primary"
+                    disabled="@IsManualGenerateDisabled"
+                    @onclick="async () => await GenerateNextLocation(true)">
+                Generate (Manual Name)
+            </button>
+        </div>
     </div>
 
-    </div>
     @if (!locations.Any())
     {
         <p>No locations yet.</p>
     }
     else
     {
-        <div class="dungeons-table-wrap">
-    <table class="table table-dark table-stages">
-            <thead>
-                <tr>
-                    <th>Code</th>
-                    <th>Name</th>
-                    <th>Element</th>
-                    <th>Unlock Order</th>
-                    <th>Level range</th>
-        <th>Stages</th> @* nový sloupec *@
-        <th>Image</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var loc in locations)
-            {
-                <tr>
-                        <td title="@loc.Code">@loc.Code</td>
-                        <td title="@LocalizationExtensions.NameForCurrentCulture(loc)" class="location-name ellipsis">@LocalizationExtensions.NameForCurrentCulture(loc)</td>
-                        <td>@loc.Element</td>
-                        <td>@loc.UnlockOrder</td>
-                    <td>@loc.MinLevel - @loc.MaxLevel</td> <td>
-            @(loc.Stages?.Count ?? 0)
-            <button class="btn btn-sm btn-outline-info ms-2"
-                    @onclick="() => ToggleDungeonStages(loc.Id)">
-                @(expandedLocationIds.Contains(loc.Id) ? "Hide" : "Show")
-            </button>
-        </td>
-         <td>
-        @if (!string.IsNullOrEmpty(loc.ImagePath))
-        {
-            <img src="@loc.ImagePath"
-                 alt="@loc.NameEn"
-                 class="location-thumb me-2"
-                 @onclick="() => ShowImage(loc.ImagePath!)" />
-        }
-
-        <button class="btn btn-sm btn-outline-info"
-                disabled="@IsGeneratingImageFor(loc.Id)"
-                @onclick="() => GenerateImageForLocation(loc)">
-            @if (IsGeneratingImageFor(loc.Id))
-            {
-                <span>Generating…</span>
-            }
-            else
-            {
-                <span>Generate image</span>
-            }
-        </button>
-    </td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary me-1" @onclick="() => EditLocation(loc)">Edit</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteLocation(loc.Id)">Delete</button>
-                    </td>
-                </tr>
-                @if (expandedLocationIds.Contains(loc.Id))
-    {
-                    <tr class="table-secondary dungeon-detail-row">
-            <td colspan="8">
-                        <td class="location-name">@LocalizationExtensions.DescriptionForCurrentCulture(loc)</td>
-                @if (loc.Stages == null || loc.Stages.Count == 0)
-                {
-                    <em>No stages defined.</em>
-                }
-                else
-                {
-                    <div class="accordion" id="acc-@loc.Id">
-                        <div class="accordion-item bg-dark text-light">
-                            <h2 class="accordion-header" id="heading-@loc.Id">
-                                <button class="accordion-button collapsed"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#collapse-@loc.Id"
-                                        aria-expanded="false"
-                                        aria-controls="collapse-@loc.Id">
-                                    Stages &amp; monsters
-                                </button>
-                            </h2>
-                            <div id="collapse-@loc.Id"
-                                 class="accordion-collapse collapse show"
-                                 aria-labelledby="heading-@loc.Id">
-                                <div class="accordion-body">
-                                    <table class="table table-sm table-dark mb-0 table-stages">
-    <thead>
-        <tr>
-            <th class="num">#</th>
-            <th class="stage-type">Stage type</th>
-            <th class="wrap">Monster</th>
-            <th class="num">Level</th>
-            <th class="wrap">Element</th>
-            <th class="num">HP</th>
-            <th class="num">Attack</th>
-            <th class="num">Defense</th>
-            <th class="num">Speed</th>
-            <th class="num">CritChance</th>
-            <th class="num">CritMultiplier</th>
-            <th class="num">ElementalDamageBonus</th>
-            <th class="num">ElementalResistance</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var s in loc.Stages.OrderBy(s => s.StageNumber))
-        {
+        <!-- ✅ scroll wrapper for MAIN table -->
+       <div class="table-scroll-x">
+        <table class="table table-dark table-fixed w-100">
+        <thead>
             <tr>
-                <td class="num">@s.StageNumber</td>
-                <td class="stage-type">@s.Difficulty</td>
-
-                <td class="wrap"
-                    title="@LocalizationExtensions.NameForCurrentCulture(s.Enemy)">
-                    @LocalizationExtensions.NameForCurrentCulture(s.Enemy)
-                </td>
-
-                <td class="num">@s.Enemy?.BaseLevel</td>
-                <td class="wrap">@s.Enemy?.Element</td>
-
-                <td class="num">@s.Enemy?.BaseStats?.MaxHp</td>
-                <td class="num">@s.Enemy?.BaseStats?.Attack</td>
-                <td class="num">@s.Enemy?.BaseStats?.Defense</td>
-                <td class="num">@s.Enemy?.BaseStats?.Speed</td>
-                <td class="num">@s.Enemy?.BaseStats?.CritChance</td>
-                <td class="num">@s.Enemy?.BaseStats?.CritMultiplier</td>
-                <td class="num">@s.Enemy?.BaseStats?.ElementalDamageBonus</td>
-                <td class="num">@s.Enemy?.BaseStats?.ElementalResistance</td>
+                <th>Code</th>
+                <th>Name (EN)</th>
+                <th>Element</th>
+                <th>Unlock</th>
+                <th>Levels</th>
+                <th>Stages</th>
+                <th>Orders: items</th>
+                <th>Image</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </td>
-        </tr>
-    }
-            }
-            </tbody>
-        </table>
-    </div>
+        </thead>
+
+        <tbody>
+                    @foreach (var loc in locations)
+                    {
+                        var stages = loc.Stages ?? new List<ExpeditionStage>();
+
+                        var orderNames = stages
+                            .Select(s => s.Enemy?.NameEn)
+                            .Where(n => !string.IsNullOrWhiteSpace(n))
+                            .Select(n => n!)
+                            .Distinct()
+                            .ToList();
+
+                        var orderHaveItems = orderNames.Count(n => _orderItemNames.Contains(n));
+                        var orderTotal = orderNames.Count;
+
+                        <tr>
+                            <td>@loc.Code</td>
+                            <td>@loc.NameEn</td>
+                            <td>@loc.Element</td>
+                            <td>@loc.UnlockOrder</td>
+                            <td>@loc.MinLevel – @loc.MaxLevel</td>
+
+                            <td>
+                                @(loc.Stages?.Count ?? 0)
+                                <button class="btn btn-sm btn-outline-info ms-1"
+                                        @onclick="() => ToggleLocationStages(loc.Id)">
+                                    @(expandedLocationIds.Contains(loc.Id) ? "Hide" : "Show")
+                                </button>
+                            </td>
+
+                            <td>
+                                @if (orderTotal == 0)
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                                else
+                                {
+                                    <span>@orderHaveItems/@orderTotal</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrEmpty(loc.ImagePath))
+                                {
+                                    <img src="@loc.ImagePath"
+                                         style="max-height:70px; cursor:pointer;"
+                                         @onclick="() => ShowImage(loc.ImagePath!)" />
+                                }
+
+                                <button class="btn btn-sm btn-outline-info ms-1"
+                                        disabled="@IsGeneratingImageFor(loc.Id)"
+                                        @onclick="() => GenerateImageForLocation(loc)">
+                                    @if (IsGeneratingImageFor(loc.Id))
+                                    {
+                                        <span>Generating…</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Generate image</span>
+                                    }
+                                </button>
+                            </td>
+
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-secondary"
+                                        @onclick="() => EditLocation(loc)">
+                                    Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger ms-1"
+                                        @onclick="() => DeleteLocation(loc.Id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+
+                        @if (expandedLocationIds.Contains(loc.Id))
+{
+   <tr class="table-secondary location-detail-row">
+    <td colspan="9" style="max-width:0;">
+        <div class="mb-2 location-description">@loc.DescriptionEn</div>
+
+            <div class="table-scroll-x inner-scroll">
+                <table class="table table-sm table-dark align-middle text-nowrap mb-0 inner-wide">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Difficulty</th>
+                            <th>Enemy (Order)</th>
+                            <th>Has item</th>
+                            <th>Level</th>
+                            <th>Element</th>
+                            @foreach (var col in StatColumns)
+                            {
+                                <th>@col.Header</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in loc.Stages.OrderBy(s => s.StageNumber))
+                        {
+                            var m = s.Enemy;
+                            var hasItem = m is not null
+                                && !string.IsNullOrWhiteSpace(m.NameEn)
+                                && _orderItemNames.Contains(m.NameEn);
+
+                            <tr>
+                                <td>@s.StageNumber</td>
+                                <td>@s.Difficulty</td>
+                                <td>@m?.NameEn</td>
+                                <td>@(m is null ? "—" : (hasItem ? "✓" : "—"))</td>
+                                <td>@m?.BaseLevel</td>
+                                <td>@m?.Element</td>
+                                @foreach (var col in StatColumns)
+                                {
+                                    <td>@FormatStat(col.GetValue(m?.BaseStats))</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </td>
+    </tr>
+}
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 }
 
 @if (editModel is not null)
 {
     <hr />
-    <h2>@(editModel.Id == Guid.Empty ? "Create location" : "Edit location")</h2>
+    <h3>@(editModel.Id == Guid.Empty ? "Create Location" : "Edit Location")</h3>
 
     <EditForm Model="@editModel" OnValidSubmit="Save">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <div class="mb-2">
-            <label class="form-label">Code</label>
+            <label>Code</label>
             <InputText class="form-control" @bind-Value="editModel.Code" />
         </div>
 
         <div class="mb-2">
-            <label class="form-label">Name (EN)</label>
+            <label>Name (EN)</label>
             <InputText class="form-control" @bind-Value="editModel.NameEn" />
         </div>
 
         <div class="mb-2">
-            <label class="form-label">Min level</label>
+            <label>Min level</label>
             <InputNumber class="form-control" @bind-Value="editModel.MinLevel" />
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Max level</label>
+        <div class="mb-2">
+            <label>Max level</label>
             <InputNumber class="form-control" @bind-Value="editModel.MaxLevel" />
         </div>
 
-        <button type="submit" class="btn btn-success me-2">Save</button>
-        <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+        <button class="btn btn-success">Save</button>
+        <button type="button" class="btn btn-outline-secondary ms-2"
+                @onclick="CancelEdit">Cancel</button>
     </EditForm>
 }
 
@@ -218,35 +250,47 @@ else
     private bool isLoading = true;
     private List<Location> locations = new();
     private Location? editModel;
-    private string manualLocationName = string.Empty;
-    private bool IsManualGenerateDisabled =>
-        isLoading || string.IsNullOrWhiteSpace(manualLocationName);
+
+    private string manualLocationName = "";
+    private bool IsManualGenerateDisabled => isLoading || string.IsNullOrWhiteSpace(manualLocationName);
+
+    private HashSet<Guid> expandedLocationIds = new();
+
+    // ===== Order -> has ItemTemplate (by NameEn match) =====
+    private HashSet<string> _orderItemNames = new(StringComparer.Ordinal);
+
+    // ===== Localization stats =====
+    private int _localeCount => LocalizationConfig.SupportedLocales.Length;
+
+    private int _locationTotal;
+    private int _locationMaxRows;
+    private int _locationHaveRows;
+    private int _locationFullyLocalized;
+
+    private int _orderTotal;
+    private int _orderMaxRows;
+    private int _orderHaveRows;
+    private int _orderFullyLocalized;
+    private int _orderWithItemTemplates;
 
     protected override async Task OnInitializedAsync()
-    {
-        await LoadLocations();
-    }
+        => await LoadLocations();
 
     private async Task LoadLocations()
     {
         isLoading = true;
 
+        await using var Db = await DbFactory.CreateDbContextAsync();
         try
         {
             locations = await Db.Locations
-                .Include(x => x.Stages).ThenInclude(x => x.Enemy)
-                .OrderBy(l => l.MinLevel)
-                .ThenBy(l => l.Code)
+                .Include(x => x.Stages)
+                    .ThenInclude(x => x.Enemy)
+                .OrderBy(x => x.UnlockOrder)
                 .ToListAsync();
 
-            // přeložení názvů (bez pádu stránky při chybě)
-            await EnsureLocalizationAsync();
-
-            Toasts.Success("Locations loaded", $"Loaded {locations.Count} locations.");
-        }
-        catch (Exception ex)
-        {
-            Toasts.Error("Failed to load locations", ex.Message);
+            await LoadOrderItemPresenceAsync();
+            await LoadLocalizationStatsAsync();
         }
         finally
         {
@@ -255,115 +299,125 @@ else
         }
     }
 
-    private void NewLocation()
+    private async Task LoadOrderItemPresenceAsync()
     {
-        editModel = new Location
+        var orderNames = locations
+            .SelectMany(l => l.Stages ?? new List<ExpeditionStage>())
+            .Select(s => s.Enemy?.NameEn)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Select(n => n!)
+            .Distinct()
+            .ToList();
+
+        if (orderNames.Count == 0)
         {
-            MinLevel = 1,
-            MaxLevel = 5
-        };
+            _orderItemNames = new HashSet<string>(StringComparer.Ordinal);
+            return;
+        }
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+
+        var itemNames = await Db.ItemTemplates
+            .Where(t => t.NameEn != null && orderNames.Contains(t.NameEn))
+            .Select(t => t.NameEn!)
+            .Distinct()
+            .ToListAsync();
+
+        _orderItemNames = new HashSet<string>(itemNames, StringComparer.Ordinal);
     }
 
-    private void EditLocation(Location loc)
+    private async Task LoadLocalizationStatsAsync()
     {
-        // kopie, ať nehýbeš rovnou trackovaným
-        editModel = new Location
+        var locales = LocalizationConfig.SupportedLocales;
+
+        var locationIds = locations.Select(l => l.Id).ToList();
+
+        var orderIds = locations
+            .SelectMany(l => l.Stages ?? new List<ExpeditionStage>())
+            .Select(s => s.EnemyId)
+            .Distinct()
+            .ToList();
+
+        _locationTotal = locationIds.Count;
+        _orderTotal = orderIds.Count;
+
+        _locationMaxRows = _locationTotal * _localeCount;
+        _orderMaxRows = _orderTotal * _localeCount;
+
+        if (_locationTotal == 0)
+        {
+            _locationHaveRows = 0;
+            _locationFullyLocalized = 0;
+        }
+        else
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+            var locCounts = await Db.LocalizedTexts
+                .Where(x => x.EntityType == nameof(Location)
+                            && locationIds.Contains(x.EntityId)
+                            && locales.Contains(x.Culture)
+                            && x.Name != null && x.Name != "")
+                .GroupBy(x => x.EntityId)
+                .Select(g => new { EntityId = g.Key, Cnt = g.Count() })
+                .ToListAsync();
+
+            _locationHaveRows = locCounts.Sum(x => x.Cnt);
+            _locationFullyLocalized = locCounts.Count(x => x.Cnt >= _localeCount);
+        }
+
+        if (_orderTotal == 0)
+        {
+            _orderHaveRows = 0;
+            _orderFullyLocalized = 0;
+            _orderWithItemTemplates = 0;
+        }
+        else
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+            var orderCounts = await Db.LocalizedTexts
+                .Where(x => x.EntityType == nameof(MercenaryTemplate)
+                            && orderIds.Contains(x.EntityId)
+                            && locales.Contains(x.Culture)
+                            && x.Name != null && x.Name != "")
+                .GroupBy(x => x.EntityId)
+                .Select(g => new { EntityId = g.Key, Cnt = g.Count() })
+                .ToListAsync();
+
+            _orderHaveRows = orderCounts.Sum(x => x.Cnt);
+            _orderFullyLocalized = orderCounts.Count(x => x.Cnt >= _localeCount);
+
+            _orderWithItemTemplates = locations
+                .SelectMany(l => l.Stages ?? new List<ExpeditionStage>())
+                .Select(s => s.Enemy?.NameEn)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Select(n => n!)
+                .Distinct()
+                .Count(n => _orderItemNames.Contains(n));
+        }
+    }
+
+    private void NewLocation()
+        => editModel = new Location { MinLevel = 1, MaxLevel = 5 };
+
+    private void EditLocation(Location loc)
+        => editModel = new Location
         {
             Id = loc.Id,
             Code = loc.Code,
             NameEn = loc.NameEn,
             MinLevel = loc.MinLevel,
-            MaxLevel = loc.MaxLevel
+            MaxLevel = loc.MaxLevel,
+            UnlockOrder = loc.UnlockOrder,
+            Element = loc.Element,
+            DescriptionEn = loc.DescriptionEn,
+            ImagePath = loc.ImagePath
         };
-    }
 
-private async Task EnsureLocalizationAsync()
-{
-    try
-    {
-        bool anyChanges = false;
-
-        foreach (var loc in locations)
-        {
-            bool needsLocationLocalization =
-                string.IsNullOrWhiteSpace(loc.NameCs) ||
-                string.IsNullOrWhiteSpace(loc.NameDe);
-
-            if (needsLocationLocalization)
-            {
-                var locNames = await DungeonAi.GenerateLocalizedNamesAsync(
-                    entityKind: "location",
-                    nameEn: loc.NameEn,
-                    descriptionEn: loc.DescriptionEn
-                );
-
-                if (locNames != null)
-                {
-                    loc.NameEn        = locNames.NameEn;
-                    loc.NameCs        = locNames.NameCs;
-                    loc.NameDe        = locNames.NameDe;
-                    loc.DescriptionEn = locNames.DescriptionEn;
-                    loc.DescriptionCs = locNames.DescriptionCs;
-                    loc.DescriptionDe = locNames.DescriptionDe;
-
-                    Db.Locations.Update(loc);
-                    anyChanges = true;
-                }
-            }
-
-            // enemies
-            foreach (var stage in loc.Stages)
-            {
-                var m = stage.Enemy;
-                if (m == null) continue;
-
-                bool needsMonsterLocalization =
-                    string.IsNullOrWhiteSpace(m.NameCs) ||
-                    string.IsNullOrWhiteSpace(m.NameDe);
-
-                if (needsMonsterLocalization)
-                {
-                    var locM = await DungeonAi.GenerateLocalizedNamesAsync(
-                        entityKind: "mercenary",
-                        nameEn: m.NameEn,
-                        descriptionEn: m.DescriptionEn
-                    );
-
-                    if (locM != null)
-                    {
-                        m.NameEn        = locM.NameEn;
-                        m.NameCs        = locM.NameCs;
-                        m.NameDe        = locM.NameDe;
-                        m.DescriptionEn = locM.DescriptionEn;
-                        m.DescriptionCs = locM.DescriptionCs;
-                        m.DescriptionDe = locM.DescriptionDe;
-
-                        Db.MercenaryTemplates.Update(m);
-                        anyChanges = true;
-                    }
-                }
-            }
-        }
-
-        if (anyChanges)
-        {
-            await Db.SaveChangesAsync();
-            Toasts.Success("Localization updated", "Some names/descriptions were translated.");
-        }
-    }
-    catch (Exception ex)
-    {
-        // nechci zbourat stránku kvůli lokalizaci
-        Toasts.Error("Localization failed", ex.Message);
-    }
-}
     private async Task Save()
     {
-        if (editModel is null)
-        return;
+        if (editModel is null) return;
 
-    try
-    {
+        await using var Db = await DbFactory.CreateDbContextAsync();
         if (editModel.Id == Guid.Empty)
         {
             editModel.Id = Guid.NewGuid();
@@ -371,234 +425,123 @@ private async Task EnsureLocalizationAsync()
         }
         else
         {
-            var existing = await Db.Locations.FirstOrDefaultAsync(l => l.Id == editModel.Id);
+            var existing = await Db.Locations.FirstOrDefaultAsync(x => x.Id == editModel.Id);
             if (existing is null)
-            {
-                Toasts.Error("Save failed", "Location not found.");
                 return;
-            }
 
-            existing.Code     = editModel.Code;
-            existing.NameEn   = editModel.NameEn;
+            existing.Code = editModel.Code;
+            existing.NameEn = editModel.NameEn;
             existing.MinLevel = editModel.MinLevel;
             existing.MaxLevel = editModel.MaxLevel;
+            existing.UnlockOrder = editModel.UnlockOrder;
         }
 
         await Db.SaveChangesAsync();
         editModel = null;
         await LoadLocations();
-
-        Toasts.Success("Location saved", "The location has been saved successfully.");
-    }
-    catch (Exception ex)
-    {
-        Toasts.Error("Failed to save location", ex.Message);
-    }
     }
 
-    private HashSet<Guid> expandedLocationIds = new();
+    private void CancelEdit() => editModel = null;
 
-    private void ToggleDungeonStages(Guid locationId)
-    {
-        if (expandedLocationIds.Contains(locationId))
-            expandedLocationIds.Remove(locationId);
-        else
-            expandedLocationIds.Add(locationId);
-    }
     private async Task DeleteLocation(Guid id)
     {
-        try
-    {
-        var loc = await Db.Locations.FirstOrDefaultAsync(l => l.Id == id);
-        if (loc is null)
-        {
-            Toasts.Error("Delete failed", "Location not found.");
-            return;
-        }
+        await using var Db = await DbFactory.CreateDbContextAsync();
+        var loc = await Db.Locations.FindAsync(id);
+        if (loc is null) return;
 
         Db.Locations.Remove(loc);
         await Db.SaveChangesAsync();
         await LoadLocations();
-
-        Toasts.Success("Location deleted", loc.NameEn);
-    }
-    catch (Exception ex)
-    {
-        Toasts.Error("Failed to delete location", ex.Message);
-    }
     }
 
-    private void CancelEdit()
+    private void ToggleLocationStages(Guid id)
     {
-        editModel = null;
+        if (!expandedLocationIds.Add(id))
+            expandedLocationIds.Remove(id);
     }
-    private async Task GenerateNextLocation(bool current)
+
+    private async Task GenerateNextLocation(bool manual)
     {
         isLoading = true;
-
-    try
-    {
-        string locationName;
-        var newLocation = new Location();
-
-        var lastLocation = await Db.Locations
-            .OrderByDescending(d => d.UnlockOrder)
-            .FirstOrDefaultAsync();
-
-        if (lastLocation is null)
-        {
-            newLocation.MinLevel = 1;
-            newLocation.MaxLevel = 5;
-        }
-        else
-        {
-            newLocation.MinLevel = lastLocation.MinLevel;
-            newLocation.MaxLevel = lastLocation.MaxLevel;
-        }
-
-        if (!current)
-        {
-            locationName = lastLocation?.NameEn ?? "Bausia";
-        }
-        else
-        {
-            locationName = manualLocationName.Trim();
-            newLocation.NameEn = locationName;
-        }
-
-        var generated = await DungeonAi.GenerateNextLocationAsync(lastLocation, newLocation, current);
-        if (generated is null)
-        {
-            Toasts.Error("AI generation failed", "No location was generated.");
-            return;
-        }
-
-        int nextUnlockOrder = lastLocation is null
-            ? 1
-            : lastLocation.UnlockOrder + 1;
-
-        var location = new Location
-        {
-            Id           = Guid.NewGuid(),
-            Code         = $"DUN_{generated.NameEn.ToUpper()}",
-            NameEn       = generated.NameEn,
-            DescriptionEn = generated.DescriptionEn,
-            Element      = Enum.TryParse<ElementType>(generated.Element.ToString(), true, out var el)
-                            ? el
-                            : ElementType.None,
-            MinLevel     = generated.MinLevel,
-            MaxLevel     = generated.MaxLevel,
-            UnlockOrder  = nextUnlockOrder
-        };
-
-        Db.Locations.Add(location);
-
-        foreach (var st in generated.Stages.OrderBy(s => s.StageNumber))
-        {
-            var m = st.Mercenary;
-
-            var merc = new MercenaryTemplate
-            {
-                Id          = Guid.NewGuid(),
-                Code        = $"{location.Code}_{m.NameEn.ToUpper()}",
-                NameEn      = m.NameEn,
-                DescriptionEn = m.DescriptionEn,
-                Element     = Enum.TryParse<ElementType>(m.Element.ToString(), true, out var el1)
-                              ? el1
-                              : ElementType.None,
-                BaseLevel   = m.BaseLevel,
-                BaseStats   = new StatBlock
-                {
-                    MaxHp                = m.Stats.MaxHp,
-                    Attack               = m.Stats.Attack,
-                    Defense              = m.Stats.Defense,
-                    Speed                = m.Stats.Speed,
-                    CritChance           = m.Stats.CritChance,
-                    CritMultiplier       = m.Stats.CritMultiplier,
-                    ElementalDamageBonus = m.Stats.ElementalDamageBonus,
-                    ElementalResistance  = m.Stats.ElementalResistance
-                }
-            };
-
-            Db.MercenaryTemplates.Add(merc);
-
-            var stage = new ExpeditionStage
-            {
-                Id         = Guid.NewGuid(),
-                Code       = $"{location.Code}_{st.StageNumber}",
-                LocationId = location.Id,
-                StageNumber = st.StageNumber,
-                Difficulty = Enum.TryParse<ExpeditionStageType>(
-                                st.StageType.ToString(),
-                                ignoreCase: true,
-                                out var stType)
-                                ? stType
-                                : ExpeditionStageType.ES1_Novice,
-                EnemyId = merc.Id
-            };
-
-            Db.ExpeditionStages.Add(stage);
-        }
-
-        await Db.SaveChangesAsync();
-        await LoadLocations();
-
-        Toasts.Success("Location created", location.NameEn);
-    }
-    catch (Exception ex)
-    {
-        Toasts.Error("Failed to generate location", ex.Message);
-    }
-    finally
-    {
-        isLoading = false;
-    }
-}
-private Guid? imageGeneratingLocationId;
-
-private bool IsGeneratingImageFor(Guid id)
-    => imageGeneratingLocationId.HasValue && imageGeneratingLocationId.Value == id;
-
-private async Task GenerateImageForLocation(Location loc)
-{
-    if (IsGeneratingImageFor(loc.Id))
-        return;
-
-    imageGeneratingLocationId = loc.Id;
-    StateHasChanged();
-
-    try
-    {
-        var path = await ImageAi.GenerateLocationImageAsync(loc);
-        if (string.IsNullOrEmpty(path))
-        {
-            Toasts.Error("Image generation failed", "AI did not return any image.");
-            return;
-        }
-
-        var dbLoc = await Db.Locations.FirstAsync(l => l.Id == loc.Id);
-        dbLoc.ImagePath = path;
-
-        await Db.SaveChangesAsync();
-        await LoadLocations();
-
-        Toasts.Success("Image generated", loc.NameEn);
-    }
-    catch (Exception ex)
-    {
-        Toasts.Error("Failed to generate image", ex.Message);
-    }
-    finally
-    {
-        imageGeneratingLocationId = null;
         StateHasChanged();
-    }
-}
-private ImagePreviewer? imagePreviewer;
 
-private void ShowImage(string url)
-{
-    imagePreviewer?.Open(url);
-}
-  
+        await using var Db = await DbFactory.CreateDbContextAsync();
+        try
+        {
+            var last = await Db.Locations
+                .OrderByDescending(x => x.UnlockOrder)
+                .FirstOrDefaultAsync();
+
+            var loc = new Location
+            {
+                NameEn = manual ? manualLocationName.Trim() : last?.NameEn ?? "Unknown",
+                MinLevel = last?.MinLevel ?? 1,
+                MaxLevel = last?.MaxLevel ?? 5
+            };
+
+            await DungeonAi.GenerateNextLocationAsync(last, loc, true, "", CancellationToken.None);
+
+            await LoadLocations();
+            Toasts.Success("Location created", loc.NameEn);
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error("AI generation failed", ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private Guid? imageGeneratingLocationId;
+    private bool IsGeneratingImageFor(Guid id) => imageGeneratingLocationId == id;
+
+    private async Task GenerateImageForLocation(Location loc)
+    {
+        imageGeneratingLocationId = loc.Id;
+        StateHasChanged();
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+        try
+        {
+            var path = await ImageAi.GenerateLocationImageAsync(loc);
+            if (!string.IsNullOrEmpty(path))
+            {
+                loc.ImagePath = path;
+                await Db.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error("Image generation failed", ex.Message);
+        }
+        finally
+        {
+            imageGeneratingLocationId = null;
+            await LoadLocations();
+        }
+    }
+
+    private ImagePreviewer? imagePreviewer;
+    private void ShowImage(string url) => imagePreviewer?.Open(url);
+
+    private sealed record StatCol(string Header, Func<StatBlock?, object?> GetValue);
+    private static readonly List<StatCol> StatColumns = BuildStatColumns();
+
+    private static List<StatCol> BuildStatColumns()
+    {
+        var props = typeof(StatBlock).GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(p => p.CanRead &&
+                        (p.PropertyType == typeof(int) ||
+                         p.PropertyType == typeof(long) ||
+                         p.PropertyType == typeof(float) ||
+                         p.PropertyType == typeof(double)))
+            .ToList();
+
+        return props.Select(p => new StatCol(p.Name, sb => sb is null ? null : p.GetValue(sb))).ToList();
+    }
+
+    private static string FormatStat(object? v) => v?.ToString() ?? "-";
 }

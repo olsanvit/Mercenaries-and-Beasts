@@ -22,6 +22,70 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.BeastEquipmentSlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BeastInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PlayerItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PlayerItemId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Slot")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerItemId");
+
+                    b.HasIndex("PlayerItemId1");
+
+                    b.HasIndex("BeastInstanceId", "Slot")
+                        .IsUnique();
+
+                    b.ToTable("BeastEquipmentSlots");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Country", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<string>("Continent")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Iso3")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Population")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("Continent");
+
+                    b.HasIndex("NameEn");
+
+                    b.ToTable("Countries");
+                });
+
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Dungeon", b =>
                 {
                     b.Property<Guid>("Id")
@@ -36,19 +100,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
-                        .HasColumnType("text");
-
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Element")
+                    b.Property<string>("Element")
+                        .IsRequired()
                         .HasMaxLength(32)
-                        .HasColumnType("integer");
+                        .HasColumnType("character varying(32)");
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
@@ -61,14 +120,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("MinLevel")
                         .HasColumnType("integer");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -99,12 +150,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
-                        .HasColumnType("text");
-
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -123,14 +168,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<Guid>("MonsterTemplateId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -167,12 +204,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
-                        .HasColumnType("text");
-
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -194,14 +225,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<Guid>("LocationId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -235,10 +258,76 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("DescriptionCs")
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("DescriptionDe")
+                    b.Property<int>("Element")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("GrantedMercenaryTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("GrantedMonsterTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("MercenarySlot")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("MercenaryTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("MonsterSlot")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("MonsterTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OwnerKind")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("ScalingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("UpgradeTarget")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GrantedMercenaryTemplateId");
+
+                    b.HasIndex("GrantedMonsterTemplateId");
+
+                    b.HasIndex("MercenaryTemplateId");
+
+                    b.HasIndex("MonsterTemplateId");
+
+                    b.HasIndex("ScalingId");
+
+                    b.ToTable("ItemTemplates");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.ItemTemplate+PlayerItemPieces", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("DescriptionEn")
@@ -251,49 +340,15 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<string>("ImagePromptMeta")
                         .HasColumnType("text");
 
-                    b.Property<int>("ItemType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
                     b.Property<string>("NameEn")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("Slot")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ItemTemplates");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.PlayerItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("integer");
+                    b.Property<long>("Pieces")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("PrefixCode")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Quality")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SuffixCode")
-                        .HasColumnType("text");
 
                     b.Property<Guid>("TemplateId")
                         .HasColumnType("uuid");
@@ -304,7 +359,180 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.HasIndex("TemplateId");
 
-                    b.ToTable("PlayerItems");
+                    b.ToTable("Pieces");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.ItemTemplate+StatScaling", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<float>("AccuracyPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("ActionCostReductionPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("ArmorPenetrationPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("AttackPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("BlockChancePerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("CooldownReductionPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("CritChancePerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("CritMultiplierPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("DamageBonusPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("DamageReductionPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("DefensePerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("DotDamagePerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("EnergyRegenPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("EvasionPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("HpPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("HpRegenPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("LifeStealPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("SpeedPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("StatusChancePerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("StatusDurationPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("StatusResistancePerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("TrueDamageBonusPerLevel")
+                        .HasColumnType("real");
+
+                    b.Property<float>("TurnMeterGainPerLevel")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StatScaling", (string)null);
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.ItemUpgradeResource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DefaultAmount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ItemTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemTemplateId", "Type")
+                        .IsUnique();
+
+                    b.ToTable("ItemUpgradeResources");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.LocalizedText", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Culture")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("UpdatedUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Culture");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.HasIndex("EntityType", "EntityId", "Culture")
+                        .IsUnique();
+
+                    b.ToTable("LocalizedTexts");
                 });
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Location", b =>
@@ -321,19 +549,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
-                        .HasColumnType("text");
-
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Element")
+                    b.Property<string>("Element")
+                        .IsRequired()
                         .HasMaxLength(32)
-                        .HasColumnType("integer");
+                        .HasColumnType("character varying(32)");
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
@@ -346,14 +569,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("MinLevel")
                         .HasColumnType("integer");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -371,167 +586,37 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerProfile", b =>
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.MercenaryEquipmentSlot", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ActiveMercenaryTeamId")
+                    b.Property<Guid>("MercenaryInstanceId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ActiveMonsterTeamId")
+                    b.Property<Guid?>("PlayerItemId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("BaseLevel")
+                    b.Property<Guid?>("PlayerItemId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Slot")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Energy")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("Experience")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("Gold")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImagePromptMeta")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MaxEnergy")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Players");
+                    b.HasIndex("PlayerItemId");
+
+                    b.HasIndex("PlayerItemId1");
+
+                    b.HasIndex("MercenaryInstanceId", "Slot")
+                        .IsUnique();
+
+                    b.ToTable("MercenaryEquipmentSlots");
                 });
 
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.DungeonAchievementDefinition", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("DungeonId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Index")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("NameEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DungeonId");
-
-                    b.ToTable("DungeonAchievements");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.ExpeditionAchievementDefinition", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Index")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("NameEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
-
-                    b.ToTable("ExpeditionAchievements");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerDungeonAchievement", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AchievementId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CompletedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("PlayerId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AchievementId");
-
-                    b.HasIndex("PlayerId");
-
-                    b.ToTable("PlayerDungeonAchievements");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerDungeonProgress", b =>
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.MercenaryTemplate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -542,166 +627,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("DungeonId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImagePromptMeta")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdatedUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("MaxStageReached")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("PlayerId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DungeonId");
-
-                    b.HasIndex("PlayerId");
-
-                    b.ToTable("PlayerDungeonProgresses");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerExpeditionAchievement", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AchievementId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CompletedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("PlayerId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AchievementId");
-
-                    b.HasIndex("PlayerId");
-
-                    b.ToTable("PlayerExpeditionAchievements");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerExpeditionProgress", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("BaseLevel")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImagePromptMeta")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdatedUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("MaxStageReached")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameEn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("PlayerId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
-
-                    b.HasIndex("PlayerId");
-
-                    b.ToTable("PlayerExpeditionProgresses");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Units.MercenaryTemplate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("BaseLevel")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
                         .HasColumnType("text");
 
                     b.Property<string>("DescriptionEn")
@@ -717,24 +642,19 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<string>("ImagePromptMeta")
                         .HasColumnType("text");
 
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
                     b.Property<string>("NameEn")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.ToTable("MercenaryTemplates");
                 });
 
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Units.MonsterTemplate", b =>
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.MonsterTemplate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -745,12 +665,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
                         .HasColumnType("text");
 
                     b.Property<string>("DescriptionEn")
@@ -766,24 +680,19 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<string>("ImagePromptMeta")
                         .HasColumnType("text");
 
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
                     b.Property<string>("NameEn")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.ToTable("MonsterTemplates");
                 });
 
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Units.PlayerMercenary", b =>
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.PlayerMercenary", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -794,12 +703,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
                         .HasColumnType("text");
 
                     b.Property<string>("DescriptionEn")
@@ -814,14 +717,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Property<int>("Level")
                         .HasColumnType("integer");
-
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -845,14 +740,35 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.ToTable("PlayerMercenaries");
                 });
 
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Units.PlayerMonster", b =>
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.PlayerMonster", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
                     b.Property<int>("Level")
                         .HasColumnType("integer");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("uuid");
@@ -870,6 +786,735 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.HasIndex("TemplateId");
 
                     b.ToTable("PlayerMonsters");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerBeastSlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("BeastId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BeastInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PlayerProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SlotIndex")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BeastId");
+
+                    b.HasIndex("BeastInstanceId");
+
+                    b.HasIndex("PlayerProfileId");
+
+                    b.ToTable("PlayerBeastSlots");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerDungeonProgress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("CurrentStage")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("DungeonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastUpdatedUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MaxStageReached")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("WinStreak")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DungeonId");
+
+                    b.HasIndex("PlayerId", "DungeonId")
+                        .IsUnique();
+
+                    b.ToTable("PlayerDungeonProgresses");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerExpeditionAchievements", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BestWinStreak")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("BossDefeated")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("EnemiesDefeatedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EnemiesTotalCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OrdersDiscoveredCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrdersTotalCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RequiredWinStreak")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("PlayerId", "LocationId")
+                        .IsUnique();
+
+                    b.ToTable("PlayerExpeditionAchievementSummary", (string)null);
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerExpeditionEncounter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BossIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("LastRolledUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RollVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("Target1MercenaryTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("Target2MercenaryTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("Target3MercenaryTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("PlayerId");
+
+                    b.ToTable("PlayerExpeditionEncounter");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerExpeditionProgress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AchievementsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EncounterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("EncounterOrder1TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("EncounterOrder2TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("EncounterOrder3TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("EncounterOrder4TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("EncounterOrder5TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("EncounterRolledUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastUpdatedUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("MaxStageReached")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TotalLosses")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalWins")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WinStreak")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementsId");
+
+                    b.HasIndex("EncounterId");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("PlayerId", "LocationId")
+                        .IsUnique();
+
+                    b.ToTable("PlayerExpeditionProgresses");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BadgeTier")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("EquipSlot")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("LinkedMercenaryInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("LinkedMonsterInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PrefixCode")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Quality")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SuffixCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TimesUsedInWins")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Wins")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("PlayerItems");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerItemDiscovery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("FirstDiscoveredUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDiscovered")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("ItemXp")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastFoundUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MasteryLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TimesFound")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.HasIndex("PlayerId", "TemplateId")
+                        .IsUnique();
+
+                    b.ToTable("PlayerItemDiscoveries");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerMercenarySlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("MercenaryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("MercenaryInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PlayerProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SlotIndex")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MercenaryId");
+
+                    b.HasIndex("MercenaryInstanceId");
+
+                    b.HasIndex("PlayerProfileId");
+
+                    b.ToTable("PlayerMercenarySlots");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ActiveMercenaryTeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ActiveMonsterTeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BaseLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("CountryChangeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("CountryChangedUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Energy")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Experience")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImagePromptMeta")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsInitialized")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxEnergy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("PremiumCurrency")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SoftCurrency")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryCode");
+
+                    b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.DungeonAchievementDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<Guid>("DungeonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DungeonId", "Code")
+                        .IsUnique();
+
+                    b.HasIndex("DungeonId", "Index")
+                        .IsUnique();
+
+                    b.ToTable("DungeonAchievements");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.ExpeditionAchievementDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocationId", "Code")
+                        .IsUnique();
+
+                    b.HasIndex("LocationId", "Index")
+                        .IsUnique();
+
+                    b.ToTable("ExpeditionAchievements");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerDungeonAchievement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AchievementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Current")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProgressId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Required")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.HasIndex("ProgressId", "AchievementId")
+                        .IsUnique();
+
+                    b.HasIndex("PlayerId", "ProgressId", "AchievementId")
+                        .IsUnique();
+
+                    b.ToTable("PlayerDungeonAchievement", (string)null);
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerExpeditionAchievement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AchievementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProgressId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.HasIndex("ProgressId", "AchievementId")
+                        .IsUnique();
+
+                    b.HasIndex("PlayerId", "ProgressId", "AchievementId")
+                        .IsUnique();
+
+                    b.ToTable("PlayerExpeditionAchievement", (string)null);
                 });
 
             modelBuilder.Entity("MercenariesAndBeasts.Infrastructure.AppUser", b =>
@@ -892,6 +1537,9 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsBanned")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
@@ -956,12 +1604,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("DescriptionCs")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DescriptionDe")
-                        .HasColumnType("text");
-
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("text");
@@ -981,13 +1623,11 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<Guid?>("ItemTemplateId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("NameCs")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                    b.Property<Guid?>("ItemTemplateId1")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("NameDe")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                    b.Property<int>("MinQuality")
+                        .HasColumnType("integer");
 
                     b.Property<string>("NameEn")
                         .IsRequired()
@@ -1002,6 +1642,8 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ItemTemplateId");
+
+                    b.HasIndex("ItemTemplateId1");
 
                     b.ToTable("ItemEffect");
                 });
@@ -1138,6 +1780,26 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.BeastEquipmentSlot", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.PlayerMonster", null)
+                        .WithMany("Equipment")
+                        .HasForeignKey("BeastInstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerItem", null)
+                        .WithMany()
+                        .HasForeignKey("PlayerItemId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerItem", "PlayerItem")
+                        .WithMany()
+                        .HasForeignKey("PlayerItemId1");
+
+                    b.Navigation("PlayerItem");
+                });
+
             modelBuilder.Entity("MercenariesAndBeasts.Domain.DungeonStage", b =>
                 {
                     b.HasOne("MercenariesAndBeasts.Domain.Dungeon", "Dungeon")
@@ -1146,7 +1808,7 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MercenariesAndBeasts.Domain.Units.MonsterTemplate", "MonsterTemplate")
+                    b.HasOne("MercenariesAndBeasts.Domain.MonsterTemplate", "MonsterTemplate")
                         .WithMany()
                         .HasForeignKey("MonsterTemplateId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1159,7 +1821,7 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.ExpeditionStage", b =>
                 {
-                    b.HasOne("MercenariesAndBeasts.Domain.Units.MercenaryTemplate", "Enemy")
+                    b.HasOne("MercenariesAndBeasts.Domain.MercenaryTemplate", "Enemy")
                         .WithMany()
                         .HasForeignKey("EnemyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1178,38 +1840,144 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.ItemTemplate", b =>
                 {
+                    b.HasOne("MercenariesAndBeasts.Domain.MercenaryTemplate", "GrantedMercenaryTemplate")
+                        .WithMany()
+                        .HasForeignKey("GrantedMercenaryTemplateId");
+
+                    b.HasOne("MercenariesAndBeasts.Domain.MonsterTemplate", "GrantedMonsterTemplate")
+                        .WithMany()
+                        .HasForeignKey("GrantedMonsterTemplateId");
+
+                    b.HasOne("MercenariesAndBeasts.Domain.MercenaryTemplate", "MercenaryTemplate")
+                        .WithMany()
+                        .HasForeignKey("MercenaryTemplateId");
+
+                    b.HasOne("MercenariesAndBeasts.Domain.MonsterTemplate", "MonsterTemplate")
+                        .WithMany()
+                        .HasForeignKey("MonsterTemplateId");
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Items.ItemTemplate+StatScaling", "Scaling")
+                        .WithMany()
+                        .HasForeignKey("ScalingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BaseStats", b1 =>
                         {
                             b1.Property<Guid>("ItemTemplateId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<int>("Attack")
-                                .HasColumnType("integer");
-
-                            b1.Property<double>("CritChance")
+                            b1.Property<double>("Accuracy")
                                 .HasColumnType("double precision");
 
-                            b1.Property<double>("CritMultiplier")
+                            b1.Property<float>("Armor")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("ArmorPenetration")
                                 .HasColumnType("double precision");
 
-                            b1.Property<int>("Defense")
-                                .HasColumnType("integer");
+                            b1.Property<float>("Attack")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("BleedChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BlockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BurnChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CleanseChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CounterChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalMultiplier")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Defense")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("DotDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DotDamageReduction")
+                                .HasColumnType("double precision");
 
                             b1.Property<string>("Element")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
 
-                            b1.Property<double>("ElementalDamageBonus")
+                            b1.Property<double>("EnergyCostReduction")
                                 .HasColumnType("double precision");
 
-                            b1.Property<double>("ElementalResistance")
+                            b1.Property<double>("EnergyRegen")
                                 .HasColumnType("double precision");
 
-                            b1.Property<int>("MaxHp")
-                                .HasColumnType("integer");
+                            b1.Property<double>("Evasion")
+                                .HasColumnType("double precision");
 
-                            b1.Property<int>("Speed")
-                                .HasColumnType("integer");
+                            b1.Property<double>("FreezeChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HpRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("LifeSteal")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("MaxEnergy")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("MaxHp")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("PoisonChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShieldBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Speed")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("StatusDurationBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusPotency")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusResistance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Thorns")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TrueDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TurnMeterGain")
+                                .HasColumnType("double precision");
 
                             b1.HasKey("ItemTemplateId");
 
@@ -1221,12 +1989,744 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Navigation("BaseStats")
                         .IsRequired();
+
+                    b.Navigation("GrantedMercenaryTemplate");
+
+                    b.Navigation("GrantedMonsterTemplate");
+
+                    b.Navigation("MercenaryTemplate");
+
+                    b.Navigation("MonsterTemplate");
+
+                    b.Navigation("Scaling");
                 });
 
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.PlayerItem", b =>
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.ItemTemplate+PlayerItemPieces", b =>
                 {
                     b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
                         .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Items.ItemTemplate", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.ItemUpgradeResource", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Items.ItemTemplate", "ItemTemplate")
+                        .WithMany("UpgradeResources")
+                        .HasForeignKey("ItemTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ItemTemplate");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.MercenaryEquipmentSlot", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.PlayerMercenary", null)
+                        .WithMany("Equipment")
+                        .HasForeignKey("MercenaryInstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerItem", null)
+                        .WithMany()
+                        .HasForeignKey("PlayerItemId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerItem", "PlayerItem")
+                        .WithMany()
+                        .HasForeignKey("PlayerItemId1");
+
+                    b.Navigation("PlayerItem");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.MercenaryTemplate", b =>
+                {
+                    b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BaseStats", b1 =>
+                        {
+                            b1.Property<Guid>("MercenaryTemplateId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<double>("Accuracy")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Armor")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("ArmorPenetration")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Attack")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("BleedChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BlockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BurnChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CleanseChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CounterChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalMultiplier")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Defense")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("DotDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DotDamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<string>("Element")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.Property<double>("EnergyCostReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("EnergyRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Evasion")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("FreezeChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HpRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("LifeSteal")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("MaxEnergy")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("MaxHp")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("PoisonChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShieldBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Speed")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("StatusDurationBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusPotency")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusResistance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Thorns")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TrueDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TurnMeterGain")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("MercenaryTemplateId");
+
+                            b1.ToTable("MercenaryTemplates");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MercenaryTemplateId");
+                        });
+
+                    b.Navigation("BaseStats")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.MonsterTemplate", b =>
+                {
+                    b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BaseStats", b1 =>
+                        {
+                            b1.Property<Guid>("MonsterTemplateId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<double>("Accuracy")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Armor")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("ArmorPenetration")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Attack")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("BleedChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BlockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BurnChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CleanseChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CounterChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalMultiplier")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Defense")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("DotDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DotDamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<string>("Element")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.Property<double>("EnergyCostReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("EnergyRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Evasion")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("FreezeChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HpRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("LifeSteal")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("MaxEnergy")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("MaxHp")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("PoisonChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShieldBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Speed")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("StatusDurationBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusPotency")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusResistance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Thorns")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TrueDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TurnMeterGain")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("MonsterTemplateId");
+
+                            b1.ToTable("MonsterTemplates");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MonsterTemplateId");
+                        });
+
+                    b.Navigation("BaseStats")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.PlayerMercenary", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.MercenaryTemplate", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BonusStats", b1 =>
+                        {
+                            b1.Property<Guid>("PlayerMercenaryId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<double>("Accuracy")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Armor")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("ArmorPenetration")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Attack")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("BleedChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BlockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BurnChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CleanseChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CounterChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalMultiplier")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Defense")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("DotDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DotDamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<string>("Element")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.Property<double>("EnergyCostReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("EnergyRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Evasion")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("FreezeChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HpRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("LifeSteal")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("MaxEnergy")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("MaxHp")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("PoisonChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShieldBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Speed")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("StatusDurationBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusPotency")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusResistance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Thorns")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TrueDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TurnMeterGain")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("PlayerMercenaryId");
+
+                            b1.ToTable("PlayerMercenaries");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PlayerMercenaryId");
+                        });
+
+                    b.Navigation("BonusStats")
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.PlayerMonster", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.MonsterTemplate", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BonusStats", b1 =>
+                        {
+                            b1.Property<Guid>("PlayerMonsterId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<double>("Accuracy")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Armor")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("ArmorPenetration")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Attack")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("BleedChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BlockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BurnChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CleanseChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CounterChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalMultiplier")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Defense")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("DotDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DotDamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<string>("Element")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.Property<double>("EnergyCostReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("EnergyRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Evasion")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("FreezeChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HpRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("LifeSteal")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("MaxEnergy")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("MaxHp")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("PoisonChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShieldBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Speed")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("StatusDurationBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusPotency")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusResistance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Thorns")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TrueDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TurnMeterGain")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("PlayerMonsterId");
+
+                            b1.ToTable("PlayerMonsters");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PlayerMonsterId");
+                        });
+
+                    b.Navigation("BonusStats")
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerBeastSlot", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.PlayerMonster", "Beast")
+                        .WithMany()
+                        .HasForeignKey("BeastId");
+
+                    b.HasOne("MercenariesAndBeasts.Domain.PlayerMonster", null)
+                        .WithMany()
+                        .HasForeignKey("BeastInstanceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", null)
+                        .WithMany("BeastSlots")
+                        .HasForeignKey("PlayerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Beast");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerDungeonProgress", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Dungeon", "Dungeon")
+                        .WithMany()
+                        .HasForeignKey("DungeonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany("DungeonProgress")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dungeon");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerExpeditionAchievements", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerExpeditionEncounter", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerExpeditionProgress", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerExpeditionAchievements", "Achievements")
+                        .WithMany()
+                        .HasForeignKey("AchievementsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerExpeditionEncounter", "Encounter")
+                        .WithMany()
+                        .HasForeignKey("EncounterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany("ExpeditionProgress")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Achievements");
+
+                    b.Navigation("Encounter");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerItem", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany("Inventory")
                         .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1242,33 +2742,118 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                             b1.Property<Guid>("PlayerItemId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<int>("Attack")
-                                .HasColumnType("integer");
-
-                            b1.Property<double>("CritChance")
+                            b1.Property<double>("Accuracy")
                                 .HasColumnType("double precision");
 
-                            b1.Property<double>("CritMultiplier")
+                            b1.Property<float>("Armor")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("ArmorPenetration")
                                 .HasColumnType("double precision");
 
-                            b1.Property<int>("Defense")
-                                .HasColumnType("integer");
+                            b1.Property<float>("Attack")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("BleedChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BlockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("BurnChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CleanseChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CounterChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("CriticalMultiplier")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DamageReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Defense")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("DotDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("DotDamageReduction")
+                                .HasColumnType("double precision");
 
                             b1.Property<string>("Element")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
 
-                            b1.Property<double>("ElementalDamageBonus")
+                            b1.Property<double>("EnergyCostReduction")
                                 .HasColumnType("double precision");
 
-                            b1.Property<double>("ElementalResistance")
+                            b1.Property<double>("EnergyRegen")
                                 .HasColumnType("double precision");
 
-                            b1.Property<int>("MaxHp")
-                                .HasColumnType("integer");
+                            b1.Property<double>("Evasion")
+                                .HasColumnType("double precision");
 
-                            b1.Property<int>("Speed")
-                                .HasColumnType("integer");
+                            b1.Property<double>("FreezeChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HealingReduction")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("HpRegen")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("LifeSteal")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("MaxEnergy")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("MaxHp")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("PoisonChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShieldBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("ShockChance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<float>("Speed")
+                                .HasColumnType("real");
+
+                            b1.Property<double>("StatusDurationBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusPotency")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("StatusResistance")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Thorns")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TrueDamageBonus")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("TurnMeterGain")
+                                .HasColumnType("double precision");
 
                             b1.HasKey("PlayerItemId");
 
@@ -1284,6 +2869,47 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Navigation("Player");
 
                     b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerItemDiscovery", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Items.ItemTemplate", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerMercenarySlot", b =>
+                {
+                    b.HasOne("MercenariesAndBeasts.Domain.PlayerMercenary", "Mercenary")
+                        .WithMany()
+                        .HasForeignKey("MercenaryId");
+
+                    b.HasOne("MercenariesAndBeasts.Domain.PlayerMercenary", null)
+                        .WithMany()
+                        .HasForeignKey("MercenaryInstanceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
+                        .WithMany("MercenarySlots")
+                        .HasForeignKey("PlayerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mercenary");
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.DungeonAchievementDefinition", b =>
@@ -1313,37 +2939,26 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.HasOne("MercenariesAndBeasts.Domain.Progress.DungeonAchievementDefinition", "Achievement")
                         .WithMany()
                         .HasForeignKey("AchievementId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
                         .WithMany()
                         .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerDungeonProgress", "Progress")
+                        .WithMany("Achievements")
+                        .HasForeignKey("ProgressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Achievement");
 
                     b.Navigation("Player");
-                });
 
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerDungeonProgress", b =>
-                {
-                    b.HasOne("MercenariesAndBeasts.Domain.Dungeon", "Dungeon")
-                        .WithMany()
-                        .HasForeignKey("DungeonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
-                        .WithMany("DungeonProgress")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Dungeon");
-
-                    b.Navigation("Player");
+                    b.Navigation("Progress");
                 });
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerExpeditionAchievement", b =>
@@ -1351,257 +2966,26 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.HasOne("MercenariesAndBeasts.Domain.Progress.ExpeditionAchievementDefinition", "Achievement")
                         .WithMany()
                         .HasForeignKey("AchievementId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
                         .WithMany()
                         .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerExpeditionProgress", "Progress")
+                        .WithMany()
+                        .HasForeignKey("ProgressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Achievement");
 
                     b.Navigation("Player");
-                });
 
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.PlayerExpeditionProgress", b =>
-                {
-                    b.HasOne("MercenariesAndBeasts.Domain.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
-                        .WithMany("ExpeditionProgress")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Location");
-
-                    b.Navigation("Player");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Units.MercenaryTemplate", b =>
-                {
-                    b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BaseStats", b1 =>
-                        {
-                            b1.Property<Guid>("MercenaryTemplateId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Attack")
-                                .HasColumnType("integer");
-
-                            b1.Property<double>("CritChance")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("CritMultiplier")
-                                .HasColumnType("double precision");
-
-                            b1.Property<int>("Defense")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Element")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<double>("ElementalDamageBonus")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("ElementalResistance")
-                                .HasColumnType("double precision");
-
-                            b1.Property<int>("MaxHp")
-                                .HasColumnType("integer");
-
-                            b1.Property<int>("Speed")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("MercenaryTemplateId");
-
-                            b1.ToTable("MercenaryTemplates");
-
-                            b1.WithOwner()
-                                .HasForeignKey("MercenaryTemplateId");
-                        });
-
-                    b.Navigation("BaseStats")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Units.MonsterTemplate", b =>
-                {
-                    b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BaseStats", b1 =>
-                        {
-                            b1.Property<Guid>("MonsterTemplateId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Attack")
-                                .HasColumnType("integer");
-
-                            b1.Property<double>("CritChance")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("CritMultiplier")
-                                .HasColumnType("double precision");
-
-                            b1.Property<int>("Defense")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Element")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<double>("ElementalDamageBonus")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("ElementalResistance")
-                                .HasColumnType("double precision");
-
-                            b1.Property<int>("MaxHp")
-                                .HasColumnType("integer");
-
-                            b1.Property<int>("Speed")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("MonsterTemplateId");
-
-                            b1.ToTable("MonsterTemplates");
-
-                            b1.WithOwner()
-                                .HasForeignKey("MonsterTemplateId");
-                        });
-
-                    b.Navigation("BaseStats")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Units.PlayerMercenary", b =>
-                {
-                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
-                        .WithMany()
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MercenariesAndBeasts.Domain.Units.MercenaryTemplate", "Template")
-                        .WithMany()
-                        .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BonusStats", b1 =>
-                        {
-                            b1.Property<Guid>("PlayerMercenaryId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Attack")
-                                .HasColumnType("integer");
-
-                            b1.Property<double>("CritChance")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("CritMultiplier")
-                                .HasColumnType("double precision");
-
-                            b1.Property<int>("Defense")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Element")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<double>("ElementalDamageBonus")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("ElementalResistance")
-                                .HasColumnType("double precision");
-
-                            b1.Property<int>("MaxHp")
-                                .HasColumnType("integer");
-
-                            b1.Property<int>("Speed")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("PlayerMercenaryId");
-
-                            b1.ToTable("PlayerMercenaries");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PlayerMercenaryId");
-                        });
-
-                    b.Navigation("BonusStats")
-                        .IsRequired();
-
-                    b.Navigation("Player");
-
-                    b.Navigation("Template");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Units.PlayerMonster", b =>
-                {
-                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
-                        .WithMany()
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MercenariesAndBeasts.Domain.Units.MonsterTemplate", "Template")
-                        .WithMany()
-                        .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.OwnsOne("MercenariesAndBeasts.Domain.Combat.StatBlock", "BonusStats", b1 =>
-                        {
-                            b1.Property<Guid>("PlayerMonsterId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Attack")
-                                .HasColumnType("integer");
-
-                            b1.Property<double>("CritChance")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("CritMultiplier")
-                                .HasColumnType("double precision");
-
-                            b1.Property<int>("Defense")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Element")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<double>("ElementalDamageBonus")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("ElementalResistance")
-                                .HasColumnType("double precision");
-
-                            b1.Property<int>("MaxHp")
-                                .HasColumnType("integer");
-
-                            b1.Property<int>("Speed")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("PlayerMonsterId");
-
-                            b1.ToTable("PlayerMonsters");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PlayerMonsterId");
-                        });
-
-                    b.Navigation("BonusStats")
-                        .IsRequired();
-
-                    b.Navigation("Player");
-
-                    b.Navigation("Template");
+                    b.Navigation("Progress");
                 });
 
             modelBuilder.Entity("MercenariesAndBeasts.Items.ItemEffect", b =>
@@ -1609,6 +2993,10 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.HasOne("MercenariesAndBeasts.Domain.Items.ItemTemplate", null)
                         .WithMany("Effects")
                         .HasForeignKey("ItemTemplateId");
+
+                    b.HasOne("MercenariesAndBeasts.Domain.Items.ItemTemplate", null)
+                        .WithMany("QualityEffects")
+                        .HasForeignKey("ItemTemplateId1");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1670,6 +3058,10 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Items.ItemTemplate", b =>
                 {
                     b.Navigation("Effects");
+
+                    b.Navigation("QualityEffects");
+
+                    b.Navigation("UpgradeResources");
                 });
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Location", b =>
@@ -1677,11 +3069,32 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Navigation("Stages");
                 });
 
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.PlayerMercenary", b =>
+                {
+                    b.Navigation("Equipment");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.PlayerMonster", b =>
+                {
+                    b.Navigation("Equipment");
+                });
+
+            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerDungeonProgress", b =>
+                {
+                    b.Navigation("Achievements");
+                });
+
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerProfile", b =>
                 {
+                    b.Navigation("BeastSlots");
+
                     b.Navigation("DungeonProgress");
 
                     b.Navigation("ExpeditionProgress");
+
+                    b.Navigation("Inventory");
+
+                    b.Navigation("MercenarySlots");
                 });
 #pragma warning restore 612, 618
         }

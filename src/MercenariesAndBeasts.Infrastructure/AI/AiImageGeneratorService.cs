@@ -3,7 +3,6 @@ using MercenariesAndBeasts.Domain;
 using MercenariesAndBeasts.Domain.Enums;
 using MercenariesAndBeasts.Domain.Interface;
 using Microsoft.Extensions.Hosting;
-using MercenariesAndBeasts.Domain.Units;
 using Microsoft.Extensions.Logging;
 using OpenAI.Images;
 using OpenAI;
@@ -14,11 +13,18 @@ public class AiImageGeneratorService : IAiImageGenerator
 {
     // Můžeš klidně sdílet stejný GameTheme jako v AiUnitGeneratorService,
     // nebo si tady držet vlastní variantu.
-    private string GameTheme =>
-        "a dark fantasy role-playing game with subtle arcane-tech elements. " +
-        "The tone is mysterious, atmospheric and slightly grim. " +
-        "Visual style: premium RPG concept art, detailed, moody lighting.";
-
+  private string GameTheme =>
+    "A future-fantasy role-playing universe where ancient magic, forbidden rites, and rare arcane-tech coexist. " +
+    "Aesthetic: atmospheric, enigmatic, slightly grim, with echoes of lost civilizations, sealed sanctums, relic cults, and ritual machinery. " +
+    "World tone: immersive, mysterious, premium RPG feeling. " +
+    "Arcane-tech is allowed only as ancient or enigmatic technology (resonant engines, glyph-forges, sealed mechanisms), " +
+    "never modern, digital, or cyberpunk in nature. " +
+    "Avoid explicit modern or IT terminology such as interface, UI, database, smartphone, drone, android, chatbot, nanotech, cybernetics, or laser weaponry. " +
+    "Naming style: unique, evocative, lore-friendly, and easy to pronounce; never generic or repetitive. " +
+    "Names must not include numbers, hyphens, or MMO-style tags. " +
+    "Avoid overused clichés such as 'of Doom', 'of the Ancients', 'Ultimate', 'Extreme', or 'Legendary'. " +
+    "Descriptions should feel grounded in mystery, decay, sealed spaces, and forgotten power, consistent with a dark future-fantasy tone.";
+    
     private readonly ChatGptAsker _asker;
     private readonly IHostEnvironment _env;
     private readonly ILogger<AiImageGeneratorService> _logger;

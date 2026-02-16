@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using MercenariesAndBeasts.Infrastructure;
+using MercenariesAndBeasts.Infrastructure.Players;
 
 namespace MercenariesAndBeasts.Web.Areas.Identity.Pages.Account
 {
@@ -22,12 +23,20 @@ namespace MercenariesAndBeasts.Web.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<AppUser> _userManager;
+private readonly PlayerOnboardingService _onboarding;
 
-        public LoginModel(SignInManager<AppUser> signInManager, ILogger<LoginModel> logger)
-        {
-            _signInManager = signInManager;
-            _logger = logger;
-        }
+       public LoginModel(
+    SignInManager<AppUser> signInManager,
+    UserManager<AppUser> userManager,
+    PlayerOnboardingService onboarding,
+    ILogger<LoginModel> logger)
+{
+    _signInManager = signInManager;
+    _userManager = userManager;
+    _onboarding = onboarding;
+    _logger = logger;
+}
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -116,6 +125,34 @@ namespace MercenariesAndBeasts.Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    if (user is null)
+                    {
+                        // nemělo by nastat, ale radši fail
+                        await _signInManager.SignOutAsync();
+                        ModelState.AddModelError(string.Empty, "Login succeeded, but user could not be loaded.");
+                        return Page();
+                    }
+
+                    try
+                    {
+                        await _onboarding.EnsurePlayerInitializedAsync(user.Id);
+                        // tady toast v Razor Pages přímo nevykreslíš (to je Blazor),
+                        // max můžeš použít TempData status message, pokud chceš.
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to initialize player profile for UserId={UserId}", user.Id);
+
+                        // bez profilu je účet rozbitej -> odhlásit a dát chybu
+                        await _signInManager.SignOutAsync();
+
+                        ModelState.AddModelError(string.Empty,
+                            "Login succeeded, but player initialization failed. Please contact support.");
+                        return Page();
+                    }
+
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

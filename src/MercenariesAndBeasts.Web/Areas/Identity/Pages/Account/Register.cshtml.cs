@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using MercenariesAndBeasts.Infrastructure;
+using MercenariesAndBeasts.Infrastructure.Players;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -135,6 +136,22 @@ namespace MercenariesAndBeasts.Web.Areas.Identity.Pages.Account
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
+
+                    try
+                    {
+                        var onboarding = HttpContext.RequestServices.GetRequiredService<PlayerOnboardingService>();
+                        await onboarding.EnsurePlayerInitializedAsync(user.Id);
+                        // success toast tady v Razor Pages přímo neukážeš (to je Blazor),
+                        // ale můžeš dát TempData / status message.
+                    }
+                    catch (Exception ex)
+                    {
+                        // tady je to tvrdá chyba – bez profilu je hráč rozbitej
+                        // buď rollback usera, nebo aspoň log + zobrazit error.
+                        _logger.LogError(ex, "Failed to initialize player profile for UserId={UserId}", user.Id);
+                        ModelState.AddModelError(string.Empty, "Registration succeeded, but player initialization failed. Please contact support.");
+                        return Page();
+                    }
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
                         return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });

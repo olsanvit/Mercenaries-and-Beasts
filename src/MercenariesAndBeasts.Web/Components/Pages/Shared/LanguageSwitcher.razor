@@ -1,11 +1,11 @@
 ﻿@using System.Globalization
+@using MercenariesAndBeasts.Domain.Localization
 @inject NavigationManager Nav
 @rendermode InteractiveServer
 
 <select class="form-select form-select-sm"
         @bind="currentCulture"
         @bind:after="OnCultureChanged">
-
     @foreach (var opt in _options)
     {
         <option value="@opt.Culture">
@@ -17,25 +17,132 @@
 @code {
     private sealed record LangOption(string Culture, string Flag, string Label);
 
-    private readonly LangOption[] _options =
-    [
-        new("en", "🇬🇧", "English"),
-        new("cs", "🇨🇿", "Čeština"),
-        new("de", "🇩🇪", "Deutsch")
-    ];
+    private LangOption[] _options = Array.Empty<LangOption>();
 
-    private string currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    // ✅ nepoužívej TwoLetter..., protože ztratíš "zh-Hans"
+    private string currentCulture = CultureInfo.CurrentUICulture.Name;
+
+    protected override void OnInitialized()
+    {
+        // kdyby CurrentUICulture.Name bylo třeba "cs-CZ", ale ty máš "cs" v supported,
+        // tak zkusíme znormalizovat na supported hodnotu.
+        currentCulture = NormalizeToSupported(CultureInfo.CurrentUICulture.Name);
+
+        _options = LocalizationConfig.SupportedLocales
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(c => new LangOption(
+                Culture: c,
+                Flag: GetFlag(c),
+                Label: GetLabel(c)
+            ))
+            .OrderBy(o => o.Label, StringComparer.CurrentCultureIgnoreCase)
+            .ToArray();
+    }
 
     private void OnCultureChanged()
     {
-        var culture = currentCulture ?? "en";
+        var culture = NormalizeToSupported(currentCulture ?? "en");
 
         var uri = new Uri(Nav.Uri);
         var returnUrl = Uri.EscapeDataString(uri.GetLeftPart(UriPartial.Path));
 
-        // nastaví cookie a vrátí zpět na stránku
-        var target = $"/set-culture?culture={culture}&returnUrl={returnUrl}";
-
-        Nav.NavigateTo(target, forceLoad: true);
+        Nav.NavigateTo($"/set-culture?culture={culture}&returnUrl={returnUrl}", forceLoad: true);
     }
+
+    private static string NormalizeToSupported(string? requested)
+    {
+        if (string.IsNullOrWhiteSpace(requested))
+            return "en";
+
+        // 1) exact match (case-insensitive)
+        var exact = LocalizationConfig.SupportedLocales
+            .FirstOrDefault(x => string.Equals(x, requested, StringComparison.OrdinalIgnoreCase));
+        if (exact is not null) return exact;
+
+        // 2) match by neutral language ("cs-CZ" -> "cs")
+        try
+        {
+            var ci = CultureInfo.GetCultureInfo(requested);
+            var neutral = ci.TwoLetterISOLanguageName;
+
+            var neutralMatch = LocalizationConfig.SupportedLocales
+                .FirstOrDefault(x => string.Equals(x, neutral, StringComparison.OrdinalIgnoreCase));
+
+            if (neutralMatch is not null) return neutralMatch;
+        }
+        catch
+        {
+            // ignore
+        }
+
+        return "en";
+    }
+
+    private static string GetLabel(string culture)
+    {
+        try
+        {
+            var ci = CultureInfo.GetCultureInfo(culture);
+            // NativeName vypadá líp pro hráče (Deutsch, Čeština, 日本語…)
+            // U některých kultur může být dlouhé, ale dá se zkrátit později.
+            return ci.NativeName;
+        }
+        catch
+        {
+            // fallback: necháme tag
+            return culture;
+        }
+    }
+
+    private static string GetFlag(string culture)
+    => culture switch
+    {
+        // ===== CORE =====
+        "en"        => "🇬🇧", // English (UK default)
+        "zh-Hans"   => "🇨🇳", // Chinese Simplified
+        "es"        => "🇪🇸", // Spanish
+        "hi"        => "🇮🇳", // Hindi
+        "ar"        => "🇸🇦", // Arabic
+        "bn"        => "🇧🇩", // Bengali
+        "pt"        => "🇵🇹", // Portuguese
+        "ru"        => "🇷🇺", // Russian
+        "ja"        => "🇯🇵", // Japanese
+        "de"        => "🇩🇪", // German
+        "fr"        => "🇫🇷", // French
+        "pa"        => "🇮🇳", // Punjabi
+        "jv"        => "🇮🇩", // Javanese
+        "ko"        => "🇰🇷", // Korean
+        "vi"        => "🇻🇳", // Vietnamese
+        "te"        => "🇮🇳", // Telugu
+        "mr"        => "🇮🇳", // Marathi
+        "tr"        => "🇹🇷", // Turkish
+        "ta"        => "🇮🇳", // Tamil
+        "ur"        => "🇵🇰", // Urdu
+        "fa"        => "🇮🇷", // Persian
+        "it"        => "🇮🇹", // Italian
+        "pl"        => "🇵🇱", // Polish
+        "uk"        => "🇺🇦", // Ukrainian
+        "nl"        => "🇳🇱", // Dutch
+        "ro"        => "🇷🇴", // Romanian
+        "el"        => "🇬🇷", // Greek
+        "hu"        => "🇭🇺", // Hungarian
+        "cs"        => "🇨🇿", // Czech
+        "sk"        => "🇸🇰", // Slovak
+        "sv"        => "🇸🇪", // Swedish
+        "da"        => "🇩🇰", // Danish
+        "fi"        => "🇫🇮", // Finnish
+
+        // ===== ENABLED SECONDARY =====
+        "he"        => "🇮🇱", // Hebrew
+        "no"        => "🇳🇴", // Norwegian
+        "hr"        => "🇭🇷", // Croatian
+        "lt"        => "🇱🇹", // Lithuanian
+        "lv"        => "🇱🇻", // Latvian
+        "et"        => "🇪🇪", // Estonian
+        "sl"        => "🇸🇮", // Slovenian
+        "is"        => "🇮🇸", // Icelandic
+        "ga"        => "🇮🇪", // Irish
+
+        _ => "🌐"
+    };
 }

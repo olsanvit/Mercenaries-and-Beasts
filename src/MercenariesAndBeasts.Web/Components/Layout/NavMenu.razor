@@ -9,8 +9,8 @@
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="/">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @S["Home"]
             </NavLink>
         </div>
         <div class="nav-item px-3">
@@ -26,6 +26,11 @@
         <AuthorizeView Roles="Admin">
     <Authorized>
         <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/admin">
+                <span class="oi oi-list-rich"></span> Admin
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
             <NavLink class="nav-link" href="/locations-admin">
                 <span class="oi oi-list-rich"></span> @S["Locations"] Admin
             </NavLink>
@@ -34,6 +39,16 @@
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="/dungeons-admin">
                 <span class="oi oi-fire"></span> @S["Dungeons"] Admin
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/items-admin">
+                <span class="oi oi-box"></span> Items Admin
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/admin/users">
+                <span class="oi oi-box"></span> Users Admin
             </NavLink>
         </li>
     </Authorized>

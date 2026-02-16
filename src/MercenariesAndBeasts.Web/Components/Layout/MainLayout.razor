@@ -1,4 +1,5 @@
-﻿@using MercenariesAndBeasts.Web.Components.Pages.Shared
+﻿@using MercenariesAndBeasts.Web.Components.Pages
+@using MercenariesAndBeasts.Web.Components.Pages.Shared
 @using System.Globalization
 
 @inherits LayoutComponentBase
@@ -15,11 +16,24 @@
                 </span>
             <div class="d-flex align-items-center gap-3 m-1">
                 <LanguageSwitcher />
+                <AuthorizeView>
+                    <Authorized>
+                        <a href="/shop" class="btn btn-sm btn-warning">
+                            🛒 Shop
+                        </a>
+                    </Authorized>
+                </AuthorizeView>
             </div>
             
         <AuthorizeView>
                 <Authorized>
-                    <span>Hello @context.User.Identity?.Name!</span>
+                    <a class="btn btn-sm btn-outline-light"
+                href="/profile"
+                title="Profile">
+                        👤 @_userName
+                </a>
+
+            <UserCountryBadge />
                     <a href="/Identity/Account/Logout" class="ms-2">@S["Logout"]</a>
                 </Authorized>
 
@@ -45,11 +59,30 @@
 </div>
 
 @code {
-    protected override void OnInitialized()
+private string _userName = "Player";
+
+
+    protected override async Task OnInitializedAsync()
     {
         Toasts.OnToastsUpdated += StateHasChanged;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var principal = authState.User;
+
+        if (principal?.Identity?.IsAuthenticated != true)
+            return;
+
+        var appUser = await UserManager.GetUserAsync(principal);
+        if (appUser is null)
+            return;
+
+        _userName = appUser.UserName ?? appUser.Email ?? "Player";
     }
 
+    public void Dispose()
+    {
+        Toasts.OnToastsUpdated -= StateHasChanged;
+    }
     private void ShowToasts()
     {
         // jednou můžeš otevřít panel toastů nebo scrollovat dolů
@@ -57,9 +90,5 @@
 private void UpdateCount()
     {
         InvokeAsync(StateHasChanged);
-    }
-    public void Dispose()
-    {
-        Toasts.OnToastsUpdated -= StateHasChanged;
     }
 }

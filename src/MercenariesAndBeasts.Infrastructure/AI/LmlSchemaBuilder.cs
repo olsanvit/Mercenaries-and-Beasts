@@ -21,6 +21,16 @@ public static class LlmSchemaBuilder
         var names = Enum.GetNames(typeof(TEnum));
         return "[\"" + string.Join("\",\"", names) + "\"]";
     }
+    public static string BuildEnumValues<T>(params T[] excluded)
+    where T : Enum
+{
+    var exclude = new HashSet<T>(excluded);
+    return string.Join(", ",
+        Enum.GetValues(typeof(T))
+            .Cast<T>()
+            .Where(v => !exclude.Contains(v))
+            .Select(v => v.ToString()));
+}
 
     private static void BuildTypeShape(Type type, StringBuilder sb, int indent, HashSet<Type> visited)
     {

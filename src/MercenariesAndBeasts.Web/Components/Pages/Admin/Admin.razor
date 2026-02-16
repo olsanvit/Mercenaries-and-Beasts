@@ -1,0 +1,202 @@
+@page "/admin"
+@using MercenariesAndBeasts.Domain.Items
+@using Microsoft.EntityFrameworkCore
+@using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Domain.Localization
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+<h1>Admin</h1>
+
+<div class="card p-3 mb-3">
+    <h4 class="m-0">Game Seed</h4>
+    <div class="text-muted small">
+        Run full game seed (locations, dungeons, items, AI generation).
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-danger"
+                disabled="@isSeeding"
+                @onclick="() => RunSeedAsync(true)">
+            Run FULL Seed (MakeAll = true)
+        </button>
+
+        <button class="btn btn-secondary"
+                disabled="@isSeeding"
+                @onclick="() => RunSeedAsync(false)">
+            Run Minimal Seed
+        </button>
+    </div>
+
+    @if (isSeeding)
+    {
+        <div class="text-warning mt-2">
+            Seeding in progress…
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(seedResult))
+    {
+        <div class="alert alert-info mt-3">
+            @seedResult
+        </div>
+    }
+</div>
+
+@if (countsLoaded)
+{
+    <div class="card p-3 mb-3">
+        <h4 class="m-0">Database counts</h4>
+
+        <table class="table table-sm table-dark mt-2 mb-0">
+            <tbody>
+                <tr><td>Dungeons</td><td class="text-end">@dungeonCount</td></tr>
+                <tr><td>Monster templates</td><td class="text-end">@monsterCount</td></tr>
+                <tr><td>Locations</td><td class="text-end">@locationCount</td></tr>
+                <tr><td>Orders (Mercenaries)</td><td class="text-end">@orderCount</td></tr>
+                <tr><td>Item templates</td><td class="text-end">@itemCount</td></tr>
+                <tr><td>Item upgrade resources</td><td class="text-end">@resourceCount</td></tr>
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (locStats.Count > 0)
+{
+    <div class="card p-3">
+        <h4 class="m-0">Localization coverage</h4>
+        <div class="text-muted small">
+            Required locales per entity: @requiredLocaleCount
+        </div>
+
+        <table class="table table-sm table-dark mt-3 mb-0">
+            <thead>
+                <tr>
+                    <th>Entity</th>
+                    <th class="text-end">Total</th>
+                    <th class="text-end">Any localized</th>
+                    <th class="text-end">Fully localized</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in locStats)
+                {
+                    <tr>
+                        <td>@r.Entity</td>
+                        <td class="text-end">@r.Total</td>
+                        <td class="text-end">@r.AnyLocalized</td>
+                        <td class="text-end">@r.FullyLocalized</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code
+{
+
+    private bool isSeeding = false;
+    private string? seedResult;
+
+    // counts
+    private bool countsLoaded = false;
+    private int dungeonCount;
+    private int monsterCount;
+    private int locationCount;
+    private int orderCount;
+    private int itemCount;
+    private int resourceCount;
+
+    // localization stats
+    private sealed record LocalizationRow(string Entity, int Total, int AnyLocalized, int FullyLocalized);
+    private List<LocalizationRow> locStats = new();
+    private int requiredLocaleCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReloadStatsAsync();
+    }
+
+    private async Task RunSeedAsync(bool makeAll)
+    {
+        isSeeding = true;
+        seedResult = null;
+        StateHasChanged();
+
+        try
+        {
+            await GameSeed.SeedAsync(makeAll, CancellationToken.None);
+            seedResult = $"Seed finished successfully. MakeAll = {makeAll}";
+        }
+        catch (Exception ex)
+        {
+            seedResult = $"Seed FAILED: {ex.Message}";
+        }
+        finally
+        {
+            isSeeding = false;
+            await ReloadStatsAsync();
+        }
+    }
+
+    private async Task ReloadStatsAsync()
+    {
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+        dungeonCount  = await Db.Dungeons.CountAsync();
+        monsterCount  = await Db.MonsterTemplates.CountAsync();
+        locationCount = await Db.Locations.CountAsync();
+        orderCount    = await Db.MercenaryTemplates.CountAsync();
+        itemCount     = await Db.ItemTemplates.CountAsync();
+        resourceCount = await Db.ItemUpgradeResources.CountAsync();
+
+        countsLoaded = true;
+
+        await LoadLocalizationStatsAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadLocalizationStatsAsync()
+    {
+        var locales = LocalizationConfig.SupportedLocales;
+        requiredLocaleCount = locales.Length;
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+        var localizedCounts = await Db.LocalizedTexts
+            .Where(x => locales.Contains(x.Culture) && x.Name != null && x.Name != "")
+            .GroupBy(x => new { x.EntityType, x.EntityId })
+            .Select(g => new
+            {
+                g.Key.EntityType,
+                g.Key.EntityId,
+                CultureCount = g.Select(x => x.Culture).Distinct().Count()
+            })
+            .ToListAsync();
+
+        (int any, int full) Calc(string entityType)
+        {
+            var rows = localizedCounts.Where(x => x.EntityType == entityType).ToList();
+            var any = rows.Select(x => x.EntityId).Distinct().Count();
+            var full = rows.Count(x => x.CultureCount >= requiredLocaleCount);
+            return (any, full);
+        }
+
+        var (dngAny, dngFull) = Calc(nameof(Dungeon));
+        var (monAny, monFull) = Calc(nameof(MonsterTemplate));
+        var (locAny, locFull) = Calc(nameof(Location));
+        var (ordAny, ordFull) = Calc(nameof(MercenaryTemplate));
+        var (itmAny, itmFull) = Calc(nameof(ItemTemplate));
+        var (resAny, resFull) = Calc(nameof(ItemUpgradeResource));
+
+        locStats = new()
+        {
+            new LocalizationRow("Dungeons",              dungeonCount,  dngAny, dngFull),
+            new LocalizationRow("MonsterTemplates",      monsterCount,  monAny, monFull),
+            new LocalizationRow("Locations",             locationCount, locAny, locFull),
+            new LocalizationRow("Orders (Mercenaries)",  orderCount,    ordAny, ordFull),
+            new LocalizationRow("Items (ItemTemplates)", itemCount,     itmAny, itmFull),
+            new LocalizationRow("ItemUpgradeResources",  resourceCount, resAny, resFull),
+        };
+    }
+}

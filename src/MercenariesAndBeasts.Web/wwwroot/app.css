@@ -7,7 +7,7 @@
     --accent-secondary: #c084fc;
     --accent-danger: #f97373;
     --text-primary: #e5e7eb;
-    --text-secondary: #9ca3af;
+    --text-secondary: rgba(229,231,235,.72); /* ✅ světlejší sekundární text */
     --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.65);
     --radius-lg: 18px;
     --radius-xl: 24px;
@@ -46,7 +46,7 @@
     --quality-11: #F472B6;
     --quality-11-glow: #FBCFE833;
 
-     --element-fire: #EF4444;
+    --element-fire: #EF4444;
     --element-water: #3B82F6;
     --element-earth: #8B5CF6;
     --element-air: #A5F3FC;
@@ -70,12 +70,23 @@ body {
     color: var(--text-primary);
 }
 
+/* ✅ Bootstrap text utility overrides pro dark UI */
+.text-muted,
+.text-secondary,
+.text-body-secondary {
+    color: var(--text-secondary) !important;
+}
+
+.small,
+.form-text {
+    color: var(--text-secondary) !important;
+}
+
 /* Hlavní layout */
 .page {
     display: flex;
     min-height: 100vh;
 }
-
 
 /* Sidebar – „chrám“ / ovládací panel */
 .sidebar {
@@ -225,7 +236,9 @@ table.table tbody tr:hover {
     font-family: "Cinzel", "Times New Roman", serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-}.dungeon-input {
+}
+
+.dungeon-input {
     background: rgba(15, 23, 42, 0.9);
     border-radius: 999px;
     border: 1px solid var(--accent-primary);
@@ -241,10 +254,6 @@ table.table tbody tr:hover {
 
 /* zruš případné globální text-gradient hacky */
 .dungeon-input,
-.dungeon-input:focus {
-    background-clip: border-box !important;
-    -webkit-background-clip: border-box !important;
-}
 .lang-switcher {
     width: auto;
     min-width: 70px;
@@ -255,6 +264,13 @@ table.table tbody tr:hover {
     font-size: 0.8rem;
     padding-inline: 0.5rem;
 }
+
+/* ✅ jazykový select čitelněji */
+.lang-switcher {
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+}
+
 .page > main {
     min-width: 0;
 }
@@ -262,6 +278,7 @@ table.table tbody tr:hover {
 .content {
     min-width: 0;
 }
+
 .dungeon-name,
 .location-name {
     width: 20%;
@@ -269,6 +286,7 @@ table.table tbody tr:hover {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 /* Obecný wrapper, aby se dalo scrollovat do strany */
 .dungeons-table-wrap,
 .stages-table-wrap {
@@ -320,6 +338,7 @@ table.table tbody tr:hover {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 /* Karta s tabulkou nepřetéká ven */
 .stages-card {
     max-width: 100%;
@@ -356,6 +375,7 @@ table.table tbody tr:hover {
         white-space: normal;
     }
 }
+
 /* obal hlavní tabulky, aby dashboard nepřetékal */
 .dungeons-table-wrap {
     width: 100%;
@@ -399,6 +419,7 @@ table.table tbody tr:hover {
     width: max-content;     /* vezme si šířku podle obsahu */
     min-width: 100%;        /* ale minimálně jako rodič */
 }
+
 /* obecné nastavení pro hlavní tabulky může zůstat s ellipsou */
 .table-stages th,
 .table-stages td {
@@ -414,6 +435,7 @@ table.table tbody tr:hover {
     overflow: visible;
     text-overflow: clip;
 }
+
 /* 2. sloupec = Stage, 3. sloupec = Monster (podle tvého headeru) */
 .stages-inner-table th:nth-child(2),
 .stages-inner-table td:nth-child(2),
@@ -423,6 +445,7 @@ table.table tbody tr:hover {
     overflow: visible;
     text-overflow: clip;
 }
+
 .table-stages {
     table-layout: auto; /* sloupce se přizpůsobí obsahu */
 }
@@ -445,6 +468,7 @@ table.table tbody tr:hover {
     display: inline-block;
     vertical-align: middle;
 }
+
 /* Tabulka dungeon stages */
 .table-stages {
     table-layout: auto;
@@ -504,6 +528,7 @@ table.table tbody tr:hover {
     white-space: normal !important;
     text-overflow: unset !important;
 }
+
 .toast-container-custom {
     position: fixed;
     bottom: 20px;
@@ -534,6 +559,7 @@ table.table tbody tr:hover {
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
 .toast-container-custom {
     position: fixed;
     bottom: 20px;
@@ -577,6 +603,7 @@ table.table tbody tr:hover {
     opacity: 0.7;
     cursor: pointer;
 }
+
 .btn-close:hover {
     opacity: 1.0;
 }
@@ -601,4 +628,624 @@ table.table tbody tr:hover {
 @keyframes toast-fadeout {
     from { opacity: 1; transform: translateY(0); }
     to   { opacity: 0; transform: translateY(8px); }
+}
+
+.dash-tabs {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 14px;
+}
+
+.dash-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(148,163,184,0.25);
+    background: rgba(15,18,30,0.55);
+    color: rgba(229,231,235,0.75);
+    cursor: pointer;
+    transition: 0.18s ease-out;
+}
+
+.dash-tab.active {
+    background: radial-gradient(circle at top, rgba(79, 209, 197, 0.25), rgba(192, 132, 252, 0.22));
+    color: #e5e7eb;
+    border-color: rgba(79,209,197,0.45);
+    box-shadow: 0 0 18px rgba(79,209,197,0.18);
+}
+
+.inv-tabs {
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.inv-tab {
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(148,163,184,0.25);
+    background: rgba(15,18,30,0.55);
+    color: rgba(229,231,235,0.75);
+    cursor:pointer;
+}
+
+.inv-tab.active {
+    border-color: rgba(192,132,252,0.55);
+    color: #e5e7eb;
+    box-shadow: 0 0 14px rgba(192,132,252,0.18);
+}
+
+.inv-grid {
+    display:grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+@media (max-width: 1200px) {
+  .inv-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 992px) {
+  .inv-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .inv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .inv-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+    .inv-grid { grid-template-columns: 1fr; }
+}
+
+.inv-card {
+    background: rgba(15, 18, 30, 0.58);
+    border: 1px solid rgba(148,163,184,0.22);
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.inv-title {
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.detail-section-title{
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.equip-grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:10px;
+}
+
+@media (min-width: 992px){
+    .equip-grid{
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.equip-slot{
+    padding:10px 12px;
+    border:1px solid rgba(148,163,184,0.25);
+    border-radius:12px;
+    background:rgba(15,23,42,0.55);
+    min-height:70px;
+}
+
+.equip-slot-name{
+    font-size:.85rem;
+    color: rgba(226,232,240,0.75);
+    margin-bottom:6px;
+}
+
+.equip-item-title{
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+/* ✅ Stats v modalu: 3 na řádek */
+.stats-grid{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+/* 2 sloupce na tablet */
+@media (max-width: 900px){
+  .stats-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 1 sloupec na mobil */
+@media (max-width: 520px){
+  .stats-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* karta jednoho statu */
+.stat-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 10px;
+    padding:10px 12px;
+    border:1px solid rgba(148,163,184,0.25);
+    border-radius:12px;
+    background:rgba(15,23,42,0.55);
+    min-width: 0;
+}
+
+.stat-row .k{
+    color: rgba(226,232,240,0.75);
+    font-weight:600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.stat-row .v{
+    font-weight:500;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.inv-tab { cursor:pointer; padding:10px 14px; border-radius:999px; border:1px solid rgba(148,163,184,.25); background:rgba(15,23,42,.55); }
+.inv-tab.active { box-shadow:0 0 18px rgba(79,209,197,.35); border-color:rgba(79,209,197,.55); }
+.inv-tab-title { font-weight:600; line-height:1.05; }
+.inv-tab-sub { font-size:.78rem; opacity:.75; margin-top:2px; }
+.inv-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+
+.modal-backdrop-blazor{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.65);
+  display:flex; align-items:center; justify-content:center;
+  z-index:9999;
+}
+
+.modal-card-blazor{
+  width:min(520px, 92vw);
+  background:#15181c;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 16px 50px rgba(0,0,0,.6);
+}
+/* =========================================================
+   TABLE FIX: size columns by content + horizontal scroll
+   ========================================================= */
+
+/* obal tabulky ať řeší overflow, ne tabulka samotná */
+.dungeons-table-wrap,
+.stages-table-wrap,
+.stages-subtable-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* tabulka: sloupce podle obsahu, ne fixed layout */
+table.table-stages {
+    table-layout: auto !important;
+    width: max-content !important; /* roztáhne se podle obsahu */
+    min-width: 100% !important;    /* ale aspoň jako rodič */
+    border-collapse: collapse;
+}
+
+/* základní buňky: NELÁMAT po písmenech */
+table.table-stages th,
+table.table-stages td {
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+/* číselné sloupce – úzké, ale ne extrémně */
+table.table-stages .num {
+    text-align: right;
+    width: 72px;          /* uprav dle chuti */
+    max-width: 72px;
+}
+
+/* širší textové sloupce – ty se můžou zalomit (ne po písmenech) */
+table.table-stages .wrap,
+table.table-stages .stage-type,
+table.table-stages .location-name,
+table.table-stages .dungeon-name {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: break-word !important;
+}
+
+/* dej minimální šířky klíčovým sloupcům, ať se nedeformují */
+table.table-stages th:nth-child(1),
+table.table-stages td:nth-child(1) { min-width: 140px; } /* Code */
+
+table.table-stages th:nth-child(2),
+table.table-stages td:nth-child(2) { min-width: 260px; } /* Name */
+
+table.table-stages th:nth-child(3),
+table.table-stages td:nth-child(3) { min-width: 120px; } /* Element */
+
+table.table-stages th:nth-child(4),
+table.table-stages td:nth-child(4) { min-width: 120px; } /* Unlock */
+
+table.table-stages th:nth-child(5),
+table.table-stages td:nth-child(5) { min-width: 130px; } /* Level range */
+
+table.table-stages th:nth-child(6),
+table.table-stages td:nth-child(6) { min-width: 120px; } /* Stages */
+
+table.table-stages th:nth-child(7),
+table.table-stages td:nth-child(7) { min-width: 170px; } /* Preview */
+
+/* univerzální horizontální scroll wrapper */
+.table-scroll-x {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* outer table: neroztahovat podle obsahu */
+.table-fixed {
+  table-layout: fixed;
+}
+
+/* zkrať dlouhé texty v outer tabulce, ať to nedělá bordel */
+.table-fixed th,
+.table-fixed td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* inner tabulka: ať si žije vlastní šířkou a scrolluje se */
+.inner-wide {
+  width: max-content;   /* klíčové */
+  min-width: 100%;      /* ať hlavička sedí přes celou šířku wrapperu */
+}
+
+/* optional: trošku vizuálně oddělit scroll */
+.inner-scroll {
+  border-radius: 8px;
+}
+/* shared detail row description (locations + dungeons) */
+.location-detail-row .location-description,
+.dungeon-detail-row .dungeon-description {
+  color: #212529;                 /* dark readable text */
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  line-height: 1.45;
+}
+/* modal layout */
+.modal-card-blazor{
+  display:flex;
+  flex-direction:column;
+  max-height: 85vh;
+}
+
+.modal-body{
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 12px;
+}
+
+.modal-foot{
+  flex: 0 0 auto;
+  border-top: 1px solid rgba(255,255,255,.12);
+  padding-top: 12px;
+  margin-top: 10px;
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+
+/* image */
+.modal-item-img{
+  width:140px;
+  height:140px;
+  object-fit:cover;
+  border-radius:14px;
+  flex:0 0 auto;
+}
+
+/* body top: image + resources */
+.modal-body-top{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  flex-wrap:wrap; /* na menších šířkách se to zalomí */
+}
+
+/* resources 3 columns */
+.resources-3col{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:10px;
+  flex: 1 1 420px;
+  min-width: 280px;
+}
+
+.res-card{
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.03);
+  min-width:0;
+}
+
+.res-title{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.res-count{
+  font-size: 16px;
+}
+
+/* stats in footer: each stat 2 rows */
+.stats-grid-2{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:10px;
+}
+
+.stat2{
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.03);
+  min-width:0;
+}
+
+.stat2-k{
+  line-height: 1.1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.stat2-v{
+  margin-top: 4px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* responsive */
+@media (max-width: 900px){
+  .resources-3col{ grid-template-columns: 1fr; }
+  .stats-grid-2{ grid-template-columns: 1fr; }
+}
+.resources-3col {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .resources-3col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .resources-3col { grid-template-columns: 1fr; }
+}
+
+.res-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 10px;
+  min-width: 0;
+}
+
+.modal-foot {
+  border-top: 1px solid rgba(255,255,255,0.12);
+  padding-top: 12px;
+  margin-top: 10px;
+}
+
+.stats-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 700px) {
+  .stats-grid-2 { grid-template-columns: 1fr; }
+}
+
+.stat2 {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.stat2-v {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+/* Modal sizing + stable layout */
+.modal-card-blazor.modal-item{
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(82vh, 760px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* header */
+.modal-item-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.modal-item-head-left{
+  min-width:0;
+  flex:1;
+}
+.modal-sub{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* body scroll stays minimal, footer owns stats scroll */
+.modal-item-body{
+  padding:0;
+  flex:0 0 auto;
+}
+
+/* top row: image + resources */
+.modal-item-top{
+  display:grid;
+  grid-template-columns: 160px 1fr;
+  gap:14px;
+  align-items:start;
+}
+
+.modal-item-img{
+  width:160px;
+  height:160px;
+  object-fit:cover;
+  border-radius:14px;
+}
+.modal-item-img.placeholder{
+  background: rgba(255,255,255,0.06);
+}
+
+/* resources 3 columns */
+.resources-3col{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:10px;
+}
+.res-card{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:10px;
+  min-width:0;
+}
+.res-title{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.res-count{ font-size: 0.95rem; }
+
+/* footer: stats area with its own scroll */
+.modal-item-foot{
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  flex: 1 1 auto;
+  overflow:auto;
+}
+
+/* stats grid cards: each stat = 2 lines */
+.stats-grid-cards{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:10px;
+}
+.stat-card{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:10px 12px;
+  min-width:0;
+}
+.stat-card-k{
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 4px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.stat-card-v{
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* responsive */
+@media (max-width: 640px){
+  .modal-item-top{ grid-template-columns: 1fr; }
+  .modal-item-img{ width:100%; height:180px; }
+  .resources-3col{ grid-template-columns: 1fr; }
+  .stats-grid-cards{ grid-template-columns: 1fr; }
+}
+.inv-card-header.qhdr{
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+/* Q1 Common */
+.inv-card-header.qhdr-q1  { background: rgba(255,255,255,0.06); }
+
+/* Q2 Uncommon (green) */
+.inv-card-header.qhdr-q2  { background: linear-gradient(90deg, rgba(46,204,113,.24), rgba(46,204,113,.06)); }
+
+/* Q3 Rare (blue) */
+.inv-card-header.qhdr-q3  { background: linear-gradient(90deg, rgba(52,152,219,.26), rgba(52,152,219,.07)); }
+
+/* Q4 Superior (teal) */
+.inv-card-header.qhdr-q4  { background: linear-gradient(90deg, rgba(26,188,156,.26), rgba(26,188,156,.07)); }
+
+/* Q5 Epic (purple) */
+.inv-card-header.qhdr-q5  { background: linear-gradient(90deg, rgba(155,89,182,.28), rgba(155,89,182,.08)); }
+
+/* Q6 Mythic (magenta) */
+.inv-card-header.qhdr-q6  { background: linear-gradient(90deg, rgba(231,76,160,.30), rgba(231,76,160,.08)); }
+
+/* Q7 Ancient (amber/orange) */
+.inv-card-header.qhdr-q7  { background: linear-gradient(90deg, rgba(243,156,18,.30), rgba(243,156,18,.08)); }
+
+/* Q8 Arcane (indigo) */
+.inv-card-header.qhdr-q8  { background: linear-gradient(90deg, rgba(88,101,242,.30), rgba(88,101,242,.08)); }
+
+/* Q9 Celestial (gold) */
+.inv-card-header.qhdr-q9  { background: linear-gradient(90deg, rgba(241,196,15,.34), rgba(241,196,15,.09)); }
+
+/* Q10 Ethereal (icy/cyan) */
+.inv-card-header.qhdr-q10 { background: linear-gradient(90deg, rgba(0,255,255,.22), rgba(0,255,255,.06)); }
+
+/* Q11 Transcendent (white/prismatic vibe) */
+.inv-card-header.qhdr-q11 {
+    background: linear-gradient(90deg,
+        rgba(255,255,255,.22),
+        rgba(180,220,255,.10),
+        rgba(255,200,250,.08));
+}
+
+/* čitelnost na vyšších tier */
+.inv-card-header.qhdr-q9  .fw-bold,
+.inv-card-header.qhdr-q10 .fw-bold,
+.inv-card-header.qhdr-q11 .fw-bold,
+.inv-card-header.qhdr-q9  .badge,
+.inv-card-header.qhdr-q10 .badge,
+.inv-card-header.qhdr-q11 .badge {
+    text-shadow: 0 1px 1px rgba(0,0,0,.35);
 }

@@ -1,0 +1,1607 @@
+labyrinth_id,labyrinth_name,theme,order,quality
+000,Concord of the Forsaken Orders,Orders,Zombie,Q1_Common
+000,Concord of the Forsaken Orders,Orders,Zouyu,Q2_Uncommon
+000,Concord of the Forsaken Orders,Orders,Zunbera-bō,Q3_Rare
+000,Concord of the Forsaken Orders,Orders,Gravebound,Q4_Superior
+000,Concord of the Forsaken Orders,Orders,Ash-Walkers,Q5_Epic
+000,Concord of the Forsaken Orders,Orders,The Pale Choir,Q6_Mythic
+000,Concord of the Forsaken Orders,Orders,Ironwake,Q7_Ancient
+000,Concord of the Forsaken Orders,Orders,Night Mandate,Q8_Arcane
+000,Concord of the Forsaken Orders,Orders,The Withered Oath,Q9_Celestial
+000,Concord of the Forsaken Orders,Orders,Black Reliquary,Q10_Ethereal
+000,Concord of the Forsaken Orders,Orders,Cinder Heralds,Q11_Transcendent
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Tangie,Q1_Common
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Sōtangitsune,Q2_Uncommon
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Suangi,Q3_Rare
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Te Wheke-a-Muturangi,Q4_Superior
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Satan,Q5_Epic
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Titan,Q6_Mythic
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Tantankororin,Q7_Ancient
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Calingi,Q8_Arcane
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Tanuki,Q9_Celestial
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Bagiennik,Q10_Ethereal
+002,Covenant of Satan & TeWheke-a-Muturang,Orders,Wangliang,Q11_Transcendent
+003,Conclave of Jotai and Daidarabotchi,Orders,Syrbotae,Q1_Common
+003,Conclave of Jotai and Daidarabotchi,Orders,Haetae,Q2_Uncommon
+003,Conclave of Jotai and Daidarabotchi,Orders,Syrictæ,Q3_Rare
+003,Conclave of Jotai and Daidarabotchi,Orders,Jotai,Q4_Superior
+003,Conclave of Jotai and Daidarabotchi,Orders,Antaeus,Q5_Epic
+003,Conclave of Jotai and Daidarabotchi,Orders,Ipotane,Q6_Mythic
+003,Conclave of Jotai and Daidarabotchi,Orders,Minotaur,Q7_Ancient
+003,Conclave of Jotai and Daidarabotchi,Orders,Daidarabotchi,Q8_Arcane
+003,Conclave of Jotai and Daidarabotchi,Orders,Leucrota,Q9_Celestial
+003,Conclave of Jotai and Daidarabotchi,Orders,Quinotaur,Q10_Ethereal
+003,Conclave of Jotai and Daidarabotchi,Orders,Ophiotaurus,Q11_Transcendent
+004,Seal of Iele & Fourhorsemenofthea,Orders,Elemental,Q1_Common
+004,Seal of Iele & Fourhorsemenofthea,Orders,Centaur,Q2_Uncommon
+004,Seal of Iele & Fourhorsemenofthea,Orders,Onocentaur,Q3_Rare
+004,Seal of Iele & Fourhorsemenofthea,Orders,Iele,Q4_Superior
+004,Seal of Iele & Fourhorsemenofthea,Orders,Golem,Q5_Epic
+004,Seal of Iele & Fourhorsemenofthea,Orders,Ichthyocentaur,Q6_Mythic
+004,Seal of Iele & Fourhorsemenofthea,Orders,Emere,Q7_Ancient
+004,Seal of Iele & Fourhorsemenofthea,Orders,Talos,Q8_Arcane
+004,Seal of Iele & Fourhorsemenofthea,Orders,Four horsemen of the apocalypse,Q9_Celestial
+004,Seal of Iele & Fourhorsemenofthea,Orders,Numen,Q10_Ethereal
+004,Seal of Iele & Fourhorsemenofthea,Orders,Vetala,Q11_Transcendent
+005,Conclave of Sileni and EasterBilby,Orders,El Silbon,Q1_Common
+005,Conclave of Sileni and EasterBilby,Orders,Sileni,Q2_Uncommon
+005,Conclave of Sileni and EasterBilby,Orders,Basilisk,Q3_Rare
+005,Conclave of Sileni and EasterBilby,Orders,Yilbegän,Q4_Superior
+005,Conclave of Sileni and EasterBilby,Orders,Cu Sith,Q5_Epic
+005,Conclave of Sileni and EasterBilby,Orders,Bonnacon,Q6_Mythic
+005,Conclave of Sileni and EasterBilby,Orders,Elbow Witch,Q7_Ancient
+005,Conclave of Sileni and EasterBilby,Orders,Easter Bilby,Q8_Arcane
+005,Conclave of Sileni and EasterBilby,Orders,Cat Sidhe,Q9_Celestial
+005,Conclave of Sileni and EasterBilby,Orders,Sundel Bolong,Q10_Ethereal
+005,Conclave of Sileni and EasterBilby,Orders,Diao Si Gui,Q11_Transcendent
+006,Accord of Arion and Criosphinx,Orders,Arion,Q1_Common
+006,Accord of Arion and Criosphinx,Orders,Harionago,Q2_Uncommon
+006,Accord of Arion and Criosphinx,Orders,Avalerion,Q3_Rare
+006,Accord of Arion and Criosphinx,Orders,Marid,Q4_Superior
+006,Accord of Arion and Criosphinx,Orders,Yanari,Q5_Epic
+006,Accord of Arion and Criosphinx,Orders,Sagari,Q6_Mythic
+006,Accord of Arion and Criosphinx,Orders,Criosphinx,Q7_Ancient
+006,Accord of Arion and Criosphinx,Orders,Merlion,Q8_Arcane
+006,Accord of Arion and Criosphinx,Orders,Cambion,Q9_Celestial
+006,Accord of Arion and Criosphinx,Orders,Gwyllion,Q10_Ethereal
+006,Accord of Arion and Criosphinx,Orders,Sea-lion,Q11_Transcendent
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Sky Women,Q1_Common
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Chichevache – Human-faced cow that feeds on good women,Q2_Uncommon
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Deer Woman,Q3_Rare
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Ittan-momen,Q4_Superior
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Black Lady of Bradley Woods,Q5_Epic
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Gnome,Q6_Mythic
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Shikome,Q7_Ancient
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Barometz,Q8_Arcane
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Menreiki,Q9_Celestial
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Menehune,Q10_Ethereal
+007,Oath of Gnome & ChichevacheHuman-f,Orders,Woman in Black,Q11_Transcendent
+008,Synod of Nawao & Katawa-guruma,Orders,Nawao,Q1_Common
+008,Synod of Nawao & Katawa-guruma,Orders,Bakunawa,Q2_Uncommon
+008,Synod of Nawao & Katawa-guruma,Orders,Minokawa,Q3_Rare
+008,Synod of Nawao & Katawa-guruma,Orders,Popobawa,Q4_Superior
+008,Synod of Nawao & Katawa-guruma,Orders,Kawa-uso,Q5_Epic
+008,Synod of Nawao & Katawa-guruma,Orders,Kawa-zaru,Q6_Mythic
+008,Synod of Nawao & Katawa-guruma,Orders,Awa-hon-do,Q7_Ancient
+008,Synod of Nawao & Katawa-guruma,Orders,Katawa-guruma,Q8_Arcane
+008,Synod of Nawao & Katawa-guruma,Orders,Á Bao A Qu,Q9_Celestial
+008,Synod of Nawao & Katawa-guruma,Orders,Aatxe,Q10_Ethereal
+008,Synod of Nawao & Katawa-guruma,Orders,Abaasy,Q11_Transcendent
+009,Covenant of Abada & IbongAdarna,Orders,Abada,Q1_Common
+009,Covenant of Abada & IbongAdarna,Orders,Badalisc,Q2_Uncommon
+009,Covenant of Abada & IbongAdarna,Orders,Adaro,Q3_Rare
+009,Covenant of Abada & IbongAdarna,Orders,Abath,Q4_Superior
+009,Covenant of Abada & IbongAdarna,Orders,Abaia,Q5_Epic
+009,Covenant of Abada & IbongAdarna,Orders,Radande,Q6_Mythic
+009,Covenant of Abada & IbongAdarna,Orders,Humbaba,Q7_Ancient
+009,Covenant of Abada & IbongAdarna,Orders,Karkadann,Q8_Arcane
+009,Covenant of Abada & IbongAdarna,Orders,Abarimon,Q9_Celestial
+009,Covenant of Abada & IbongAdarna,Orders,Sihuanaba,Q10_Ethereal
+009,Covenant of Abada & IbongAdarna,Orders,Ibong Adarna,Q11_Transcendent
+010,Seal of Lares & BarghestYorkshireb,Orders,Hecatonchires,Q1_Common
+010,Seal of Lares & BarghestYorkshireb,Orders,Ichiren-Bozu,Q2_Uncommon
+010,Seal of Lares & BarghestYorkshireb,Orders,Werecat,Q3_Rare
+010,Seal of Lares & BarghestYorkshireb,Orders,Chonchon,Q4_Superior
+010,Seal of Lares & BarghestYorkshireb,Orders,Catoblepas,Q5_Epic
+010,Seal of Lares & BarghestYorkshireb,Orders,Lares,Q6_Mythic
+010,Seal of Lares & BarghestYorkshireb,Orders,Siren,Q7_Ancient
+010,Seal of Lares & BarghestYorkshireb,Orders,Xochitonal,Q8_Arcane
+010,Seal of Lares & BarghestYorkshireb,Orders,Atomy,Q9_Celestial
+010,Seal of Lares & BarghestYorkshireb,Orders,Barghest – Yorkshire black dog,Q10_Ethereal
+010,Seal of Lares & BarghestYorkshireb,Orders,Bluecap,Q11_Transcendent
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Amhuluk,Q1_Common
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Hulder,Q2_Uncommon
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Jaculus,Q3_Rare
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Zhulong,Q4_Superior
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Impundulu,Q5_Epic
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Homunculus,Q6_Mythic
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Huli jing,Q7_Ancient
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Huldufólk,Q8_Arcane
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Chullachaki,Q9_Celestial
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Llamhigyn Y Dwr,Q10_Ethereal
+011,Accord of Äbädä and LlamhigynYDwr,Orders,Äbädä,Q11_Transcendent
+012,Seal of Huma & Abura-sumashi,Orders,Nobusuma,Q1_Common
+012,Seal of Huma & Abura-sumashi,Orders,Nekomusume,Q2_Uncommon
+012,Seal of Huma & Abura-sumashi,Orders,Taimatsumaru,Q3_Rare
+012,Seal of Huma & Abura-sumashi,Orders,Abura-sumashi,Q4_Superior
+012,Seal of Huma & Abura-sumashi,Orders,Huma,Q5_Epic
+012,Seal of Huma & Abura-sumashi,Orders,Yobuko,Q6_Mythic
+012,Seal of Huma & Abura-sumashi,Orders,Nikusui,Q7_Ancient
+012,Seal of Huma & Abura-sumashi,Orders,Shunoban,Q8_Arcane
+012,Seal of Huma & Abura-sumashi,Orders,Akuma,Q9_Celestial
+012,Seal of Huma & Abura-sumashi,Orders,Incubus,Q10_Ethereal
+012,Seal of Huma & Abura-sumashi,Orders,Lauma,Q11_Transcendent
+013,Circle of Schrat and Bake-kujira,Orders,Iratxoak,Q1_Common
+013,Circle of Schrat and Bake-kujira,Orders,Schrat,Q2_Uncommon
+013,Circle of Schrat and Bake-kujira,Orders,Ijiraq,Q3_Rare
+013,Circle of Schrat and Bake-kujira,Orders,Moirai,Q4_Superior
+013,Circle of Schrat and Bake-kujira,Orders,Zburator,Q5_Epic
+013,Circle of Schrat and Bake-kujira,Orders,Ratatoskr,Q6_Mythic
+013,Circle of Schrat and Bake-kujira,Orders,Curupira,Q7_Ancient
+013,Circle of Schrat and Bake-kujira,Orders,Airavata,Q8_Arcane
+013,Circle of Schrat and Bake-kujira,Orders,Dirawong,Q9_Celestial
+013,Circle of Schrat and Bake-kujira,Orders,Sakabashira,Q10_Ethereal
+013,Circle of Schrat and Bake-kujira,Orders,Bake-kujira,Q11_Transcendent
+014,Covenant of Mairu & EnchantedMoor,Orders,Hantu Air,Q1_Common
+014,Covenant of Mairu & EnchantedMoor,Orders,Hantu Raya,Q2_Uncommon
+014,Covenant of Mairu & EnchantedMoor,Orders,Hantu Demon,Q3_Rare
+014,Covenant of Mairu & EnchantedMoor,Orders,Enchanted Moor,Q4_Superior
+014,Covenant of Mairu & EnchantedMoor,Orders,Mairu,Q5_Epic
+014,Covenant of Mairu & EnchantedMoor,Orders,Fairy,Q6_Mythic
+014,Covenant of Mairu & EnchantedMoor,Orders,Mintuci,Q7_Ancient
+014,Covenant of Mairu & EnchantedMoor,Orders,Mohan,Q8_Arcane
+014,Covenant of Mairu & EnchantedMoor,Orders,Tapairu,Q9_Celestial
+014,Covenant of Mairu & EnchantedMoor,Orders,Giant,Q10_Ethereal
+014,Covenant of Mairu & EnchantedMoor,Orders,Vahana,Q11_Transcendent
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Sköll,Q1_Common
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Abumi-guchi,Q2_Uncommon
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Abzar iyesi,Q3_Rare
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Acephali,Q4_Superior
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Acheri,Q5_Epic
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Achiyalabopa,Q6_Mythic
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Achlis,Q7_Ancient
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Adar Llwch Gwin,Q8_Arcane
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Adhene,Q9_Celestial
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Adlet,Q10_Ethereal
+015,Covenant of Sköll & AdarLlwchGwin,Orders,Adroanzi,Q11_Transcendent
+016,Circle of Adze and TricksterCharacter,Orders,Vaibhavi,Q1_Common
+016,Circle of Adze and TricksterCharacter,Orders,Havsrå,Q2_Uncommon
+016,Circle of Adze and TricksterCharacter,Orders,Dobhar-chu,Q3_Rare
+016,Circle of Adze and TricksterCharacter,Orders,Baobhan Sith,Q4_Superior
+016,Circle of Adze and TricksterCharacter,Orders,Slavic dragon,Q5_Epic
+016,Circle of Adze and TricksterCharacter,Orders,Zmiy – Slavic dragon,Q6_Mythic
+016,Circle of Adze and TricksterCharacter,Orders,"Trickster – Character in a story which exhibits a great degree of intellect or secret knowledge, and uses it to play tricks or otherwise disobey normal rules and conventional behaviour",Q7_Ancient
+016,Circle of Adze and TricksterCharacter,Orders,Supernatural beings in Slavic religion,Q8_Arcane
+016,Circle of Adze and TricksterCharacter,Orders,Unclean force – Slavic mythological force,Q9_Celestial
+016,Circle of Adze and TricksterCharacter,Orders,Adze,Q10_Ethereal
+016,Circle of Adze and TricksterCharacter,Orders,Aerico,Q11_Transcendent
+017,Ward of Æsir and Gold-diggingant,Orders,Kobold,Q1_Common
+017,Ward of Æsir and Gold-diggingant,Orders,Bolla,Q2_Uncommon
+017,Ward of Æsir and Gold-diggingant,Orders,Kobalos,Q3_Rare
+017,Ward of Æsir and Gold-diggingant,Orders,Goldhorn,Q4_Superior
+017,Ward of Æsir and Gold-diggingant,Orders,Ouroboros,Q5_Epic
+017,Ward of Æsir and Gold-diggingant,Orders,Bolotnik,Q6_Mythic
+017,Ward of Æsir and Gold-diggingant,Orders,Fir Bolg,Q7_Ancient
+017,Ward of Æsir and Gold-diggingant,Orders,Boroboroton,Q8_Arcane
+017,Ward of Æsir and Gold-diggingant,Orders,Gold-digging ant,Q9_Celestial
+017,Ward of Æsir and Gold-diggingant,Orders,Æsir,Q10_Ethereal
+017,Ward of Æsir and Gold-diggingant,Orders,Aeternae,Q11_Transcendent
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Nimerigar,Q1_Common
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Hiderigami,Q2_Uncommon
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Shtriga,Q3_Rare
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Zorigami,Q4_Superior
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Korrigan,Q5_Epic
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Peri,Q6_Mythic
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Merlin,Q7_Ancient
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Garmr,Q8_Arcane
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Merrow,Q9_Celestial
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Kiyohime,Q10_Ethereal
+018,Covenant of Peri & FeatheredSerpentMe,Orders,Feathered Serpent – Mesoamerican dragon,Q11_Transcendent
+019,Conclave of Piru and AnthropomorphicAni,Orders,Psychic vampire,Q1_Common
+019,Conclave of Piru and AnthropomorphicAni,Orders,Vampire,Q2_Uncommon
+019,Conclave of Piru and AnthropomorphicAni,Orders,Psychai,Q3_Rare
+019,Conclave of Piru and AnthropomorphicAni,Orders,Dhampir,Q4_Superior
+019,Conclave of Piru and AnthropomorphicAni,Orders,Psychopomp,Q5_Epic
+019,Conclave of Piru and AnthropomorphicAni,Orders,Tchico,Q6_Mythic
+019,Conclave of Piru and AnthropomorphicAni,Orders,Huaychivo,Q7_Ancient
+019,Conclave of Piru and AnthropomorphicAni,Orders,Yama-chichi,Q8_Arcane
+019,Conclave of Piru and AnthropomorphicAni,Orders,Piru,Q9_Celestial
+019,Conclave of Piru and AnthropomorphicAni,Orders,Chickcharney,Q10_Ethereal
+019,Conclave of Piru and AnthropomorphicAni,Orders,Anthropomorphic Animals,Q11_Transcendent
+020,Circle of Agni and CeffylDŵr,Orders,Ceffyl Dŵr,Q1_Common
+020,Circle of Agni and CeffylDŵr,Orders,Fylgja,Q2_Uncommon
+020,Circle of Agni and CeffylDŵr,Orders,Afanc,Q3_Rare
+020,Circle of Agni and CeffylDŵr,Orders,Agni,Q4_Superior
+020,Circle of Agni and CeffylDŵr,Orders,Agathodaemon,Q5_Epic
+020,Circle of Agni and CeffylDŵr,Orders,Agloolik,Q6_Mythic
+020,Circle of Agni and CeffylDŵr,Orders,Agogwe,Q7_Ancient
+020,Circle of Agni and CeffylDŵr,Orders,Akhekh,Q8_Arcane
+020,Circle of Agni and CeffylDŵr,Orders,Ahkiyyini,Q9_Celestial
+020,Circle of Agni and CeffylDŵr,Orders,Ahuizotl,Q10_Ethereal
+020,Circle of Agni and CeffylDŵr,Orders,Ahura,Q11_Transcendent
+021,Seal of Yama & NyamiNyami,Orders,Yama-biko,Q1_Common
+021,Seal of Yama & NyamiNyami,Orders,Yama-bito,Q2_Uncommon
+021,Seal of Yama & NyamiNyami,Orders,Yama,Q3_Rare
+021,Seal of Yama & NyamiNyami,Orders,Yama-inu,Q4_Superior
+021,Seal of Yama & NyamiNyami,Orders,Yama-uba,Q5_Epic
+021,Seal of Yama & NyamiNyami,Orders,Yama-waro,Q6_Mythic
+021,Seal of Yama & NyamiNyami,Orders,Yama-otoko,Q7_Ancient
+021,Seal of Yama & NyamiNyami,Orders,Yamata no Orochi,Q8_Arcane
+021,Seal of Yama & NyamiNyami,Orders,Nyami Nyami,Q9_Celestial
+021,Seal of Yama & NyamiNyami,Orders,Sea-bee,Q10_Ethereal
+021,Seal of Yama & NyamiNyami,Orders,Tikoloshe,Q11_Transcendent
+022,Seal of Mara & Karakoncolos,Orders,Makara,Q1_Common
+022,Seal of Mara & Karakoncolos,Orders,Kumakatok,Q2_Uncommon
+022,Seal of Mara & Karakoncolos,Orders,Karakura,Q3_Rare
+022,Seal of Mara & Karakoncolos,Orders,Karasu-tengu,Q4_Superior
+022,Seal of Mara & Karakoncolos,Orders,Karakoncolos,Q5_Epic
+022,Seal of Mara & Karakoncolos,Orders,Mara,Q6_Mythic
+022,Seal of Mara & Karakoncolos,Orders,Iara,Q7_Ancient
+022,Seal of Mara & Karakoncolos,Orders,Takam,Q8_Arcane
+022,Seal of Mara & Karakoncolos,Orders,Karura,Q9_Celestial
+022,Seal of Mara & Karakoncolos,Orders,Karkinos,Q10_Ethereal
+022,Seal of Mara & Karakoncolos,Orders,Karzełek,Q11_Transcendent
+023,Synod of Strix & Laestrygonians,Orders,Strix,Q1_Common
+023,Synod of Strix & Laestrygonians,Orders,Strigoi,Q2_Uncommon
+023,Synod of Strix & Laestrygonians,Orders,Callitrix,Q3_Rare
+023,Synod of Strix & Laestrygonians,Orders,Strzyga,Q4_Superior
+023,Synod of Strix & Laestrygonians,Orders,Tritons,Q5_Epic
+023,Synod of Strix & Laestrygonians,Orders,Struthopodes,Q6_Mythic
+023,Synod of Strix & Laestrygonians,Orders,Cockatrice,Q7_Ancient
+023,Synod of Strix & Laestrygonians,Orders,Tripurasura,Q8_Arcane
+023,Synod of Strix & Laestrygonians,Orders,Laestrygonians,Q9_Celestial
+023,Synod of Strix & Laestrygonians,Orders,Elwetritsch,Q10_Ethereal
+023,Synod of Strix & Laestrygonians,Orders,Aigamuxa,Q11_Transcendent
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Lóng – Chinese dragon,Q1_Common
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Ryū – Japanese dragon,Q2_Uncommon
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Tatsu – Japanese dragon,Q3_Rare
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Dragon,Q4_Superior
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Yong – Korean dragon,Q5_Epic
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Věri Şělen – Chuvash dragon,Q6_Mythic
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Dragon turtle,Q7_Ancient
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Chindi,Q8_Arcane
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Patagon,Q9_Celestial
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Chinthe,Q10_Ethereal
+024,Conclave of Dragon and VěriŞělenChuvashdr,Orders,Kachina,Q11_Transcendent
+025,Circle of Guhin and Hieracosphinx,Orders,Sphinx,Q1_Common
+025,Circle of Guhin and Hieracosphinx,Orders,Androsphinx,Q2_Uncommon
+025,Circle of Guhin and Hieracosphinx,Orders,Hieracosphinx,Q3_Rare
+025,Circle of Guhin and Hieracosphinx,Orders,Guhin,Q4_Superior
+025,Circle of Guhin and Hieracosphinx,Orders,Xhindi,Q5_Epic
+025,Circle of Guhin and Hieracosphinx,Orders,Nephilim,Q6_Mythic
+025,Circle of Guhin and Hieracosphinx,Orders,Yakshini,Q7_Ancient
+025,Circle of Guhin and Hieracosphinx,Orders,Amphiptere,Q8_Arcane
+025,Circle of Guhin and Hieracosphinx,Orders,Shinigami,Q9_Celestial
+025,Circle of Guhin and Hieracosphinx,Orders,Amphisbaena,Q10_Ethereal
+025,Circle of Guhin and Hieracosphinx,Orders,Tsuchinoko,Q11_Transcendent
+026,Oath of Daitya & PhiTaiHong,Orders,Bush Dai Dai,Q1_Common
+026,Oath of Daitya & PhiTaiHong,Orders,Daitya,Q2_Uncommon
+026,Oath of Daitya & PhiTaiHong,Orders,Daitengu,Q3_Rare
+026,Oath of Daitya & PhiTaiHong,Orders,Far darrig,Q4_Superior
+026,Oath of Daitya & PhiTaiHong,Orders,Bai Ze,Q5_Epic
+026,Oath of Daitya & PhiTaiHong,Orders,Sirrush,Q6_Mythic
+026,Oath of Daitya & PhiTaiHong,Orders,Succubus,Q7_Ancient
+026,Oath of Daitya & PhiTaiHong,Orders,Ushi-oni,Q8_Arcane
+026,Oath of Daitya & PhiTaiHong,Orders,Kushtaka,Q9_Celestial
+026,Oath of Daitya & PhiTaiHong,Orders,Phi Tai Hong,Q10_Ethereal
+026,Oath of Daitya & PhiTaiHong,Orders,Mushusshu,Q11_Transcendent
+027,Synod of Duende & BlafardImaginarycr,Orders,Weiße Frauen,Q1_Common
+027,Synod of Duende & BlafardImaginarycr,Orders,Duende,Q2_Uncommon
+027,Synod of Duende & BlafardImaginarycr,Orders,Gaueko,Q3_Rare
+027,Synod of Duende & BlafardImaginarycr,Orders,Draugr,Q4_Superior
+027,Synod of Duende & BlafardImaginarycr,Orders,Trauco,Q5_Epic
+027,Synod of Duende & BlafardImaginarycr,Orders,Vielfras,Q6_Mythic
+027,Synod of Duende & BlafardImaginarycr,Orders,Pyrausta,Q7_Ancient
+027,Synod of Duende & BlafardImaginarycr,Orders,The Fates,Q8_Arcane
+027,Synod of Duende & BlafardImaginarycr,Orders,Blafard – Imaginary creature from the early United States of America,Q9_Celestial
+027,Synod of Duende & BlafardImaginarycr,Orders,Loveland frog,Q10_Ethereal
+027,Synod of Duende & BlafardImaginarycr,Orders,Bendigeidfran,Q11_Transcendent
+028,Seal of Bashe & Biscione,Orders,Basilisco Chilote,Q1_Common
+028,Seal of Bashe & Biscione,Orders,Dilong,Q2_Uncommon
+028,Seal of Bashe & Biscione,Orders,Bashe,Q3_Rare
+028,Seal of Bashe & Biscione,Orders,Basty,Q4_Superior
+028,Seal of Bashe & Biscione,Orders,Lilin,Q5_Epic
+028,Seal of Bashe & Biscione,Orders,Qilin,Q6_Mythic
+028,Seal of Bashe & Biscione,Orders,Asiman,Q7_Ancient
+028,Seal of Bashe & Biscione,Orders,Jenglot,Q8_Arcane
+028,Seal of Bashe & Biscione,Orders,Orobas,Q9_Celestial
+028,Seal of Bashe & Biscione,Orders,Baubas,Q10_Ethereal
+028,Seal of Bashe & Biscione,Orders,Biscione,Q11_Transcendent
+029,Ward of Panes and LibyanAegipanes,Orders,Panes,Q1_Common
+029,Ward of Panes and LibyanAegipanes,Orders,Manes,Q2_Uncommon
+029,Ward of Panes and LibyanAegipanes,Orders,Libyan Aegipanes,Q3_Rare
+029,Ward of Panes and LibyanAegipanes,Orders,Pandi,Q4_Superior
+029,Ward of Panes and LibyanAegipanes,Orders,Panis,Q5_Epic
+029,Ward of Panes and LibyanAegipanes,Orders,Panther,Q6_Mythic
+029,Ward of Panes and LibyanAegipanes,Orders,Panlong,Q7_Ancient
+029,Ward of Panes and LibyanAegipanes,Orders,Buggane,Q8_Arcane
+029,Ward of Panes and LibyanAegipanes,Orders,Panotti,Q9_Celestial
+029,Ward of Panes and LibyanAegipanes,Orders,Kanedama,Q10_Ethereal
+029,Ward of Panes and LibyanAegipanes,Orders,Chaneque,Q11_Transcendent
+030,Synod of Diting & BeastofBrayRoad,Orders,Questing Beast,Q1_Common
+030,Synod of Diting & BeastofBrayRoad,Orders,Bestial beast,Q2_Uncommon
+030,Synod of Diting & BeastofBrayRoad,Orders,Pictish Beast,Q3_Rare
+030,Synod of Diting & BeastofBrayRoad,Orders,Kting Voar,Q4_Superior
+030,Synod of Diting & BeastofBrayRoad,Orders,Lightning Bird,Q5_Epic
+030,Synod of Diting & BeastofBrayRoad,Orders,Diting,Q6_Mythic
+030,Synod of Diting & BeastofBrayRoad,Orders,Beast of the Earth,Q7_Ancient
+030,Synod of Diting & BeastofBrayRoad,Orders,Beast of Gévaudan,Q8_Arcane
+030,Synod of Diting & BeastofBrayRoad,Orders,Beast of Bray Road,Q9_Celestial
+030,Synod of Diting & BeastofBrayRoad,Orders,Drop Bear,Q10_Ethereal
+030,Synod of Diting & BeastofBrayRoad,Orders,Orang Bunian,Q11_Transcendent
+031,Circle of Wani and Guardianangel,Orders,Giant animal,Q1_Common
+031,Circle of Wani and Guardianangel,Orders,Wani,Q2_Uncommon
+031,Circle of Wani and Guardianangel,Orders,Nian,Q3_Rare
+031,Circle of Wani and Guardianangel,Orders,Jian,Q4_Superior
+031,Circle of Wani and Guardianangel,Orders,Amala,Q5_Epic
+031,Circle of Wani and Guardianangel,Orders,Vimana,Q6_Mythic
+031,Circle of Wani and Guardianangel,Orders,Sint Holo,Q7_Ancient
+031,Circle of Wani and Guardianangel,Orders,Al Ana,Q8_Arcane
+031,Circle of Wani and Guardianangel,Orders,Oceanid,Q9_Celestial
+031,Circle of Wani and Guardianangel,Orders,Guardian angel,Q10_Ethereal
+031,Circle of Wani and Guardianangel,Orders,Taniwha,Q11_Transcendent
+032,Covenant of Hades & Farfadet,Orders,Limnades,Q1_Common
+032,Covenant of Hades & Farfadet,Orders,Hades,Q2_Uncommon
+032,Covenant of Hades & Farfadet,Orders,Isonade,Q3_Rare
+032,Covenant of Hades & Farfadet,Orders,Lampades,Q4_Superior
+032,Covenant of Hades & Farfadet,Orders,Gorgades,Q5_Epic
+032,Covenant of Hades & Farfadet,Orders,Shade,Q6_Mythic
+032,Covenant of Hades & Farfadet,Orders,Chollima,Q7_Ancient
+032,Covenant of Hades & Farfadet,Orders,Cadejo,Q8_Arcane
+032,Covenant of Hades & Farfadet,Orders,Gud-elim,Q9_Celestial
+032,Covenant of Hades & Farfadet,Orders,Ōmukade,Q10_Ethereal
+032,Covenant of Hades & Farfadet,Orders,Farfadet,Q11_Transcendent
+033,Circle of Harpy and Reptilianhumanoid,Orders,Zhar-Ptitsa,Q1_Common
+033,Circle of Harpy and Reptilianhumanoid,Orders,Nocnitsa,Q2_Uncommon
+033,Circle of Harpy and Reptilianhumanoid,Orders,Harpy,Q3_Rare
+033,Circle of Harpy and Reptilianhumanoid,Orders,La-bar-tu,Q4_Superior
+033,Circle of Harpy and Reptilianhumanoid,Orders,Kitsune,Q5_Epic
+033,Circle of Harpy and Reptilianhumanoid,Orders,Chareng,Q6_Mythic
+033,Circle of Harpy and Reptilianhumanoid,Orders,Reptilian humanoid,Q7_Ancient
+033,Circle of Harpy and Reptilianhumanoid,Orders,Gandharva,Q8_Arcane
+033,Circle of Harpy and Reptilianhumanoid,Orders,Charybdis,Q9_Celestial
+033,Circle of Harpy and Reptilianhumanoid,Orders,Narecnitsi,Q10_Ethereal
+033,Circle of Harpy and Reptilianhumanoid,Orders,Three hares,Q11_Transcendent
+034,Conclave of Multo and LochNessMonster,Orders,Headless Mule,Q1_Common
+034,Conclave of Multo and LochNessMonster,Orders,Headless Horseman,Q2_Uncommon
+034,Conclave of Multo and LochNessMonster,Orders,Loch Ness Monster,Q3_Rare
+034,Conclave of Multo and LochNessMonster,Orders,Reichsadler,Q4_Superior
+034,Conclave of Multo and LochNessMonster,Orders,Multo,Q5_Epic
+034,Conclave of Multo and LochNessMonster,Orders,Oread,Q6_Mythic
+034,Conclave of Multo and LochNessMonster,Orders,Leszi,Q7_Ancient
+034,Conclave of Multo and LochNessMonster,Orders,Undead,Q8_Arcane
+034,Conclave of Multo and LochNessMonster,Orders,Helead,Q9_Celestial
+034,Conclave of Multo and LochNessMonster,Orders,Camulatz,Q10_Ethereal
+034,Conclave of Multo and LochNessMonster,Orders,Pelesit,Q11_Transcendent
+035,Synod of Kami & Ladymidday,Orders,Ramidreju,Q1_Common
+035,Synod of Kami & Ladymidday,Orders,Kami,Q2_Uncommon
+035,Synod of Kami & Ladymidday,Orders,Krampus,Q3_Rare
+035,Synod of Kami & Ladymidday,Orders,Drekavac,Q4_Superior
+035,Synod of Kami & Ladymidday,Orders,Werejaguar,Q5_Epic
+035,Synod of Kami & Ladymidday,Orders,Ōkami,Q6_Mythic
+035,Synod of Kami & Ladymidday,Orders,Lamia,Q7_Ancient
+035,Synod of Kami & Ladymidday,Orders,Teju Jagua,Q8_Arcane
+035,Synod of Kami & Ladymidday,Orders,Madremonte,Q9_Celestial
+035,Synod of Kami & Ladymidday,Orders,Lady midday,Q10_Ethereal
+035,Synod of Kami & Ladymidday,Orders,Lamiak,Q11_Transcendent
+036,Seal of Druk & Krasnoludek,Orders,Drude,Q1_Common
+036,Seal of Druk & Krasnoludek,Orders,Druk,Q2_Uncommon
+036,Seal of Druk & Krasnoludek,Orders,Garuda,Q3_Rare
+036,Seal of Druk & Krasnoludek,Orders,Druid,Q4_Superior
+036,Seal of Druk & Krasnoludek,Orders,Hydrus,Q5_Epic
+036,Seal of Druk & Krasnoludek,Orders,Parandrus,Q6_Mythic
+036,Seal of Druk & Krasnoludek,Orders,Krasnoludek,Q7_Ancient
+036,Seal of Druk & Krasnoludek,Orders,Aigikampoi,Q8_Arcane
+036,Seal of Druk & Krasnoludek,Orders,Aitu,Q9_Celestial
+036,Seal of Druk & Krasnoludek,Orders,Aitvaras,Q10_Ethereal
+036,Seal of Druk & Krasnoludek,Orders,Ajatar,Q11_Transcendent
+037,Conclave of Akka and Akateko,Orders,Plivnik,Q1_Common
+037,Conclave of Akka and Akateko,Orders,Bannik,Q2_Uncommon
+037,Conclave of Akka and Akateko,Orders,Onikuma,Q3_Rare
+037,Conclave of Akka and Akateko,Orders,Ovinnik,Q4_Superior
+037,Conclave of Akka and Akateko,Orders,Psotnik,Q5_Epic
+037,Conclave of Akka and Akateko,Orders,Błudnik,Q6_Mythic
+037,Conclave of Akka and Akateko,Orders,Akateko,Q7_Ancient
+037,Conclave of Akka and Akateko,Orders,Akerbeltz,Q8_Arcane
+037,Conclave of Akka and Akateko,Orders,Akhlut,Q9_Celestial
+037,Conclave of Akka and Akateko,Orders,Akka,Q10_Ethereal
+037,Conclave of Akka and Akateko,Orders,Akki,Q11_Transcendent
+038,Ward of Al and MahahaUndeadhumano,Orders,Tailypo,Q1_Common
+038,Ward of Al and MahahaUndeadhumano,Orders,Ypotryll,Q2_Uncommon
+038,Ward of Al and MahahaUndeadhumano,Orders,Cailleach,Q3_Rare
+038,Ward of Al and MahahaUndeadhumano,Orders,"Mahaha – Undead humanoids with long, claw-like fingernails",Q4_Superior
+038,Ward of Al and MahahaUndeadhumano,Orders,Akkorokamui,Q5_Epic
+038,Ward of Al and MahahaUndeadhumano,Orders,Akupara,Q6_Mythic
+038,Ward of Al and MahahaUndeadhumano,Orders,Akurojin-no-hi,Q7_Ancient
+038,Ward of Al and MahahaUndeadhumano,Orders,Al,Q8_Arcane
+038,Ward of Al and MahahaUndeadhumano,Orders,Ala,Q9_Celestial
+038,Ward of Al and MahahaUndeadhumano,Orders,Alal,Q10_Ethereal
+038,Ward of Al and MahahaUndeadhumano,Orders,Alan,Q11_Transcendent
+039,Covenant of Seko & Allocamelus,Orders,Seko,Q1_Common
+039,Covenant of Seko & Allocamelus,Orders,Nekomata,Q2_Uncommon
+039,Covenant of Seko & Allocamelus,Orders,Bakeneko,Q3_Rare
+039,Covenant of Seko & Allocamelus,Orders,Sunekosuri,Q4_Superior
+039,Covenant of Seko & Allocamelus,Orders,Auvekoejak,Q5_Epic
+039,Covenant of Seko & Allocamelus,Orders,Alce,Q6_Mythic
+039,Covenant of Seko & Allocamelus,Orders,Aleya,Q7_Ancient
+039,Covenant of Seko & Allocamelus,Orders,Alicanto,Q8_Arcane
+039,Covenant of Seko & Allocamelus,Orders,Alicorn,Q9_Celestial
+039,Covenant of Seko & Allocamelus,Orders,Alkonost,Q10_Ethereal
+039,Covenant of Seko & Allocamelus,Orders,Allocamelus,Q11_Transcendent
+040,Synod of Turul & Koto-furunushi,Orders,Koto-furunushi,Q1_Common
+040,Synod of Turul & Koto-furunushi,Orders,Yacuruna,Q2_Uncommon
+040,Synod of Turul & Koto-furunushi,Orders,Furu-utsubo,Q3_Rare
+040,Synod of Turul & Koto-furunushi,Orders,Tsurube-otoshi,Q4_Superior
+040,Synod of Turul & Koto-furunushi,Orders,Shishi,Q5_Epic
+040,Synod of Turul & Koto-furunushi,Orders,Turul,Q6_Mythic
+040,Synod of Turul & Koto-furunushi,Orders,Hotoke,Q7_Ancient
+040,Synod of Turul & Koto-furunushi,Orders,Dzunukwa,Q8_Arcane
+040,Synod of Turul & Koto-furunushi,Orders,Kurupi,Q9_Celestial
+040,Synod of Turul & Koto-furunushi,Orders,Khalkotauroi,Q10_Ethereal
+040,Synod of Turul & Koto-furunushi,Orders,Kishi,Q11_Transcendent
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Roc,Q1_Common
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Crocotta,Q2_Uncommon
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Macrocephali,Q3_Rare
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Almas,Q4_Superior
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Al-mi'raj,Q5_Epic
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Aloja,Q6_Mythic
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Alom-bag-winno-sis,Q7_Ancient
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Alp,Q8_Arcane
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Alphyn,Q9_Celestial
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Alp-luachra,Q10_Ethereal
+041,Covenant of Roc & Alom-bag-winno-sis,Orders,Al Rakim,Q11_Transcendent
+042,Covenant of Alû & Biwa-bokuboku,Orders,Oiwa,Q1_Common
+042,Covenant of Alû & Biwa-bokuboku,Orders,Diwata,Q2_Uncommon
+042,Covenant of Alû & Biwa-bokuboku,Orders,Iwana-bōzu,Q3_Rare
+042,Covenant of Alû & Biwa-bokuboku,Orders,Biwa-bokuboku,Q4_Superior
+042,Covenant of Alû & Biwa-bokuboku,Orders,Alseid,Q5_Epic
+042,Covenant of Alû & Biwa-bokuboku,Orders,Alû,Q6_Mythic
+042,Covenant of Alû & Biwa-bokuboku,Orders,Alux,Q7_Ancient
+042,Covenant of Alû & Biwa-bokuboku,Orders,Amaburakosagi,Q8_Arcane
+042,Covenant of Alû & Biwa-bokuboku,Orders,Amamehagi,Q9_Celestial
+042,Covenant of Alû & Biwa-bokuboku,Orders,Amanojaku,Q10_Ethereal
+042,Covenant of Alû & Biwa-bokuboku,Orders,Amarok,Q11_Transcendent
+043,Ward of Irin and MajituinSwahilimyt,Orders,Raven Spirit,Q1_Common
+043,Ward of Irin and MajituinSwahilimyt,Orders,Eagle Spirit,Q2_Uncommon
+043,Ward of Irin and MajituinSwahilimyt,Orders,Raven Mocker,Q3_Rare
+043,Ward of Irin and MajituinSwahilimyt,Orders,Spiriduş,Q4_Superior
+043,Ward of Irin and MajituinSwahilimyt,Orders,Spirit – Ghosts,Q5_Epic
+043,Ward of Irin and MajituinSwahilimyt,Orders,Senbiki Okami - Wolf spirits,Q6_Mythic
+043,Ward of Irin and MajituinSwahilimyt,Orders,"Majitu – in Swahili mythology, shape-shifting spirits that can pass as humans",Q7_Ancient
+043,Ward of Irin and MajituinSwahilimyt,Orders,Irin,Q8_Arcane
+043,Ward of Irin and MajituinSwahilimyt,Orders,Water sprite,Q9_Celestial
+043,Ward of Irin and MajituinSwahilimyt,Orders,Sirin,Q10_Ethereal
+043,Ward of Irin and MajituinSwahilimyt,Orders,Kirin,Q11_Transcendent
+044,Ward of Hob and Amazake-babaa,Orders,Hob,Q1_Common
+044,Ward of Hob and Amazake-babaa,Orders,Hobgoblin,Q2_Uncommon
+044,Ward of Hob and Amazake-babaa,Orders,Hobbididance,Q3_Rare
+044,Ward of Hob and Amazake-babaa,Orders,Amarum,Q4_Superior
+044,Ward of Hob and Amazake-babaa,Orders,Amazake-babaa,Q5_Epic
+044,Ward of Hob and Amazake-babaa,Orders,Amemasu,Q6_Mythic
+044,Ward of Hob and Amazake-babaa,Orders,Amikuk,Q7_Ancient
+044,Ward of Hob and Amazake-babaa,Orders,Ammit,Q8_Arcane
+044,Ward of Hob and Amazake-babaa,Orders,Amorōnagu,Q9_Celestial
+044,Ward of Hob and Amazake-babaa,Orders,Anak,Q10_Ethereal
+044,Ward of Hob and Amazake-babaa,Orders,Andean wolf,Q11_Transcendent
+045,Conclave of Tunda and Gandabherunda,Orders,Mondao,Q1_Common
+045,Conclave of Tunda and Gandabherunda,Orders,Tunda,Q2_Uncommon
+045,Conclave of Tunda and Gandabherunda,Orders,Gandabherunda,Q3_Rare
+045,Conclave of Tunda and Gandabherunda,Orders,Wondjina,Q4_Superior
+045,Conclave of Tunda and Gandabherunda,Orders,Dandan,Q5_Epic
+045,Conclave of Tunda and Gandabherunda,Orders,La Tunda,Q6_Mythic
+045,Conclave of Tunda and Gandabherunda,Orders,Demons,Q7_Ancient
+045,Conclave of Tunda and Gandabherunda,Orders,Daemon,Q8_Arcane
+045,Conclave of Tunda and Gandabherunda,Orders,Monopod,Q9_Celestial
+045,Conclave of Tunda and Gandabherunda,Orders,Musimon,Q10_Ethereal
+045,Conclave of Tunda and Gandabherunda,Orders,Sea monk,Q11_Transcendent
+046,Seal of Shiryō & Cynocephalus,Orders,Hircocervus,Q1_Common
+046,Seal of Shiryō & Cynocephalus,Orders,Monocerus,Q2_Uncommon
+046,Seal of Shiryō & Cynocephalus,Orders,Cercopes,Q3_Rare
+046,Seal of Shiryō & Cynocephalus,Orders,Shiryō,Q4_Superior
+046,Seal of Shiryō & Cynocephalus,Orders,Vârcolac,Q5_Epic
+046,Seal of Shiryō & Cynocephalus,Orders,Cerastes,Q6_Mythic
+046,Seal of Shiryō & Cynocephalus,Orders,Cerberus,Q7_Ancient
+046,Seal of Shiryō & Cynocephalus,Orders,Lou Carcolh,Q8_Arcane
+046,Seal of Shiryō & Cynocephalus,Orders,Shiro-bōzu,Q9_Celestial
+046,Seal of Shiryō & Cynocephalus,Orders,Shirouneri,Q10_Ethereal
+046,Seal of Shiryō & Cynocephalus,Orders,Cynocephalus,Q11_Transcendent
+047,Seal of Tengu & Menninkäinen,Orders,Tennin,Q1_Common
+047,Seal of Tengu & Menninkäinen,Orders,Menninkäinen,Q2_Uncommon
+047,Seal of Tengu & Menninkäinen,Orders,Marmennill,Q3_Rare
+047,Seal of Tengu & Menninkäinen,Orders,Tengu,Q4_Superior
+047,Seal of Tengu & Menninkäinen,Orders,Bennu,Q5_Epic
+047,Seal of Tengu & Menninkäinen,Orders,Ningyo,Q6_Mythic
+047,Seal of Tengu & Menninkäinen,Orders,Shibaten,Q7_Ancient
+047,Seal of Tengu & Menninkäinen,Orders,Jikininki,Q8_Arcane
+047,Seal of Tengu & Menninkäinen,Orders,Coinchenn,Q9_Celestial
+047,Seal of Tengu & Menninkäinen,Orders,Black Annis,Q10_Ethereal
+047,Seal of Tengu & Menninkäinen,Orders,Ninki Nanka,Q11_Transcendent
+048,Synod of Ogre & CalydonianBoar,Orders,Calygreyhound,Q1_Common
+048,Synod of Ogre & CalydonianBoar,Orders,Hellhound,Q2_Uncommon
+048,Synod of Ogre & CalydonianBoar,Orders,Yeth hound,Q3_Rare
+048,Synod of Ogre & CalydonianBoar,Orders,Ogre,Q4_Superior
+048,Synod of Ogre & CalydonianBoar,Orders,Calydonian Boar,Q5_Epic
+048,Synod of Ogre & CalydonianBoar,Orders,Houri,Q6_Mythic
+048,Synod of Ogre & CalydonianBoar,Orders,Ghoul,Q7_Ancient
+048,Synod of Ogre & CalydonianBoar,Orders,Negret,Q8_Arcane
+048,Synod of Ogre & CalydonianBoar,Orders,Penghou,Q9_Celestial
+048,Synod of Ogre & CalydonianBoar,Orders,Gremlin,Q10_Ethereal
+048,Synod of Ogre & CalydonianBoar,Orders,Undine,Q11_Transcendent
+049,Covenant of Anqa & AnteroVipunen,Orders,Edimmu,Q1_Common
+049,Covenant of Anqa & AnteroVipunen,Orders,Shedim,Q2_Uncommon
+049,Covenant of Anqa & AnteroVipunen,Orders,Gidim,Q3_Rare
+049,Covenant of Anqa & AnteroVipunen,Orders,Angel,Q4_Superior
+049,Covenant of Anqa & AnteroVipunen,Orders,Anqa,Q5_Epic
+049,Covenant of Anqa & AnteroVipunen,Orders,Ani Hyuntikwalaski,Q6_Mythic
+049,Covenant of Anqa & AnteroVipunen,Orders,Ankou,Q7_Ancient
+049,Covenant of Anqa & AnteroVipunen,Orders,Anmo,Q8_Arcane
+049,Covenant of Anqa & AnteroVipunen,Orders,Anubis,Q9_Celestial
+049,Covenant of Anqa & AnteroVipunen,Orders,Antero Vipunen,Q10_Ethereal
+049,Covenant of Anqa & AnteroVipunen,Orders,Anzû,Q11_Transcendent
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Finfolk,Q1_Common
+050,Accord of Ao and BlackShuckNorfolkE,Orders,"Black Shuck – Norfolk, Essex, and Suffolk black dog",Q2_Uncommon
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Freybug – Norfolk black dog,Q3_Rare
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Griffin,Q4_Superior
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Vedrfolnir,Q5_Epic
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Spearfinger,Q6_Mythic
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Ao,Q7_Ancient
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Ao Ao,Q8_Arcane
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Aobōzu,Q9_Celestial
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Apkallu,Q10_Ethereal
+050,Accord of Ao and BlackShuckNorfolkE,Orders,Apsaras,Q11_Transcendent
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Jumbee,Q1_Common
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Pombero,Q2_Uncommon
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Tecumbalam,Q3_Rare
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Wewe Gombel,Q4_Superior
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Aqrabuamelu,Q5_Epic
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Arachne,Q6_Mythic
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Ardat-lilî,Q7_Ancient
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Aralez,Q8_Arcane
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Archura,Q9_Celestial
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Argus Panoptes,Q10_Ethereal
+051,Conclave of Jumbee and Arikura-no-baba,Orders,Arikura-no-baba,Q11_Transcendent
+052,Circle of Stihi and Tigmamanukan,Orders,Glaistig,Q1_Common
+052,Circle of Stihi and Tigmamanukan,Orders,Stihi,Q2_Uncommon
+052,Circle of Stihi and Tigmamanukan,Orders,Tigris,Q3_Rare
+052,Circle of Stihi and Tigmamanukan,Orders,Psoglav,Q4_Superior
+052,Circle of Stihi and Tigmamanukan,Orders,Poubi Lai,Q5_Epic
+052,Circle of Stihi and Tigmamanukan,Orders,Glashtyn,Q6_Mythic
+052,Circle of Stihi and Tigmamanukan,Orders,Waldgeist,Q7_Ancient
+052,Circle of Stihi and Tigmamanukan,Orders,Kangla Sha,Q8_Arcane
+052,Circle of Stihi and Tigmamanukan,Orders,Chibaiskweda,Q9_Celestial
+052,Circle of Stihi and Tigmamanukan,Orders,Poltergeist,Q10_Ethereal
+052,Circle of Stihi and Tigmamanukan,Orders,Tigmamanukan,Q11_Transcendent
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Iannic-ann-ôd,Q1_Common
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Cŵn Annwn,Q2_Uncommon
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Mannegishi,Q3_Rare
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Klabautermann,Q4_Superior
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Unicorn,Q5_Epic
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Lakanica,Q6_Mythic
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Opinicus,Q7_Ancient
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Tiangou,Q8_Arcane
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Gichi-anami'e-bizhiw,Q9_Celestial
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Tianlong,Q10_Ethereal
+053,Ward of Unicorn and Gichi-anami'e-bizh,Orders,Jiangshi,Q11_Transcendent
+054,Circle of Asag and ArkanSonney,Orders,Pi yao,Q1_Common
+054,Circle of Asag and ArkanSonney,Orders,Yaoguai,Q2_Uncommon
+054,Circle of Asag and ArkanSonney,Orders,Baba Yaga,Q3_Rare
+054,Circle of Asag and ArkanSonney,Orders,Arimaspi,Q4_Superior
+054,Circle of Asag and ArkanSonney,Orders,Arkan Sonney,Q5_Epic
+054,Circle of Asag and ArkanSonney,Orders,Asag,Q6_Mythic
+054,Circle of Asag and ArkanSonney,Orders,Asakku,Q7_Ancient
+054,Circle of Asag and ArkanSonney,Orders,Asanbosam,Q8_Arcane
+054,Circle of Asag and ArkanSonney,Orders,Asena,Q9_Celestial
+054,Circle of Asag and ArkanSonney,Orders,A-senee-ki-wakw,Q10_Ethereal
+054,Circle of Asag and ArkanSonney,Orders,Ashi-magari,Q11_Transcendent
+055,Seal of Tapio & Mapinguari,Orders,Mapinguari,Q1_Common
+055,Seal of Tapio & Mapinguari,Orders,Tapio,Q2_Uncommon
+055,Seal of Tapio & Mapinguari,Orders,Jengu,Q3_Rare
+055,Seal of Tapio & Mapinguari,Orders,Upinis,Q4_Superior
+055,Seal of Tapio & Mapinguari,Orders,Gurumapa,Q5_Epic
+055,Seal of Tapio & Mapinguari,Orders,Nagual,Q6_Mythic
+055,Seal of Tapio & Mapinguari,Orders,Drangue,Q7_Ancient
+055,Seal of Tapio & Mapinguari,Orders,Singa,Q8_Arcane
+055,Seal of Tapio & Mapinguari,Orders,Ciguapa,Q9_Celestial
+055,Seal of Tapio & Mapinguari,Orders,Gualichu,Q10_Ethereal
+055,Seal of Tapio & Mapinguari,Orders,Nguruvilu,Q11_Transcendent
+056,Seal of Gallu & PolloMaligno,Orders,Cheval Mallet,Q1_Common
+056,Seal of Gallu & PolloMaligno,Orders,Cheval Gauvin,Q2_Uncommon
+056,Seal of Gallu & PolloMaligno,Orders,Mallt-y-Nos,Q3_Rare
+056,Seal of Gallu & PolloMaligno,Orders,Zana e malit,Q4_Superior
+056,Seal of Gallu & PolloMaligno,Orders,Yallery-Brown,Q5_Epic
+056,Seal of Gallu & PolloMaligno,Orders,Chrysomallus,Q6_Mythic
+056,Seal of Gallu & PolloMaligno,Orders,Pollo Maligno,Q7_Ancient
+056,Seal of Gallu & PolloMaligno,Orders,Gallu,Q8_Arcane
+056,Seal of Gallu & PolloMaligno,Orders,Ke'lets,Q9_Celestial
+056,Seal of Gallu & PolloMaligno,Orders,Djall,Q10_Ethereal
+056,Seal of Gallu & PolloMaligno,Orders,Chepi,Q11_Transcendent
+057,Conclave of Oni and Wingedgenie,Orders,Poroniec,Q1_Common
+057,Conclave of Oni and Wingedgenie,Orders,Oni,Q2_Uncommon
+057,Conclave of Oni and Wingedgenie,Orders,La Llorona,Q3_Rare
+057,Conclave of Oni and Wingedgenie,Orders,Barong,Q4_Superior
+057,Conclave of Oni and Wingedgenie,Orders,Caipora,Q5_Epic
+057,Conclave of Oni and Wingedgenie,Orders,Onibi,Q6_Mythic
+057,Conclave of Oni and Wingedgenie,Orders,Brownie,Q7_Ancient
+057,Conclave of Oni and Wingedgenie,Orders,Moroi,Q8_Arcane
+057,Conclave of Oni and Wingedgenie,Orders,Winged genie,Q9_Celestial
+057,Conclave of Oni and Wingedgenie,Orders,Zlatorog,Q10_Ethereal
+057,Conclave of Oni and Wingedgenie,Orders,Jasconius,Q11_Transcendent
+058,Oath of Trow & Ask-wee-da-eed,Orders,Trow,Q1_Common
+058,Oath of Trow & Ask-wee-da-eed,Orders,Drow,Q2_Uncommon
+058,Oath of Trow & Ask-wee-da-eed,Orders,Troll,Q3_Rare
+058,Oath of Trow & Ask-wee-da-eed,Orders,Blue Crow,Q4_Superior
+058,Oath of Trow & Ask-wee-da-eed,Orders,Rainbow crow,Q5_Epic
+058,Oath of Trow & Ask-wee-da-eed,Orders,Askefrue,Q6_Mythic
+058,Oath of Trow & Ask-wee-da-eed,Orders,Ask-wee-da-eed,Q7_Ancient
+058,Oath of Trow & Ask-wee-da-eed,Orders,Asobibi,Q8_Arcane
+058,Oath of Trow & Ask-wee-da-eed,Orders,Aspidochelone,Q9_Celestial
+058,Oath of Trow & Ask-wee-da-eed,Orders,Asrai,Q10_Ethereal
+058,Oath of Trow & Ask-wee-da-eed,Orders,Astomi,Q11_Transcendent
+059,Seal of Axex & Ato-oi-kozō,Orders,Laelaps,Q1_Common
+059,Seal of Axex & Ato-oi-kozō,Orders,Nuckelavee,Q2_Uncommon
+059,Seal of Axex & Ato-oi-kozō,Orders,Asura,Q3_Rare
+059,Seal of Axex & Ato-oi-kozō,Orders,Aswang,Q4_Superior
+059,Seal of Axex & Ato-oi-kozō,Orders,Ato-oi-kozō,Q5_Epic
+059,Seal of Axex & Ato-oi-kozō,Orders,Atshen,Q6_Mythic
+059,Seal of Axex & Ato-oi-kozō,Orders,Augerino,Q7_Ancient
+059,Seal of Axex & Ato-oi-kozō,Orders,Axex,Q8_Arcane
+059,Seal of Axex & Ato-oi-kozō,Orders,Ayakashi,Q9_Celestial
+059,Seal of Axex & Ato-oi-kozō,Orders,Ayakashi-no-ayashibi,Q10_Ethereal
+059,Seal of Axex & Ato-oi-kozō,Orders,Azhdaha,Q11_Transcendent
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Kukudhi,Q1_Common
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Kudan,Q2_Uncommon
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Kukwes,Q3_Rare
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Hudhud,Q4_Superior
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Kuda-gitsune,Q5_Epic
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Tsukumogami,Q6_Mythic
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Nuku-mai-tore,Q7_Ancient
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Wentshukumishiteu,Q8_Arcane
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Aziza,Q9_Celestial
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Azukiarai/Azukitogi,Q10_Ethereal
+060,Oath of Kudan & AzukiaraiAzukitogi,Orders,Azukibabaa,Q11_Transcendent
+061,Accord of Mare and Lubberfiend,Orders,Marabbecca,Q1_Common
+061,Accord of Mare and Lubberfiend,Orders,Moon rabbit,Q2_Uncommon
+061,Accord of Mare and Lubberfiend,Orders,Mare,Q3_Rare
+061,Accord of Mare and Lubberfiend,Orders,Bucca,Q4_Superior
+061,Accord of Mare and Lubberfiend,Orders,Labbu,Q5_Epic
+061,Accord of Mare and Lubberfiend,Orders,Rabisu,Q6_Mythic
+061,Accord of Mare and Lubberfiend,Orders,Marozi,Q7_Ancient
+061,Accord of Mare and Lubberfiend,Orders,Lubber fiend,Q8_Arcane
+061,Accord of Mare and Lubberfiend,Orders,Kurabokko,Q9_Celestial
+061,Accord of Mare and Lubberfiend,Orders,Simargl,Q10_Ethereal
+061,Accord of Mare and Lubberfiend,Orders,Vanara,Q11_Transcendent
+062,Ward of Jenu and Seaserpent,Orders,Jentil,Q1_Common
+062,Ward of Jenu and Seaserpent,Orders,Trenti,Q2_Uncommon
+062,Ward of Jenu and Seaserpent,Orders,Centicore,Q3_Rare
+062,Ward of Jenu and Seaserpent,Orders,Jenu,Q4_Superior
+062,Ward of Jenu and Seaserpent,Orders,Canotila,Q5_Epic
+062,Ward of Jenu and Seaserpent,Orders,Kigatilik,Q6_Mythic
+062,Ward of Jenu and Seaserpent,Orders,Serpent,Q7_Ancient
+062,Ward of Jenu and Seaserpent,Orders,Manticore,Q8_Arcane
+062,Ward of Jenu and Seaserpent,Orders,Gjenganger,Q9_Celestial
+062,Ward of Jenu and Seaserpent,Orders,Pontianak,Q10_Ethereal
+062,Ward of Jenu and Seaserpent,Orders,Sea serpent,Q11_Transcendent
+063,Accord of Kabouter and TerribleMonster,Orders,Kabouter,Q1_Common
+063,Accord of Kabouter and TerribleMonster,Orders,Nurikabe,Q2_Uncommon
+063,Accord of Kabouter and TerribleMonster,Orders,Shuten-dōji,Q3_Rare
+063,Accord of Kabouter and TerribleMonster,Orders,Terrible Monster,Q4_Superior
+063,Accord of Kabouter and TerribleMonster,Orders,Sea monster,Q5_Epic
+063,Accord of Kabouter and TerribleMonster,Orders,Lake monster,Q6_Mythic
+063,Accord of Kabouter and TerribleMonster,Orders,Water monkey,Q7_Ancient
+063,Accord of Kabouter and TerribleMonster,Orders,Easter Bunny,Q8_Arcane
+063,Accord of Kabouter and TerribleMonster,Orders,Shapeshifter,Q9_Celestial
+063,Accord of Kabouter and TerribleMonster,Orders,Jasy Jaterei,Q10_Ethereal
+063,Accord of Kabouter and TerribleMonster,Orders,Jack-o'-lantern,Q11_Transcendent
+064,Accord of Bak and Kuchisake-onna,Orders,Chōchin'obake,Q1_Common
+064,Accord of Bak and Kuchisake-onna,Orders,Obake,Q2_Uncommon
+064,Accord of Bak and Kuchisake-onna,Orders,Kasa-obake,Q3_Rare
+064,Accord of Bak and Kuchisake-onna,Orders,Bak,Q4_Superior
+064,Accord of Bak and Kuchisake-onna,Orders,Bakezōri,Q5_Epic
+064,Accord of Bak and Kuchisake-onna,Orders,Baku,Q6_Mythic
+064,Accord of Bak and Kuchisake-onna,Orders,Kokakuchō,Q7_Ancient
+064,Accord of Bak and Kuchisake-onna,Orders,Kraken,Q8_Arcane
+064,Accord of Bak and Kuchisake-onna,Orders,Obayifo,Q9_Celestial
+064,Accord of Bak and Kuchisake-onna,Orders,Bakhtak,Q10_Ethereal
+064,Accord of Bak and Kuchisake-onna,Orders,Kuchisake-onna,Q11_Transcendent
+065,Synod of Ba & Babingepet,Orders,Hag,Q1_Common
+065,Synod of Ba & Babingepet,Orders,Boo Hag,Q2_Uncommon
+065,Synod of Ba & Babingepet,Orders,Namahage,Q3_Rare
+065,Synod of Ba & Babingepet,Orders,Night hag,Q4_Superior
+065,Synod of Ba & Babingepet,Orders,Ba,Q5_Epic
+065,Synod of Ba & Babingepet,Orders,Babi ngepet,Q6_Mythic
+065,Synod of Ba & Babingepet,Orders,Baccoo,Q7_Ancient
+065,Synod of Ba & Babingepet,Orders,Bahamut,Q8_Arcane
+065,Synod of Ba & Babingepet,Orders,Ba Jiao Gui,Q9_Celestial
+065,Synod of Ba & Babingepet,Orders,Balaur,Q10_Ethereal
+065,Synod of Ba & Babingepet,Orders,Baloz,Q11_Transcendent
+066,Oath of Bardi & Doppelgänger,Orders,Peluda,Q1_Common
+066,Oath of Bardi & Doppelgänger,Orders,Luduan,Q2_Uncommon
+066,Oath of Bardi & Doppelgänger,Orders,Keelut,Q3_Rare
+066,Oath of Bardi & Doppelgänger,Orders,Melusine,Q4_Superior
+066,Oath of Bardi & Doppelgänger,Orders,Doppelgänger,Q5_Epic
+066,Oath of Bardi & Doppelgänger,Orders,Banshee,Q6_Mythic
+066,Oath of Bardi & Doppelgänger,Orders,Bardha,Q7_Ancient
+066,Oath of Bardi & Doppelgänger,Orders,Bardi,Q8_Arcane
+066,Oath of Bardi & Doppelgänger,Orders,Bar Juchne,Q9_Celestial
+066,Oath of Bardi & Doppelgänger,Orders,Barnacle Geese,Q10_Ethereal
+066,Oath of Bardi & Doppelgänger,Orders,Basajaun,Q11_Transcendent
+067,Circle of Bauk and Yomotsu-shikome,Orders,Domovoi,Q1_Common
+067,Circle of Bauk and Yomotsu-shikome,Orders,Dvorovoi,Q2_Uncommon
+067,Circle of Bauk and Yomotsu-shikome,Orders,Fomorian,Q3_Rare
+067,Circle of Bauk and Yomotsu-shikome,Orders,Eurynomos,Q4_Superior
+067,Circle of Bauk and Yomotsu-shikome,Orders,Kholomodumo,Q5_Epic
+067,Circle of Bauk and Yomotsu-shikome,Orders,Yomotsu-shikome,Q6_Mythic
+067,Circle of Bauk and Yomotsu-shikome,Orders,Baš Čelik,Q7_Ancient
+067,Circle of Bauk and Yomotsu-shikome,Orders,Bathala,Q8_Arcane
+067,Circle of Bauk and Yomotsu-shikome,Orders,Batibat,Q9_Celestial
+067,Circle of Bauk and Yomotsu-shikome,Orders,Batsu,Q10_Ethereal
+067,Circle of Bauk and Yomotsu-shikome,Orders,Bauk,Q11_Transcendent
+068,Accord of Tipua and Betobeto-san,Orders,Tipua,Q1_Common
+068,Accord of Tipua and Betobeto-san,Orders,Kupua,Q2_Uncommon
+068,Accord of Tipua and Betobeto-san,Orders,Baykok,Q3_Rare
+068,Accord of Tipua and Betobeto-san,Orders,Bean Nighe,Q4_Superior
+068,Accord of Tipua and Betobeto-san,Orders,Behemoth,Q5_Epic
+068,Accord of Tipua and Betobeto-san,Orders,Berehynia,Q6_Mythic
+068,Accord of Tipua and Betobeto-san,Orders,Bergrisar,Q7_Ancient
+068,Accord of Tipua and Betobeto-san,Orders,Bergsrå,Q8_Arcane
+068,Accord of Tipua and Betobeto-san,Orders,Betobeto-san,Q9_Celestial
+068,Accord of Tipua and Betobeto-san,Orders,Bhūta,Q10_Ethereal
+068,Accord of Tipua and Betobeto-san,Orders,Bi-blouk,Q11_Transcendent
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Ördög,Q1_Common
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Bicorn – Human-faced cow that feeds on good men,Q2_Uncommon
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Bichura,Q3_Rare
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Bies,Q4_Superior
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Bigfoot,Q5_Epic
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Binbōgami,Q6_Mythic
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Bishop-fish,Q7_Ancient
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Bixi,Q8_Arcane
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Black Dog,Q9_Celestial
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Blemmyae,Q10_Ethereal
+069,Circle of Bies and BloodyBonesWaterbo,Orders,Bloody Bones – Water bogeyman,Q11_Transcendent
+070,Circle of Ngen and Geniusloci,Orders,Genius loci,Q1_Common
+070,Circle of Ngen and Geniusloci,Orders,Ngen,Q2_Uncommon
+070,Circle of Ngen and Geniusloci,Orders,Warlock,Q3_Rare
+070,Circle of Ngen and Geniusloci,Orders,Phoenix,Q4_Superior
+070,Circle of Ngen and Geniusloci,Orders,Caladrius,Q5_Epic
+070,Circle of Ngen and Geniusloci,Orders,Indus Worm,Q6_Mythic
+070,Circle of Ngen and Geniusloci,Orders,Morgens,Q7_Ancient
+070,Circle of Ngen and Geniusloci,Orders,Sōgenbi,Q8_Arcane
+070,Circle of Ngen and Geniusloci,Orders,Gegenees,Q9_Celestial
+070,Circle of Ngen and Geniusloci,Orders,Keukegen,Q10_Ethereal
+070,Circle of Ngen and Geniusloci,Orders,Genderuwo,Q11_Transcendent
+071,Synod of Uwan & Wana-games-ak,Orders,Uwan,Q1_Common
+071,Synod of Uwan & Wana-games-ak,Orders,Wanyūdō,Q2_Uncommon
+071,Synod of Uwan & Wana-games-ak,Orders,Swan maiden,Q3_Rare
+071,Synod of Uwan & Wana-games-ak,Orders,Muldjewangk,Q4_Superior
+071,Synod of Uwan & Wana-games-ak,Orders,Wana-games-ak,Q5_Epic
+071,Synod of Uwan & Wana-games-ak,Orders,Bodach,Q6_Mythic
+071,Synod of Uwan & Wana-games-ak,Orders,Bogeyman,Q7_Ancient
+071,Synod of Uwan & Wana-games-ak,Orders,Boggart,Q8_Arcane
+071,Synod of Uwan & Wana-games-ak,Orders,Boginki,Q9_Celestial
+071,Synod of Uwan & Wana-games-ak,Orders,Bogle,Q10_Ethereal
+071,Synod of Uwan & Wana-games-ak,Orders,Boi-tatá,Q11_Transcendent
+072,Ward of Mora and Soraki-gaeshi,Orders,Onmoraki,Q1_Common
+072,Ward of Mora and Soraki-gaeshi,Orders,Mora,Q2_Uncommon
+072,Ward of Mora and Soraki-gaeshi,Orders,Soraki-gaeshi,Q3_Rare
+072,Ward of Mora and Soraki-gaeshi,Orders,Kikimora,Q4_Superior
+072,Ward of Mora and Soraki-gaeshi,Orders,Gaki,Q5_Epic
+072,Ward of Mora and Soraki-gaeshi,Orders,Drakon,Q6_Mythic
+072,Ward of Mora and Soraki-gaeshi,Orders,Morena,Q7_Ancient
+072,Ward of Mora and Soraki-gaeshi,Orders,Chakora,Q8_Arcane
+072,Ward of Mora and Soraki-gaeshi,Orders,Soragami,Q9_Celestial
+072,Ward of Mora and Soraki-gaeshi,Orders,Mandrake,Q10_Ethereal
+072,Ward of Mora and Soraki-gaeshi,Orders,Drakaina,Q11_Transcendent
+073,Seal of Brag & MaresofDiomedes,Orders,Medusa,Q1_Common
+073,Seal of Brag & MaresofDiomedes,Orders,Shedu,Q2_Uncommon
+073,Seal of Brag & MaresofDiomedes,Orders,Empusa,Q3_Rare
+073,Seal of Brag & MaresofDiomedes,Orders,Rusalka,Q4_Superior
+073,Seal of Brag & MaresofDiomedes,Orders,Mares of Diomedes,Q5_Epic
+073,Seal of Brag & MaresofDiomedes,Orders,Boobrie,Q6_Mythic
+073,Seal of Brag & MaresofDiomedes,Orders,Bozaloshtsh,Q7_Ancient
+073,Seal of Brag & MaresofDiomedes,Orders,Brag,Q8_Arcane
+073,Seal of Brag & MaresofDiomedes,Orders,British big cat,Q9_Celestial
+073,Seal of Brag & MaresofDiomedes,Orders,Broxa,Q10_Ethereal
+073,Seal of Brag & MaresofDiomedes,Orders,Bokkenrijders,Q11_Transcendent
+074,Oath of Nāga & Camahueto,Orders,Nāga,Q1_Common
+074,Oath of Nāga & Camahueto,Orders,Bugbear,Q2_Uncommon
+074,Oath of Nāga & Camahueto,Orders,Bugul Noz,Q3_Rare
+074,Oath of Nāga & Camahueto,Orders,Bukavac,Q4_Superior
+074,Oath of Nāga & Camahueto,Orders,Bunyip,Q5_Epic
+074,Oath of Nāga & Camahueto,Orders,Bunny Man,Q6_Mythic
+074,Oath of Nāga & Camahueto,Orders,Byangoma,Q7_Ancient
+074,Oath of Nāga & Camahueto,Orders,Bysen,Q8_Arcane
+074,Oath of Nāga & Camahueto,Orders,Cabeiri,Q9_Celestial
+074,Oath of Nāga & Camahueto,Orders,Cacus,Q10_Ethereal
+074,Oath of Nāga & Camahueto,Orders,Camahueto,Q11_Transcendent
+075,Oath of Mamuna & Uma-no-ashi,Orders,Yacumama,Q1_Common
+075,Oath of Mamuna & Uma-no-ashi,Orders,Mamuna,Q2_Uncommon
+075,Oath of Mamuna & Uma-no-ashi,Orders,Mami Wata,Q3_Rare
+075,Oath of Mamuna & Uma-no-ashi,Orders,Kodama,Q4_Superior
+075,Oath of Mamuna & Uma-no-ashi,Orders,Namazu,Q5_Epic
+075,Oath of Mamuna & Uma-no-ashi,Orders,Lamassu,Q6_Mythic
+075,Oath of Mamuna & Uma-no-ashi,Orders,Gamayun,Q7_Ancient
+075,Oath of Mamuna & Uma-no-ashi,Orders,Uma-no-ashi,Q8_Arcane
+075,Oath of Mamuna & Uma-no-ashi,Orders,Hitodama,Q9_Celestial
+075,Oath of Mamuna & Uma-no-ashi,Orders,Camazotz,Q10_Ethereal
+075,Oath of Mamuna & Uma-no-ashi,Orders,Kamatayan,Q11_Transcendent
+076,Seal of Nisse & Paasselkädevils,Orders,Nisse,Q1_Common
+076,Seal of Nisse & Paasselkädevils,Orders,Ežerinis,Q2_Uncommon
+076,Seal of Nisse & Paasselkädevils,Orders,Žiburinis,Q3_Rare
+076,Seal of Nisse & Paasselkädevils,Orders,Paasselkä devils,Q4_Superior
+076,Seal of Nisse & Paasselkädevils,Orders,Campe,Q5_Epic
+076,Seal of Nisse & Paasselkädevils,Orders,Candileja,Q6_Mythic
+076,Seal of Nisse & Paasselkädevils,Orders,Canaima,Q7_Ancient
+076,Seal of Nisse & Paasselkädevils,Orders,Caoineag,Q8_Arcane
+076,Seal of Nisse & Paasselkädevils,Orders,Căpcăun,Q9_Celestial
+076,Seal of Nisse & Paasselkädevils,Orders,Carbuncle,Q10_Ethereal
+076,Seal of Nisse & Paasselkädevils,Orders,Cath Palug,Q11_Transcendent
+077,Covenant of Likho & CeryneianHind,Orders,Hokhokw,Q1_Common
+077,Covenant of Likho & CeryneianHind,Orders,Shachihoko,Q2_Uncommon
+077,Covenant of Likho & CeryneianHind,Orders,Likho,Q3_Rare
+077,Covenant of Likho & CeryneianHind,Orders,Ceasg,Q4_Superior
+077,Covenant of Likho & CeryneianHind,Orders,Cericopithicus,Q5_Epic
+077,Covenant of Likho & CeryneianHind,Orders,Ceryneian Hind,Q6_Mythic
+077,Covenant of Likho & CeryneianHind,Orders,Cetus,Q7_Ancient
+077,Covenant of Likho & CeryneianHind,Orders,Chalkydri,Q8_Arcane
+077,Covenant of Likho & CeryneianHind,Orders,Chamrosh,Q9_Celestial
+077,Covenant of Likho & CeryneianHind,Orders,Changeling,Q10_Ethereal
+077,Covenant of Likho & CeryneianHind,Orders,Čhápa,Q11_Transcendent
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Mayura,Q1_Common
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Urayuli,Q2_Uncommon
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Jatayu,Q3_Rare
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Mareikura,Q4_Superior
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Gurangatch,Q5_Epic
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Nurarihyon,Q6_Mythic
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Tsurara-onna,Q7_Ancient
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Katsura-otoko,Q8_Arcane
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Makura-gaeshi,Q9_Celestial
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Kurage-no-hinotama,Q10_Ethereal
+078,Synod of Mayura & Kurage-no-hinotama,Orders,Chenoo,Q11_Transcendent
+079,Circle of Chol and Chromandi,Orders,Toyol,Q1_Common
+079,Circle of Chol and Chromandi,Orders,Cherufe,Q2_Uncommon
+079,Circle of Chol and Chromandi,Orders,Chimaera,Q3_Rare
+079,Circle of Chol and Chromandi,Orders,Chimimōryō,Q4_Superior
+079,Circle of Chol and Chromandi,Orders,Chitauli,Q5_Epic
+079,Circle of Chol and Chromandi,Orders,Chol,Q6_Mythic
+079,Circle of Chol and Chromandi,Orders,Choorile,Q7_Ancient
+079,Circle of Chol and Chromandi,Orders,Chort,Q8_Arcane
+079,Circle of Chol and Chromandi,Orders,Chromandi,Q9_Celestial
+079,Circle of Chol and Chromandi,Orders,Chrysaor,Q10_Ethereal
+079,Circle of Chol and Chromandi,Orders,Chukwa,Q11_Transcendent
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Wild man,Q1_Common
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Wild Hunt,Q2_Uncommon
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Wild people,Q3_Rare
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Sack Man,Q4_Superior
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Scorpion Man,Q5_Epic
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,WORLD MYTHOLOGICAL CREATURES,Q6_Mythic
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Jake the Alligator Man,Q7_Ancient
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Long Ma,Q8_Arcane
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Mandi,Q9_Celestial
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,Ded Moroz,Q10_Ethereal
+080,Conclave of Mandi and WORLDMYTHOLOGICALC,Orders,World Turtle,Q11_Transcendent
+081,Covenant of Chut & DarkWatchers,Orders,Witch,Q1_Common
+081,Covenant of Chut & DarkWatchers,Orders,Fetch,Q2_Uncommon
+081,Covenant of Chut & DarkWatchers,Orders,Witte Wieven,Q3_Rare
+081,Covenant of Chut & DarkWatchers,Orders,Dark Watchers,Q4_Superior
+081,Covenant of Chut & DarkWatchers,Orders,Chupacabra,Q5_Epic
+081,Covenant of Chut & DarkWatchers,Orders,Church grim,Q6_Mythic
+081,Covenant of Chut & DarkWatchers,Orders,Churel,Q7_Ancient
+081,Covenant of Chut & DarkWatchers,Orders,Chut,Q8_Arcane
+081,Covenant of Chut & DarkWatchers,Orders,Cihuateteo,Q9_Celestial
+081,Covenant of Chut & DarkWatchers,Orders,Cikavac,Q10_Ethereal
+081,Covenant of Chut & DarkWatchers,Orders,Cinnamon bird,Q11_Transcendent
+082,Conclave of Wekufe and Coryciannymphs,Orders,Wekufe,Q1_Common
+082,Conclave of Wekufe and Coryciannymphs,Orders,Jiufeng,Q2_Uncommon
+082,Conclave of Wekufe and Coryciannymphs,Orders,Nukekubi,Q3_Rare
+082,Conclave of Wekufe and Coryciannymphs,Orders,Cipactli,Q4_Superior
+082,Conclave of Wekufe and Coryciannymphs,Orders,Cipitio,Q5_Epic
+082,Conclave of Wekufe and Coryciannymphs,Orders,Cirein cròin,Q6_Mythic
+082,Conclave of Wekufe and Coryciannymphs,Orders,Coblynau,Q7_Ancient
+082,Conclave of Wekufe and Coryciannymphs,Orders,Cofgod,Q8_Arcane
+082,Conclave of Wekufe and Coryciannymphs,Orders,Colo Colo,Q9_Celestial
+082,Conclave of Wekufe and Coryciannymphs,Orders,Corycian nymphs,Q10_Ethereal
+082,Conclave of Wekufe and Coryciannymphs,Orders,Cretan Bull,Q11_Transcendent
+083,Ward of Cuco and TheCuBird,Orders,Upiór,Q1_Common
+083,Ward of Cuco and TheCuBird,Orders,Hupia,Q2_Uncommon
+083,Ward of Cuco and TheCuBird,Orders,Tupilaq,Q3_Rare
+083,Ward of Cuco and TheCuBird,Orders,Crinaeae,Q4_Superior
+083,Ward of Cuco and TheCuBird,Orders,The Cu Bird,Q5_Epic
+083,Ward of Cuco and TheCuBird,Orders,Cuco,Q6_Mythic
+083,Ward of Cuco and TheCuBird,Orders,Cucuy,Q7_Ancient
+083,Ward of Cuco and TheCuBird,Orders,Cuegle,Q8_Arcane
+083,Ward of Cuco and TheCuBird,Orders,Cuélebre,Q9_Celestial
+083,Ward of Cuco and TheCuBird,Orders,Curruid,Q10_Ethereal
+083,Ward of Cuco and TheCuBird,Orders,Cyclops,Q11_Transcendent
+084,Seal of Iye & OpiyelGuabiron,Orders,Opiyel Guabiron,Q1_Common
+084,Seal of Iye & OpiyelGuabiron,Orders,Iye,Q2_Uncommon
+084,Seal of Iye & OpiyelGuabiron,Orders,Jack-In-Irons,Q3_Rare
+084,Seal of Iye & OpiyelGuabiron,Orders,Er Gui,Q4_Superior
+084,Seal of Iye & OpiyelGuabiron,Orders,Nü Gui,Q5_Epic
+084,Seal of Iye & OpiyelGuabiron,Orders,Topielec,Q6_Mythic
+084,Seal of Iye & OpiyelGuabiron,Orders,Shui Gui,Q7_Ancient
+084,Seal of Iye & OpiyelGuabiron,Orders,Yuan Gui,Q8_Arcane
+084,Seal of Iye & OpiyelGuabiron,Orders,Rain Bird,Q9_Celestial
+084,Seal of Iye & OpiyelGuabiron,Orders,Fire Bird,Q10_Ethereal
+084,Seal of Iye & OpiyelGuabiron,Orders,Vengeful ghost,Q11_Transcendent
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Shisa,Q1_Common
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Zashiki-warashi,Q2_Uncommon
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Mephistopheles,Q3_Rare
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Ishigaq,Q4_Superior
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Shikigami,Q5_Epic
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Shiki-ōji,Q6_Mythic
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Mishibizhiw,Q7_Ancient
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Yakshi[broken anchor],Q8_Arcane
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Cyhyraeth,Q9_Celestial
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Dactyl,Q10_Ethereal
+085,Oath of Dahu & Yakshibrokenanchor,Orders,Dahu,Q11_Transcendent
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Wassan-mon-ganeehla-ak,Q1_Common
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Maski-mon-gwe-zo-os,Q2_Uncommon
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Mungoon-Gali,Q3_Rare
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Gana,Q4_Superior
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Sango,Q5_Epic
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Ragana,Q6_Mythic
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Gagana,Q7_Ancient
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Maa-alused,Q8_Arcane
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Grassman,Q9_Celestial
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Pesanta,Q10_Ethereal
+086,Ward of Gana and Wassan-mon-ganeehl,Orders,Sandman,Q11_Transcendent
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Will-o'-the-Wisp,Q1_Common
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Kee-wakw,Q2_Uncommon
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Pillan,Q3_Rare
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Gargouille,Q4_Superior
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Killmoulis,Q5_Epic
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Ghillie Dhu,Q6_Mythic
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Theriocephalus,Q7_Ancient
+087,Conclave of Pillan and LavabearMiniatureb,Orders,The Swallower,Q8_Arcane
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Underwater panther,Q9_Celestial
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Lava bear – Miniature bear thought to inhabit the lava beds of south-central Oregon,Q10_Ethereal
+087,Conclave of Pillan and LavabearMiniatureb,Orders,Danava,Q11_Transcendent
+088,Accord of Varaha and Tlahuelpuchi,Orders,Dullahan,Q1_Common
+088,Accord of Varaha and Tlahuelpuchi,Orders,Varaha,Q2_Uncommon
+088,Accord of Varaha and Tlahuelpuchi,Orders,Kahaku,Q3_Rare
+088,Accord of Varaha and Tlahuelpuchi,Orders,Scylla,Q4_Superior
+088,Accord of Varaha and Tlahuelpuchi,Orders,Katallan,Q5_Epic
+088,Accord of Varaha and Tlahuelpuchi,Orders,Tlahuelpuchi,Q6_Mythic
+088,Accord of Varaha and Tlahuelpuchi,Orders,Lavellan,Q7_Ancient
+088,Accord of Varaha and Tlahuelpuchi,Orders,Urmahlullu,Q8_Arcane
+088,Accord of Varaha and Tlahuelpuchi,Orders,Forest Bull,Q9_Celestial
+088,Accord of Varaha and Tlahuelpuchi,Orders,Kashanbo,Q10_Ethereal
+088,Accord of Varaha and Tlahuelpuchi,Orders,Maha-pudma,Q11_Transcendent
+089,Circle of Dip and DeadSeaApes,Orders,Zennyo Ryūō,Q1_Common
+089,Circle of Dip and DeadSeaApes,Orders,Daphnaie,Q2_Uncommon
+089,Circle of Dip and DeadSeaApes,Orders,Dark elf,Q3_Rare
+089,Circle of Dip and DeadSeaApes,Orders,Datsue-ba,Q4_Superior
+089,Circle of Dip and DeadSeaApes,Orders,Dead Sea Apes,Q5_Epic
+089,Circle of Dip and DeadSeaApes,Orders,Deity,Q6_Mythic
+089,Circle of Dip and DeadSeaApes,Orders,Demigod,Q7_Ancient
+089,Circle of Dip and DeadSeaApes,Orders,Dip,Q8_Arcane
+089,Circle of Dip and DeadSeaApes,Orders,Di Penates,Q9_Celestial
+089,Circle of Dip and DeadSeaApes,Orders,Dipsa,Q10_Ethereal
+089,Circle of Dip and DeadSeaApes,Orders,Di sma undar jordi,Q11_Transcendent
+090,Synod of Yali & StymphalianBird,Orders,Yali,Q1_Common
+090,Synod of Yali & StymphalianBird,Orders,Yale,Q2_Uncommon
+090,Synod of Yali & StymphalianBird,Orders,Scitalis,Q3_Rare
+090,Synod of Yali & StymphalianBird,Orders,Hypnalis,Q4_Superior
+090,Synod of Yali & StymphalianBird,Orders,Muscaliet,Q5_Epic
+090,Synod of Yali & StymphalianBird,Orders,Qalupalik,Q6_Mythic
+090,Synod of Yali & StymphalianBird,Orders,Stymphalian Bird,Q7_Ancient
+090,Synod of Yali & StymphalianBird,Orders,Do-gakw-ho-wad,Q8_Arcane
+090,Synod of Yali & StymphalianBird,Orders,Dokkaebi,Q9_Celestial
+090,Synod of Yali & StymphalianBird,Orders,Dökkálfar,Q10_Ethereal
+090,Synod of Yali & StymphalianBird,Orders,Dola,Q11_Transcendent
+091,Covenant of Otso & Metee-kolen-ol,Orders,Hitotsume-kozō,Q1_Common
+091,Covenant of Otso & Metee-kolen-ol,Orders,Tōfu-kozō,Q2_Uncommon
+091,Covenant of Otso & Metee-kolen-ol,Orders,Sodehiki-kozō,Q3_Rare
+091,Covenant of Otso & Metee-kolen-ol,Orders,Otso,Q4_Superior
+091,Covenant of Otso & Metee-kolen-ol,Orders,Metee-kolen-ol,Q5_Epic
+091,Covenant of Otso & Metee-kolen-ol,Orders,Ubume,Q6_Mythic
+091,Covenant of Otso & Metee-kolen-ol,Orders,Vitore,Q7_Ancient
+091,Covenant of Otso & Metee-kolen-ol,Orders,Erchitu,Q8_Arcane
+091,Covenant of Otso & Metee-kolen-ol,Orders,Hyakume,Q9_Celestial
+091,Covenant of Otso & Metee-kolen-ol,Orders,Kitsune-Tsuki,Q10_Ethereal
+091,Covenant of Otso & Metee-kolen-ol,Orders,Grootslang,Q11_Transcendent
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Inkanyamba,Q1_Common
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Minka Bird,Q2_Uncommon
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Kanbo,Q3_Rare
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Yukinko,Q4_Superior
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Orang Minyak,Q5_Epic
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Lambton Worm,Q6_Mythic
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Engkanto,Q7_Ancient
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Kanbari-nyūdō,Q8_Arcane
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Kallikantzaroi,Q9_Celestial
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Senpoku-Kanpoku,Q10_Ethereal
+092,Seal of Drac & Senpoku-Kanpoku,Orders,Drac,Q11_Transcendent
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Ippon-datara,Q1_Common
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Dzee-dzee-bon-da,Q2_Uncommon
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Qlippoth,Q3_Rare
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Hippocamp,Q4_Superior
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Tarasque,Q5_Epic
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Hippopodes,Q6_Mythic
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Hippogriff,Q7_Ancient
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Tarantasio,Q8_Arcane
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,N-dam-keno-wet,Q9_Celestial
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Wa-won-dee-a-megw,Q10_Ethereal
+093,Ward of Qlippoth and Wa-won-dee-a-megw,Orders,Tartaruchi,Q11_Transcendent
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Yōkai,Q1_Common
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Yadōkai,Q2_Uncommon
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Kekkai,Q3_Rare
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Garkain,Q4_Superior
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Pouākai,Q5_Epic
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Dr Jekyll and Mr Hyde,Q6_Mythic
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Dryad,Q7_Ancient
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Duergar,Q8_Arcane
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Duwende,Q9_Celestial
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Dvergr,Q10_Ethereal
+094,Accord of Yōkai and DrJekyllandMrHyde,Orders,Dwarf,Q11_Transcendent
+095,Synod of Ifrit & Fearsomecritters,Orders,Ifrit,Q1_Common
+095,Synod of Ifrit & Fearsomecritters,Orders,Sprite,Q2_Uncommon
+095,Synod of Ifrit & Fearsomecritters,Orders,Fearsome critters,Q3_Rare
+095,Synod of Ifrit & Fearsomecritters,Orders,Dybbuk,Q4_Superior
+095,Synod of Ifrit & Fearsomecritters,Orders,Each Uisge,Q5_Epic
+095,Synod of Ifrit & Fearsomecritters,Orders,Ebu Gogo,Q6_Mythic
+095,Synod of Ifrit & Fearsomecritters,Orders,Echidna,Q7_Ancient
+095,Synod of Ifrit & Fearsomecritters,Orders,Echeneis,Q8_Arcane
+095,Synod of Ifrit & Fearsomecritters,Orders,Egbere,Q9_Celestial
+095,Synod of Ifrit & Fearsomecritters,Orders,Eikthyrnir,Q10_Ethereal
+095,Synod of Ifrit & Fearsomecritters,Orders,Einherjar,Q11_Transcendent
+096,Synod of Ekek & HuginnandMuninn,Orders,Misi-ginebig,Q1_Common
+096,Synod of Ekek & HuginnandMuninn,Orders,Misi-kinepikw,Q2_Uncommon
+096,Synod of Ekek & HuginnandMuninn,Orders,Hiisi,Q3_Rare
+096,Synod of Ekek & HuginnandMuninn,Orders,Tsi-noo,Q4_Superior
+096,Synod of Ekek & HuginnandMuninn,Orders,Samebito,Q5_Epic
+096,Synod of Ekek & HuginnandMuninn,Orders,Sisiutl,Q6_Mythic
+096,Synod of Ekek & HuginnandMuninn,Orders,Si-Te-Cah,Q7_Ancient
+096,Synod of Ekek & HuginnandMuninn,Orders,Etiäinen,Q8_Arcane
+096,Synod of Ekek & HuginnandMuninn,Orders,Vision Serpent,Q9_Celestial
+096,Synod of Ekek & HuginnandMuninn,Orders,Huginn and Muninn,Q10_Ethereal
+096,Synod of Ekek & HuginnandMuninn,Orders,Ekek,Q11_Transcendent
+097,Circle of Elf and Kesaran-pasaran,Orders,Piasa,Q1_Common
+097,Circle of Elf and Kesaran-pasaran,Orders,Piatek,Q2_Uncommon
+097,Circle of Elf and Kesaran-pasaran,Orders,Rakshasa,Q3_Rare
+097,Circle of Elf and Kesaran-pasaran,Orders,Tigre Capiangos,Q4_Superior
+097,Circle of Elf and Kesaran-pasaran,Orders,Ethiopian Pegasus,Q5_Epic
+097,Circle of Elf and Kesaran-pasaran,Orders,Kesaran-pasaran,Q6_Mythic
+097,Circle of Elf and Kesaran-pasaran,Orders,Eldjötnar,Q7_Ancient
+097,Circle of Elf and Kesaran-pasaran,Orders,‘Elepaio,Q8_Arcane
+097,Circle of Elf and Kesaran-pasaran,Orders,Elf,Q9_Celestial
+097,Circle of Elf and Kesaran-pasaran,Orders,Eloko,Q10_Ethereal
+097,Circle of Elf and Kesaran-pasaran,Orders,Emim,Q11_Transcendent
+098,Covenant of Enkō & Epimeliad,Orders,Enkō,Q1_Common
+098,Covenant of Enkō & Epimeliad,Orders,Encantado,Q2_Uncommon
+098,Covenant of Enkō & Epimeliad,Orders,Enenra,Q3_Rare
+098,Covenant of Enkō & Epimeliad,Orders,Enfield,Q4_Superior
+098,Covenant of Enkō & Epimeliad,Orders,Epimeliad,Q5_Epic
+098,Covenant of Enkō & Epimeliad,Orders,Erinyes,Q6_Mythic
+098,Covenant of Enkō & Epimeliad,Orders,Erlking,Q7_Ancient
+098,Covenant of Enkō & Epimeliad,Orders,Erymanthian Boar,Q8_Arcane
+098,Covenant of Enkō & Epimeliad,Orders,Ettin,Q9_Celestial
+098,Covenant of Enkō & Epimeliad,Orders,Ewah,Q10_Ethereal
+098,Covenant of Enkō & Epimeliad,Orders,Fachen,Q11_Transcendent
+099,Seal of Faun & PegacornPegasus-un,Orders,Pegaeae,Q1_Common
+099,Seal of Faun & PegacornPegasus-un,Orders,Napaeae,Q2_Uncommon
+099,Seal of Faun & PegacornPegasus-un,Orders,Pegasus,Q3_Rare
+099,Seal of Faun & PegacornPegasus-un,Orders,Pegacorn – Pegasus-unicorn hybrid,Q4_Superior
+099,Seal of Faun & PegacornPegasus-un,Orders,Tepegoz,Q5_Epic
+099,Seal of Faun & PegacornPegasus-un,Orders,Heikegani,Q6_Mythic
+099,Seal of Faun & PegacornPegasus-un,Orders,Fafnir,Q7_Ancient
+099,Seal of Faun & PegacornPegasus-un,Orders,Falak,Q8_Arcane
+099,Seal of Faun & PegacornPegasus-un,Orders,Familiar,Q9_Celestial
+099,Seal of Faun & PegacornPegasus-un,Orders,Faun,Q10_Ethereal
+099,Seal of Faun & PegacornPegasus-un,Orders,Fear gorta,Q11_Transcendent
+100,Circle of Ker and Werehyena,Orders,Gaokerena,Q1_Common
+100,Circle of Ker and Werehyena,Orders,Ker,Q2_Uncommon
+100,Circle of Ker and Werehyena,Orders,Herensuge,Q3_Rare
+100,Circle of Ker and Werehyena,Orders,Werehyena,Q4_Superior
+100,Circle of Ker and Werehyena,Orders,Nereid,Q5_Epic
+100,Circle of Ker and Werehyena,Orders,Knocker,Q6_Mythic
+100,Circle of Ker and Werehyena,Orders,Knucker,Q7_Ancient
+100,Circle of Ker and Werehyena,Orders,Shōkera,Q8_Arcane
+100,Circle of Ker and Werehyena,Orders,Revenant,Q9_Celestial
+100,Circle of Ker and Werehyena,Orders,Tibicena,Q10_Ethereal
+100,Circle of Ker and Werehyena,Orders,Werewolf,Q11_Transcendent
+101,Synod of LaMojana & JackFrost-Personif,Orders,Flatwoods Monster,Q1_Common
+101,Synod of LaMojana & JackFrost-Personif,Orders,Frankenstein monster,Q2_Uncommon
+101,Synod of LaMojana & JackFrost-Personif,Orders,Pope Lick Monster,Q3_Rare
+101,Synod of LaMojana & JackFrost-Personif,Orders,Flying Spaghetti Monster,Q4_Superior
+101,Synod of LaMojana & JackFrost-Personif,Orders,Shug Monkey,Q5_Epic
+101,Synod of LaMojana & JackFrost-Personif,Orders,Taotao Mona,Q6_Mythic
+101,Synod of LaMojana & JackFrost-Personif,Orders,La Mojana,Q7_Ancient
+101,Synod of LaMojana & JackFrost-Personif,Orders,Ichneumon,Q8_Arcane
+101,Synod of LaMojana & JackFrost-Personif,Orders,Leimoniads,Q9_Celestial
+101,Synod of LaMojana & JackFrost-Personif,Orders,Mono Grande,Q10_Ethereal
+101,Synod of LaMojana & JackFrost-Personif,Orders,"Jack Frost - Personified of ice, winter and snow",Q11_Transcendent
+102,Covenant of Fext & Firedrake,Orders,Skogsrå,Q1_Common
+102,Covenant of Fext & Firedrake,Orders,Pita-skog,Q2_Uncommon
+102,Covenant of Fext & Firedrake,Orders,Skookum,Q3_Rare
+102,Covenant of Fext & Firedrake,Orders,Fei Lian,Q4_Superior
+102,Covenant of Fext & Firedrake,Orders,Fenghuang,Q5_Epic
+102,Covenant of Fext & Firedrake,Orders,Fenodyree,Q6_Mythic
+102,Covenant of Fext & Firedrake,Orders,Fenrir,Q7_Ancient
+102,Covenant of Fext & Firedrake,Orders,Fext,Q8_Arcane
+102,Covenant of Fext & Firedrake,Orders,Fiery serpents,Q9_Celestial
+102,Covenant of Fext & Firedrake,Orders,Firedrake,Q10_Ethereal
+102,Covenant of Fext & Firedrake,Orders,Fish-man,Q11_Transcendent
+103,Accord of Sjörå and Futakuchi-onna,Orders,Sjövættir,Q1_Common
+103,Accord of Sjörå and Futakuchi-onna,Orders,Vættir,Q2_Uncommon
+103,Accord of Sjörå and Futakuchi-onna,Orders,Landvættir,Q3_Rare
+103,Accord of Sjörå and Futakuchi-onna,Orders,Sjörå,Q4_Superior
+103,Accord of Sjörå and Futakuchi-onna,Orders,Fuath,Q5_Epic
+103,Accord of Sjörå and Futakuchi-onna,Orders,Fucanglong,Q6_Mythic
+103,Accord of Sjörå and Futakuchi-onna,Orders,Funayūrei,Q7_Ancient
+103,Accord of Sjörå and Futakuchi-onna,Orders,Futakuchi-onna,Q8_Arcane
+103,Accord of Sjörå and Futakuchi-onna,Orders,Gaasyendietha,Q9_Celestial
+103,Accord of Sjörå and Futakuchi-onna,Orders,Galtzagorriak,Q10_Ethereal
+103,Accord of Sjörå and Futakuchi-onna,Orders,Gancanagh,Q11_Transcendent
+104,Synod of Geb & Morinji-no-okama,Orders,Mormolykeia,Q1_Common
+104,Synod of Geb & Morinji-no-okama,Orders,Keibu Keioiba,Q2_Uncommon
+104,Synod of Geb & Morinji-no-okama,Orders,Pamola,Q3_Rare
+104,Synod of Geb & Morinji-no-okama,Orders,Lindworm,Q4_Superior
+104,Synod of Geb & Morinji-no-okama,Orders,Morinji-no-okama,Q5_Epic
+104,Synod of Geb & Morinji-no-okama,Orders,Gashadokuro,Q6_Mythic
+104,Synod of Geb & Morinji-no-okama,Orders,Geb,Q7_Ancient
+104,Synod of Geb & Morinji-no-okama,Orders,Ged,Q8_Arcane
+104,Synod of Geb & Morinji-no-okama,Orders,German,Q9_Celestial
+104,Synod of Geb & Morinji-no-okama,Orders,Geryon,Q10_Ethereal
+104,Synod of Geb & Morinji-no-okama,Orders,Ghost,Q11_Transcendent
+105,Covenant of Gog & Girtablilu,Orders,Wirry-cow,Q1_Common
+105,Covenant of Gog & Girtablilu,Orders,Mbwiri,Q2_Uncommon
+105,Covenant of Gog & Girtablilu,Orders,Ghost riders,Q3_Rare
+105,Covenant of Gog & Girtablilu,Orders,Gigantes,Q4_Superior
+105,Covenant of Gog & Girtablilu,Orders,Gigelorum,Q5_Epic
+105,Covenant of Gog & Girtablilu,Orders,Girtablilu,Q6_Mythic
+105,Covenant of Gog & Girtablilu,Orders,Goblin,Q7_Ancient
+105,Covenant of Gog & Girtablilu,Orders,Gog,Q8_Arcane
+105,Covenant of Gog & Girtablilu,Orders,Gorgon,Q9_Celestial
+105,Covenant of Gog & Girtablilu,Orders,Goryō,Q10_Ethereal
+105,Covenant of Gog & Girtablilu,Orders,Grigori,Q11_Transcendent
+106,Synod of Grim & Leprechaun,Orders,Kapre,Q1_Common
+106,Synod of Grim & Leprechaun,Orders,Kappa,Q2_Uncommon
+106,Synod of Grim & Leprechaun,Orders,Preta,Q3_Rare
+106,Synod of Grim & Leprechaun,Orders,Leprechaun,Q4_Superior
+106,Synod of Grim & Leprechaun,Orders,Grim,Q5_Epic
+106,Synod of Grim & Leprechaun,Orders,Grim Reaper,Q6_Mythic
+106,Synod of Grim & Leprechaun,Orders,Grindylow,Q7_Ancient
+106,Synod of Grim & Leprechaun,Orders,Gui Po,Q8_Arcane
+106,Synod of Grim & Leprechaun,Orders,Gui Shu,Q9_Celestial
+106,Synod of Grim & Leprechaun,Orders,Gulon,Q10_Ethereal
+106,Synod of Grim & Leprechaun,Orders,Gumiho,Q11_Transcendent
+107,Oath of Satyr & HornedSerpent,Orders,Island Satyr,Q1_Common
+107,Oath of Satyr & HornedSerpent,Orders,Satyr,Q2_Uncommon
+107,Oath of Satyr & HornedSerpent,Orders,Libyan Satyr,Q3_Rare
+107,Oath of Satyr & HornedSerpent,Orders,Satyrus,Q4_Superior
+107,Oath of Satyr & HornedSerpent,Orders,Satori,Q5_Epic
+107,Oath of Satyr & HornedSerpent,Orders,La Sayona,Q6_Mythic
+107,Oath of Satyr & HornedSerpent,Orders,Zilant,Q7_Ancient
+107,Oath of Satyr & HornedSerpent,Orders,Tikbalang,Q8_Arcane
+107,Oath of Satyr & HornedSerpent,Orders,Horned Serpent,Q9_Celestial
+107,Oath of Satyr & HornedSerpent,Orders,Penanggalan,Q10_Ethereal
+107,Oath of Satyr & HornedSerpent,Orders,Langmeidong,Q11_Transcendent
+108,Accord of Gyūki and Hadhayosh,Orders,Haugbúi,Q1_Common
+108,Accord of Gyūki and Hadhayosh,Orders,Gwyllgi,Q2_Uncommon
+108,Accord of Gyūki and Hadhayosh,Orders,Gyascutus,Q3_Rare
+108,Accord of Gyūki and Hadhayosh,Orders,Gytrash,Q4_Superior
+108,Accord of Gyūki and Hadhayosh,Orders,Gyūki,Q5_Epic
+108,Accord of Gyūki and Hadhayosh,Orders,Hábrók,Q6_Mythic
+108,Accord of Gyūki and Hadhayosh,Orders,Hadhayosh,Q7_Ancient
+108,Accord of Gyūki and Hadhayosh,Orders,Haietlik,Q8_Arcane
+108,Accord of Gyūki and Hadhayosh,Orders,Halloi,Q9_Celestial
+108,Accord of Gyūki and Hadhayosh,Orders,Hai-uri,Q10_Ethereal
+108,Accord of Gyūki and Hadhayosh,Orders,Hakutaku,Q11_Transcendent
+109,Oath of Jinn & Hanauepe,Orders,Mujina,Q1_Common
+109,Oath of Jinn & Hanauepe,Orders,Jinn,Q2_Uncommon
+109,Oath of Jinn & Hanauepe,Orders,Zuijin,Q3_Rare
+109,Oath of Jinn & Hanauepe,Orders,Inapertwa,Q4_Superior
+109,Oath of Jinn & Hanauepe,Orders,Hākuturi,Q5_Epic
+109,Oath of Jinn & Hanauepe,Orders,Half-elf,Q6_Mythic
+109,Oath of Jinn & Hanauepe,Orders,Haltija,Q7_Ancient
+109,Oath of Jinn & Hanauepe,Orders,Hamadryad,Q8_Arcane
+109,Oath of Jinn & Hanauepe,Orders,Hamingja,Q9_Celestial
+109,Oath of Jinn & Hanauepe,Orders,Hamsa,Q10_Ethereal
+109,Oath of Jinn & Hanauepe,Orders,Hanau epe,Q11_Transcendent
+110,Ward of Lugat and TugarinZmeyevich,Orders,Sarugami,Q1_Common
+110,Ward of Lugat and TugarinZmeyevich,Orders,Inugami,Q2_Uncommon
+110,Ward of Lugat and TugarinZmeyevich,Orders,Yakubyō-gami,Q3_Rare
+110,Ward of Lugat and TugarinZmeyevich,Orders,Lugat,Q4_Superior
+110,Ward of Lugat and TugarinZmeyevich,Orders,Rougarou,Q5_Epic
+110,Ward of Lugat and TugarinZmeyevich,Orders,Sarngika,Q6_Mythic
+110,Ward of Lugat and TugarinZmeyevich,Orders,Sarimanok,Q7_Ancient
+110,Ward of Lugat and TugarinZmeyevich,Orders,Kamikiri,Q8_Arcane
+110,Ward of Lugat and TugarinZmeyevich,Orders,Tugarin Zmeyevich,Q9_Celestial
+110,Ward of Lugat and TugarinZmeyevich,Orders,Yato-no-kami,Q10_Ethereal
+110,Ward of Lugat and TugarinZmeyevich,Orders,Tatami-tataki,Q11_Transcendent
+111,Seal of Mokoi & Heinzelmännchen,Orders,Mokoi,Q1_Common
+111,Seal of Mokoi & Heinzelmännchen,Orders,Mokorea,Q2_Uncommon
+111,Seal of Mokoi & Heinzelmännchen,Orders,Madam Koi Koi,Q3_Rare
+111,Seal of Mokoi & Heinzelmännchen,Orders,Ichimoku-nyūdō,Q4_Superior
+111,Seal of Mokoi & Heinzelmännchen,Orders,Mokèlé-mbèmbé,Q5_Epic
+111,Seal of Mokoi & Heinzelmännchen,Orders,Helloi,Q6_Mythic
+111,Seal of Mokoi & Heinzelmännchen,Orders,Heinzelmännchen,Q7_Ancient
+111,Seal of Mokoi & Heinzelmännchen,Orders,Hejkal,Q8_Arcane
+111,Seal of Mokoi & Heinzelmännchen,Orders,Heracles,Q9_Celestial
+111,Seal of Mokoi & Heinzelmännchen,Orders,Hercinia,Q10_Ethereal
+111,Seal of Mokoi & Heinzelmännchen,Orders,Hesperides,Q11_Transcendent
+112,Synod of Hihi & Pardalokampoi,Orders,Tartalo,Q1_Common
+112,Synod of Hihi & Pardalokampoi,Orders,Svartálfar,Q2_Uncommon
+112,Synod of Hihi & Pardalokampoi,Orders,Jackalope,Q3_Rare
+112,Synod of Hihi & Pardalokampoi,Orders,Pardalokampoi,Q4_Superior
+112,Synod of Hihi & Pardalokampoi,Orders,Hidebehind,Q5_Epic
+112,Synod of Hihi & Pardalokampoi,Orders,Hihi,Q6_Mythic
+112,Synod of Hihi & Pardalokampoi,Orders,Hippalectryon,Q7_Ancient
+112,Synod of Hihi & Pardalokampoi,Orders,Hodag,Q8_Arcane
+112,Synod of Hihi & Pardalokampoi,Orders,Hōkō,Q9_Celestial
+112,Synod of Hihi & Pardalokampoi,Orders,Hó͘-ko͘-pô,Q10_Ethereal
+112,Synod of Hihi & Pardalokampoi,Orders,Hồ ly tinh,Q11_Transcendent
+113,Seal of Tavara & Nivatakavachas,Orders,Nivatakavachas,Q1_Common
+113,Seal of Tavara & Nivatakavachas,Orders,Plakavac,Q2_Uncommon
+113,Seal of Tavara & Nivatakavachas,Orders,Tachash,Q3_Rare
+113,Seal of Tavara & Nivatakavachas,Orders,Pishacha,Q4_Superior
+113,Seal of Tavara & Nivatakavachas,Orders,Taka-onna,Q5_Epic
+113,Seal of Tavara & Nivatakavachas,Orders,Xecotcovach,Q6_Mythic
+113,Seal of Tavara & Nivatakavachas,Orders,Samodiva,Q7_Ancient
+113,Seal of Tavara & Nivatakavachas,Orders,Tavara,Q8_Arcane
+113,Seal of Tavara & Nivatakavachas,Orders,Kujata,Q9_Celestial
+113,Seal of Tavara & Nivatakavachas,Orders,Matagot,Q10_Ethereal
+113,Seal of Tavara & Nivatakavachas,Orders,Nang Takian,Q11_Transcendent
+114,Seal of Homa & HombreGato,Orders,Krasue,Q1_Common
+114,Seal of Homa & HombreGato,Orders,Yatagarasu,Q2_Uncommon
+114,Seal of Homa & HombreGato,Orders,Trasgo,Q3_Rare
+114,Seal of Homa & HombreGato,Orders,Jievaras,Q4_Superior
+114,Seal of Homa & HombreGato,Orders,Narasimha,Q5_Epic
+114,Seal of Homa & HombreGato,Orders,Homa,Q6_Mythic
+114,Seal of Homa & HombreGato,Orders,Hombre Caiman,Q7_Ancient
+114,Seal of Homa & HombreGato,Orders,Hombre Gato,Q8_Arcane
+114,Seal of Homa & HombreGato,Orders,Hō-ō,Q9_Celestial
+114,Seal of Homa & HombreGato,Orders,Hoopoe,Q10_Ethereal
+114,Seal of Homa & HombreGato,Orders,Hoop snake,Q11_Transcendent
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Pakhangba,Q1_Common
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Lyngbakr,Q2_Uncommon
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Shang-Yang,Q3_Rare
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Lakhey,Q4_Superior
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Leviathan,Q5_Epic
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Orphan Bird,Q6_Mythic
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Manananggal,Q7_Ancient
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Toire-no-Hanakosan,Q8_Arcane
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Uchek Langmeidong,Q9_Celestial
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Hraesvelg,Q10_Ethereal
+115,Seal of Lakhey & Toire-no-Hanakosan,Orders,Hrímþurs,Q11_Transcendent
+116,Seal of Shen & Nightmarchers,Orders,Peuchen,Q1_Common
+116,Seal of Shen & Nightmarchers,Orders,Shen,Q2_Uncommon
+116,Seal of Shen & Nightmarchers,Orders,Leuce,Q3_Rare
+116,Seal of Shen & Nightmarchers,Orders,Ikuchi,Q4_Superior
+116,Seal of Shen & Nightmarchers,Orders,Shenlong,Q5_Epic
+116,Seal of Shen & Nightmarchers,Orders,Nozuchi,Q6_Mythic
+116,Seal of Shen & Nightmarchers,Orders,Mizuchi,Q7_Ancient
+116,Seal of Shen & Nightmarchers,Orders,Koshchei,Q8_Arcane
+116,Seal of Shen & Nightmarchers,Orders,Tsuchigumo,Q9_Celestial
+116,Seal of Shen & Nightmarchers,Orders,Nightmarchers,Q10_Ethereal
+116,Seal of Shen & Nightmarchers,Orders,Hue-tsiau,Q11_Transcendent
+117,Ward of Imp and Il-Belliegħa,Orders,Putz,Q1_Common
+117,Ward of Imp and Il-Belliegħa,Orders,Hundun,Q2_Uncommon
+117,Ward of Imp and Il-Belliegħa,Orders,Hydra,Q3_Rare
+117,Ward of Imp and Il-Belliegħa,Orders,Hyōsube,Q4_Superior
+117,Ward of Imp and Il-Belliegħa,Orders,Ichchhadhari Nag,Q5_Epic
+117,Ward of Imp and Il-Belliegħa,Orders,Ikiryō,Q6_Mythic
+117,Ward of Imp and Il-Belliegħa,Orders,Iku-Turso,Q7_Ancient
+117,Ward of Imp and Il-Belliegħa,Orders,Il-Belliegħa,Q8_Arcane
+117,Ward of Imp and Il-Belliegħa,Orders,Imp,Q9_Celestial
+117,Ward of Imp and Il-Belliegħa,Orders,Imugi,Q10_Ethereal
+117,Ward of Imp and Il-Belliegħa,Orders,Indrik,Q11_Transcendent
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Tek-ko-kui,Q1_Common
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Kui,Q2_Uncommon
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Teke Teke,Q3_Rare
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Ko-gok,Q4_Superior
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Wati-kutjara,Q5_Epic
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Kyūbi-no-kitsune,Q6_Mythic
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Lui-kong-tsiau,Q7_Ancient
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Ior,Q8_Arcane
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Jaroszek,Q9_Celestial
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Jaud,Q10_Ethereal
+118,Covenant of Kui & Lui-kong-tsiau,Orders,Jerff,Q11_Transcendent
+119,Ward of Näkki and Jiutouniao,Orders,Näkki,Q1_Common
+119,Ward of Näkki and Jiutouniao,Orders,Jersey Devil,Q2_Uncommon
+119,Ward of Näkki and Jiutouniao,Orders,Jiaolong,Q3_Rare
+119,Ward of Näkki and Jiutouniao,Orders,Jibakurei,Q4_Superior
+119,Ward of Näkki and Jiutouniao,Orders,Jipijka'm,Q5_Epic
+119,Ward of Näkki and Jiutouniao,Orders,Jiu tou niao,Q6_Mythic
+119,Ward of Näkki and Jiutouniao,Orders,Jogah,Q7_Ancient
+119,Ward of Näkki and Jiutouniao,Orders,Jörmungandr,Q8_Arcane
+119,Ward of Näkki and Jiutouniao,Orders,Jorōgumo,Q9_Celestial
+119,Ward of Näkki and Jiutouniao,Orders,Jötunn,Q10_Ethereal
+119,Ward of Näkki and Jiutouniao,Orders,Jujak,Q11_Transcendent
+120,Oath of Pixie & Kamaitachi,Orders,Pixie,Q1_Common
+120,Oath of Pixie & Kamaitachi,Orders,Pixiu,Q2_Uncommon
+120,Oath of Pixie & Kamaitachi,Orders,Kajsa,Q3_Rare
+120,Oath of Pixie & Kamaitachi,Orders,Kalakeyas,Q4_Superior
+120,Oath of Pixie & Kamaitachi,Orders,Kamaitachi,Q5_Epic
+120,Oath of Pixie & Kamaitachi,Orders,Kasha,Q6_Mythic
+120,Oath of Pixie & Kamaitachi,Orders,Kaukas,Q7_Ancient
+120,Oath of Pixie & Kamaitachi,Orders,Kayeri,Q8_Arcane
+120,Oath of Pixie & Kamaitachi,Orders,Kelpie,Q9_Celestial
+120,Oath of Pixie & Kamaitachi,Orders,Keythong,Q10_Ethereal
+120,Oath of Pixie & Kamaitachi,Orders,Khyah,Q11_Transcendent
+121,Conclave of Kijo and Sorobanbōzu,Orders,Umibōzu,Q1_Common
+121,Conclave of Kijo and Sorobanbōzu,Orders,Sorobanbōzu,Q2_Uncommon
+121,Conclave of Kijo and Sorobanbōzu,Orders,Kumiho,Q3_Rare
+121,Conclave of Kijo and Sorobanbōzu,Orders,Umi-nyōbō,Q4_Superior
+121,Conclave of Kijo and Sorobanbōzu,Orders,Kijimunaa,Q5_Epic
+121,Conclave of Kijo and Sorobanbōzu,Orders,Kijo,Q6_Mythic
+121,Conclave of Kijo and Sorobanbōzu,Orders,Kinnara,Q7_Ancient
+121,Conclave of Kijo and Sorobanbōzu,Orders,Kin-u,Q8_Arcane
+121,Conclave of Kijo and Sorobanbōzu,Orders,Kofewalt,Q9_Celestial
+121,Conclave of Kijo and Sorobanbōzu,Orders,Komainu,Q10_Ethereal
+121,Conclave of Kijo and Sorobanbōzu,Orders,Konaki-jiji,Q11_Transcendent
+122,Accord of Kun and KuarahyJára,Orders,Pygmy,Q1_Common
+122,Accord of Kun and KuarahyJára,Orders,Konoha-tengu,Q2_Uncommon
+122,Accord of Kun and KuarahyJára,Orders,Konrul,Q3_Rare
+122,Accord of Kun and KuarahyJára,Orders,Koro-pok-guru,Q4_Superior
+122,Accord of Kun and KuarahyJára,Orders,Kuarahy Jára,Q5_Epic
+122,Accord of Kun and KuarahyJára,Orders,Kubikajiri,Q6_Mythic
+122,Accord of Kun and KuarahyJára,Orders,Kulshedra,Q7_Ancient
+122,Accord of Kun and KuarahyJára,Orders,Kun,Q8_Arcane
+122,Accord of Kun and KuarahyJára,Orders,Kurma,Q9_Celestial
+122,Accord of Kun and KuarahyJára,Orders,Kye-ryong,Q10_Ethereal
+122,Accord of Kun and KuarahyJára,Orders,Kyourinrin,Q11_Transcendent
+123,Accord of Ladon and Leanansidhe,Orders,Patasola,Q1_Common
+123,Accord of Ladon and Leanansidhe,Orders,Sampati,Q2_Uncommon
+123,Accord of Ladon and Leanansidhe,Orders,Vrykolakas,Q3_Rare
+123,Accord of Ladon and Leanansidhe,Orders,Patupairehe,Q4_Superior
+123,Accord of Ladon and Leanansidhe,Orders,Kyūketsuki,Q5_Epic
+123,Accord of Ladon and Leanansidhe,Orders,Ladon,Q6_Mythic
+123,Accord of Ladon and Leanansidhe,Orders,Laukų dvasios,Q7_Ancient
+123,Accord of Ladon and Leanansidhe,Orders,Leanan sidhe,Q8_Arcane
+123,Accord of Ladon and Leanansidhe,Orders,Leokampoi,Q9_Celestial
+123,Accord of Ladon and Leanansidhe,Orders,Leontophone,Q10_Ethereal
+123,Accord of Ladon and Leanansidhe,Orders,Leyak,Q11_Transcendent
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Nandi Bear,Q1_Common
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Nando-baba,Q2_Uncommon
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Wendigo,Q3_Rare
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Salamander,Q4_Superior
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Nanom-keea-po-da,Q5_Epic
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Lidérc,Q6_Mythic
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Lietuvēns,Q7_Ancient
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Lilitu,Q8_Arcane
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Ljósálfar,Q9_Celestial
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Ljubi,Q10_Ethereal
+124,Conclave of Loki and Nanom-keea-po-da,Orders,Loki,Q11_Transcendent
+125,Synod of Lusca & Turkicmythological,Orders,Ole-Higue,Q1_Common
+125,Synod of Lusca & Turkicmythological,Orders,Polevik,Q2_Uncommon
+125,Synod of Lusca & Turkicmythological,Orders,Plague Maiden,Q3_Rare
+125,Synod of Lusca & Turkicmythological,Orders,Myrmecoleon,Q4_Superior
+125,Synod of Lusca & Turkicmythological,Orders,Turkic mythological figures,Q5_Epic
+125,Synod of Lusca & Turkicmythological,Orders,Lo-lol,Q6_Mythic
+125,Synod of Lusca & Turkicmythological,Orders,Loogaroo,Q7_Ancient
+125,Synod of Lusca & Turkicmythological,Orders,Loup-garou,Q8_Arcane
+125,Synod of Lusca & Turkicmythological,Orders,Luison,Q9_Celestial
+125,Synod of Lusca & Turkicmythological,Orders,Lusca,Q10_Ethereal
+125,Synod of Lusca & Turkicmythological,Orders,Lutin,Q11_Transcendent
+126,Synod of Lynx & ShadowPeople,Orders,Moss people,Q1_Common
+126,Synod of Lynx & ShadowPeople,Orders,Shadow People,Q2_Uncommon
+126,Synod of Lynx & ShadowPeople,Orders,Lynx,Q3_Rare
+126,Synod of Lynx & ShadowPeople,Orders,Machlyes,Q4_Superior
+126,Synod of Lynx & ShadowPeople,Orders,Maero,Q5_Epic
+126,Synod of Lynx & ShadowPeople,Orders,Magog,Q6_Mythic
+126,Synod of Lynx & ShadowPeople,Orders,Mahuika,Q7_Ancient
+126,Synod of Lynx & ShadowPeople,Orders,Mājas gari,Q8_Arcane
+126,Synod of Lynx & ShadowPeople,Orders,Maro deivės,Q9_Celestial
+126,Synod of Lynx & ShadowPeople,Orders,Matsya,Q10_Ethereal
+126,Synod of Lynx & ShadowPeople,Orders,Mavka,Q11_Transcendent
+127,Circle of Mimi and YouHunYeGui,Orders,Sun Wukong,Q1_Common
+127,Circle of Mimi and YouHunYeGui,Orders,Polong,Q2_Uncommon
+127,Circle of Mimi and YouHunYeGui,Orders,You Hun Ye Gui,Q3_Rare
+127,Circle of Mimi and YouHunYeGui,Orders,Sunakake-baba,Q4_Superior
+127,Circle of Mimi and YouHunYeGui,Orders,Mazzikin,Q5_Epic
+127,Circle of Mimi and YouHunYeGui,Orders,Mbói Tu'ĩ,Q6_Mythic
+127,Circle of Mimi and YouHunYeGui,Orders,Melek Taus,Q7_Ancient
+127,Circle of Mimi and YouHunYeGui,Orders,Meliae,Q8_Arcane
+127,Circle of Mimi and YouHunYeGui,Orders,Mermaid/Merman,Q9_Celestial
+127,Circle of Mimi and YouHunYeGui,Orders,Mimi,Q10_Ethereal
+127,Circle of Mimi and YouHunYeGui,Orders,Min Min Light,Q11_Transcendent
+128,Oath of Muse & MumaPădurii,Orders,Vadātājs,Q1_Common
+128,Oath of Muse & MumaPădurii,Orders,Mogwai,Q2_Uncommon
+128,Oath of Muse & MumaPădurii,Orders,Moñái,Q3_Rare
+128,Oath of Muse & MumaPădurii,Orders,Mooinjer veggey,Q4_Superior
+128,Oath of Muse & MumaPădurii,Orders,Mo-sin-a,Q5_Epic
+128,Oath of Muse & MumaPădurii,Orders,Mothman,Q6_Mythic
+128,Oath of Muse & MumaPădurii,Orders,Mugwump,Q7_Ancient
+128,Oath of Muse & MumaPădurii,Orders,Mummy,Q8_Arcane
+128,Oath of Muse & MumaPădurii,Orders,Muma Pădurii,Q9_Celestial
+128,Oath of Muse & MumaPădurii,Orders,Muse,Q10_Ethereal
+128,Oath of Muse & MumaPădurii,Orders,Myling,Q11_Transcendent
+129,Seal of Nav' & NemeanLion,Orders,Nachzehrer,Q1_Common
+129,Seal of Nav' & NemeanLion,Orders,Naga fireballs,Q2_Uncommon
+129,Seal of Nav' & NemeanLion,Orders,Naiad,Q3_Rare
+129,Seal of Nav' & NemeanLion,Orders,Nariphon,Q4_Superior
+129,Seal of Nav' & NemeanLion,Orders,Nargun,Q5_Epic
+129,Seal of Nav' & NemeanLion,Orders,Nasnas,Q6_Mythic
+129,Seal of Nav' & NemeanLion,Orders,Nav',Q7_Ancient
+129,Seal of Nav' & NemeanLion,Orders,Neptune,Q8_Arcane
+129,Seal of Nav' & NemeanLion,Orders,Neck,Q9_Celestial
+129,Seal of Nav' & NemeanLion,Orders,Nemean Lion,Q10_Ethereal
+129,Seal of Nav' & NemeanLion,Orders,Níðhöggr,Q11_Transcendent
+130,Covenant of Nix & Nykštukas,Orders,Nix,Q1_Common
+130,Covenant of Nix & Nykštukas,Orders,Noppera-bō,Q2_Uncommon
+130,Covenant of Nix & Nykštukas,Orders,Nue,Q3_Rare
+130,Covenant of Nix & Nykštukas,Orders,Nuli,Q4_Superior
+130,Covenant of Nix & Nykštukas,Orders,Nuno,Q5_Epic
+130,Covenant of Nix & Nykštukas,Orders,Nuppeppo,Q6_Mythic
+130,Covenant of Nix & Nykštukas,Orders,Nure-onna,Q7_Ancient
+130,Covenant of Nix & Nykštukas,Orders,Nykštukas,Q8_Arcane
+130,Covenant of Nix & Nykštukas,Orders,Nymph,Q9_Celestial
+130,Covenant of Nix & Nykštukas,Orders,Obariyon,Q10_Ethereal
+130,Covenant of Nix & Nykštukas,Orders,Obia,Q11_Transcendent
+131,Circle of Og and Ojáncanu,Orders,Odei,Q1_Common
+131,Circle of Og and Ojáncanu,Orders,Odin,Q2_Uncommon
+131,Circle of Og and Ojáncanu,Orders,Odmience,Q3_Rare
+131,Circle of Og and Ojáncanu,Orders,Og,Q4_Superior
+131,Circle of Og and Ojáncanu,Orders,Ogopogo,Q5_Epic
+131,Circle of Og and Ojáncanu,Orders,Ogun,Q6_Mythic
+131,Circle of Og and Ojáncanu,Orders,Ojáncanu,Q7_Ancient
+131,Circle of Og and Ojáncanu,Orders,Okiku,Q8_Arcane
+131,Circle of Og and Ojáncanu,Orders,Öksökö,Q9_Celestial
+131,Circle of Og and Ojáncanu,Orders,Ōkubi,Q10_Ethereal
+131,Circle of Og and Ojáncanu,Orders,Okuri-inu,Q11_Transcendent
+132,Circle of Ork and Onoskelis,Orders,Onoskelis,Q1_Common
+132,Circle of Ork and Onoskelis,Orders,Onryō,Q2_Uncommon
+132,Circle of Ork and Onoskelis,Orders,Onza,Q3_Rare
+132,Circle of Ork and Onoskelis,Orders,Oozlum bird,Q4_Superior
+132,Circle of Ork and Onoskelis,Orders,Ork,Q5_Epic
+132,Circle of Ork and Onoskelis,Orders,Orthrus,Q6_Mythic
+132,Circle of Ork and Onoskelis,Orders,Osiris,Q7_Ancient
+132,Circle of Ork and Onoskelis,Orders,Oshun,Q8_Arcane
+132,Circle of Ork and Onoskelis,Orders,Owlman,Q9_Celestial
+132,Circle of Ork and Onoskelis,Orders,Pard,Q10_Ethereal
+132,Circle of Ork and Onoskelis,Orders,Pech,Q11_Transcendent
+133,Circle of Pop and Pok-wejee-men,Orders,Peng,Q1_Common
+133,Circle of Pop and Pok-wejee-men,Orders,Perchta,Q2_Uncommon
+133,Circle of Pop and Pok-wejee-men,Orders,Peryton,Q3_Rare
+133,Circle of Pop and Pok-wejee-men,Orders,Pim-skwa-wagen-owad,Q4_Superior
+133,Circle of Pop and Pok-wejee-men,Orders,Pishtaco,Q5_Epic
+133,Circle of Pop and Pok-wejee-men,Orders,Pok-wejee-men,Q6_Mythic
+133,Circle of Pop and Pok-wejee-men,Orders,Ponaturi,Q7_Ancient
+133,Circle of Pop and Pok-wejee-men,Orders,Pop,Q8_Arcane
+133,Circle of Pop and Pok-wejee-men,Orders,Povitrulya,Q9_Celestial
+133,Circle of Pop and Pok-wejee-men,Orders,Praznec,Q10_Ethereal
+133,Circle of Pop and Pok-wejee-men,Orders,Pricolici,Q11_Transcendent
+134,Oath of Rå & Quetzalcoatl,Orders,Púca,Q1_Common
+134,Oath of Rå & Quetzalcoatl,Orders,Púki,Q2_Uncommon
+134,Oath of Rå & Quetzalcoatl,Orders,Puck,Q3_Rare
+134,Oath of Rå & Quetzalcoatl,Orders,Pugot,Q4_Superior
+134,Oath of Rå & Quetzalcoatl,Orders,Puk,Q5_Epic
+134,Oath of Rå & Quetzalcoatl,Orders,Pūķis,Q6_Mythic
+134,Oath of Rå & Quetzalcoatl,Orders,Puckwudgie,Q7_Ancient
+134,Oath of Rå & Quetzalcoatl,Orders,Python,Q8_Arcane
+134,Oath of Rå & Quetzalcoatl,Orders,Qiqirn,Q9_Celestial
+134,Oath of Rå & Quetzalcoatl,Orders,Quetzalcoatl,Q10_Ethereal
+134,Oath of Rå & Quetzalcoatl,Orders,Rå,Q11_Transcendent
+135,Accord of Rng and RaystownRay,Orders,Raijū,Q1_Common
+135,Accord of Rng and RaystownRay,Orders,Rainbow Serpent,Q2_Uncommon
+135,Accord of Rng and RaystownRay,Orders,Raróg,Q3_Rare
+135,Accord of Rng and RaystownRay,Orders,Raystown Ray,Q4_Superior
+135,Accord of Rng and RaystownRay,Orders,Redcap,Q5_Epic
+135,Accord of Rng and RaystownRay,Orders,Re’em,Q6_Mythic
+135,Accord of Rng and RaystownRay,Orders,Rephaite,Q7_Ancient
+135,Accord of Rng and RaystownRay,Orders,Rokurokubi,Q8_Arcane
+135,Accord of Rng and RaystownRay,Orders,Rompo,Q9_Celestial
+135,Accord of Rng and RaystownRay,Orders,Rồng,Q10_Ethereal
+135,Accord of Rng and RaystownRay,Orders,Rübezahl,Q11_Transcendent
+136,Accord of Saci and SantaClaus,Orders,Saci,Q1_Common
+136,Accord of Saci and SantaClaus,Orders,Santelmo,Q2_Uncommon
+136,Accord of Saci and SantaClaus,Orders,Santa Claus,Q3_Rare
+136,Accord of Saci and SantaClaus,Orders,Sânziană,Q4_Superior
+136,Accord of Saci and SantaClaus,Orders,Sayona,Q5_Epic
+136,Accord of Saci and SantaClaus,Orders,Sazae-oni,Q6_Mythic
+136,Accord of Saci and SantaClaus,Orders,Sceadugenga,Q7_Ancient
+136,Accord of Saci and SantaClaus,Orders,Sea-Wyvern,Q8_Arcane
+136,Accord of Saci and SantaClaus,Orders,Selkie,Q9_Celestial
+136,Accord of Saci and SantaClaus,Orders,Seps,Q10_Ethereal
+136,Accord of Saci and SantaClaus,Orders,Serpopard,Q11_Transcendent
+137,Accord of Shōjō and Shellycoat,Orders,Shahbaz,Q1_Common
+137,Accord of Shōjō and Shellycoat,Orders,Shaitan,Q2_Uncommon
+137,Accord of Shōjō and Shellycoat,Orders,Shellycoat,Q3_Rare
+137,Accord of Shōjō and Shellycoat,Orders,Shōjō,Q4_Superior
+137,Accord of Shōjō and Shellycoat,Orders,Sídhe,Q5_Epic
+137,Accord of Shōjō and Shellycoat,Orders,Sigbin,Q6_Mythic
+137,Accord of Shōjō and Shellycoat,Orders,Simurgh,Q7_Ancient
+137,Accord of Shōjō and Shellycoat,Orders,Šišiga,Q8_Arcane
+137,Accord of Shōjō and Shellycoat,Orders,Skin-walker,Q9_Celestial
+137,Accord of Shōjō and Shellycoat,Orders,Skeleton,Q10_Ethereal
+137,Accord of Shōjō and Shellycoat,Orders,Skrzak,Q11_Transcendent
+138,Oath of Surma & SnowLion,Orders,Sleipnir,Q1_Common
+138,Oath of Surma & SnowLion,Orders,Sluagh,Q2_Uncommon
+138,Oath of Surma & SnowLion,Orders,Snow Lion,Q3_Rare
+138,Oath of Surma & SnowLion,Orders,Soucouyant,Q4_Superior
+138,Oath of Surma & SnowLion,Orders,Spectre,Q5_Epic
+138,Oath of Surma & SnowLion,Orders,Spriggan,Q6_Mythic
+138,Oath of Surma & SnowLion,Orders,Squonk,Q7_Ancient
+138,Oath of Surma & SnowLion,Orders,Stuhać,Q8_Arcane
+138,Oath of Surma & SnowLion,Orders,Sudice,Q9_Celestial
+138,Oath of Surma & SnowLion,Orders,Šüräle,Q10_Ethereal
+138,Oath of Surma & SnowLion,Orders,Surma,Q11_Transcendent
+139,Ward of Sylph and Three-leggedbird,Orders,Suzaku,Q1_Common
+139,Ward of Sylph and Three-leggedbird,Orders,Svaðilfari,Q2_Uncommon
+139,Ward of Sylph and Three-leggedbird,Orders,Sylph,Q3_Rare
+139,Ward of Sylph and Three-leggedbird,Orders,Sylvan,Q4_Superior
+139,Ward of Sylph and Three-leggedbird,Orders,Taotie,Q5_Epic
+139,Ward of Sylph and Three-leggedbird,Orders,Tatzelwurm,Q6_Mythic
+139,Ward of Sylph and Three-leggedbird,Orders,Taurokampoi,Q7_Ancient
+139,Ward of Sylph and Three-leggedbird,Orders,Te-no-me,Q8_Arcane
+139,Ward of Sylph and Three-leggedbird,Orders,Teumessian Fox,Q9_Celestial
+139,Ward of Sylph and Three-leggedbird,Orders,Three-legged bird,Q10_Ethereal
+139,Ward of Sylph and Three-leggedbird,Orders,Thunderbird,Q11_Transcendent
+140,Ward of Thor and Toothfairy,Orders,Thor,Q1_Common
+140,Ward of Thor and Toothfairy,Orders,Tiddy Mun,Q2_Uncommon
+140,Ward of Thor and Toothfairy,Orders,Timingila,Q3_Rare
+140,Ward of Thor and Toothfairy,Orders,Tiyanak,Q4_Superior
+140,Ward of Thor and Toothfairy,Orders,Tizheruk,Q5_Epic
+140,Ward of Thor and Toothfairy,Orders,Tomte,Q6_Mythic
+140,Ward of Thor and Toothfairy,Orders,Tōtetsu,Q7_Ancient
+140,Ward of Thor and Toothfairy,Orders,Tooth fairy,Q8_Arcane
+140,Ward of Thor and Toothfairy,Orders,Tsul 'Kalu,Q9_Celestial
+140,Ward of Thor and Toothfairy,Orders,Tylwyth Teg,Q10_Ethereal
+140,Ward of Thor and Toothfairy,Orders,Tulpa,Q11_Transcendent
+141,Oath of Ur & Tzitzimitl,Orders,Turehu,Q1_Common
+141,Oath of Ur & Tzitzimitl,Orders,Türst,Q2_Uncommon
+141,Oath of Ur & Tzitzimitl,Orders,Tyger,Q3_Rare
+141,Oath of Ur & Tzitzimitl,Orders,Typhon,Q4_Superior
+141,Oath of Ur & Tzitzimitl,Orders,Tzitzimitl,Q5_Epic
+141,Oath of Ur & Tzitzimitl,Orders,Ukko,Q6_Mythic
+141,Oath of Ur & Tzitzimitl,Orders,Ungaikyō,Q7_Ancient
+141,Oath of Ur & Tzitzimitl,Orders,Unhcegila,Q8_Arcane
+141,Oath of Ur & Tzitzimitl,Orders,Unktehi,Q9_Celestial
+141,Oath of Ur & Tzitzimitl,Orders,Unktehila,Q10_Ethereal
+141,Oath of Ur & Tzitzimitl,Orders,Ur,Q11_Transcendent
+142,Synod of Vila & Vântoase,Orders,Vila,Q1_Common
+142,Synod of Vila & Vântoase,Orders,Vilkacis,Q2_Uncommon
+142,Synod of Vila & Vântoase,Orders,Uriaș,Q3_Rare
+142,Synod of Vila & Vântoase,Orders,Utukku,Q4_Superior
+142,Synod of Vila & Vântoase,Orders,Valkyrie,Q5_Epic
+142,Synod of Vila & Vântoase,Orders,Vâlvă,Q6_Mythic
+142,Synod of Vila & Vântoase,Orders,Valravn,Q7_Ancient
+142,Synod of Vila & Vântoase,Orders,Vântoase,Q8_Arcane
+142,Synod of Vila & Vântoase,Orders,Vardøger,Q9_Celestial
+142,Synod of Vila & Vântoase,Orders,Veļi,Q10_Ethereal
+142,Synod of Vila & Vântoase,Orders,Víbria,Q11_Transcendent
+143,Accord of Warg and Vucub-Caquix,Orders,White Lady,Q1_Common
+143,Accord of Warg and Vucub-Caquix,Orders,Viruñas,Q2_Uncommon
+143,Accord of Warg and Vucub-Caquix,Orders,Vishap,Q3_Rare
+143,Accord of Warg and Vucub-Caquix,Orders,Víðópnir,Q4_Superior
+143,Accord of Warg and Vucub-Caquix,Orders,Vodyanoy,Q5_Epic
+143,Accord of Warg and Vucub-Caquix,Orders,Vucub-Caquix,Q6_Mythic
+143,Accord of Warg and Vucub-Caquix,Orders,Warak ngendog,Q7_Ancient
+143,Accord of Warg and Vucub-Caquix,Orders,Warg,Q8_Arcane
+143,Accord of Warg and Vucub-Caquix,Orders,Warraguk,Q9_Celestial
+143,Accord of Warg and Vucub-Caquix,Orders,Wechuge,Q10_Ethereal
+143,Accord of Warg and Vucub-Caquix,Orders,Whowie,Q11_Transcendent
+144,Seal of Yuxa & Wolpertinger,Orders,Yuxa,Q1_Common
+144,Seal of Yuxa & Wolpertinger,Orders,Winged lion,Q2_Uncommon
+144,Seal of Yuxa & Wolpertinger,Orders,Wolpertinger,Q3_Rare
+144,Seal of Yuxa & Wolpertinger,Orders,Wraith,Q4_Superior
+144,Seal of Yuxa & Wolpertinger,Orders,Wulver,Q5_Epic
+144,Seal of Yuxa & Wolpertinger,Orders,Wu Tou Gui,Q6_Mythic
+144,Seal of Yuxa & Wolpertinger,Orders,Wyrm,Q7_Ancient
+144,Seal of Yuxa & Wolpertinger,Orders,Wyvern,Q8_Arcane
+144,Seal of Yuxa & Wolpertinger,Orders,Xana,Q9_Celestial
+144,Seal of Yuxa & Wolpertinger,Orders,Xanthus,Q10_Ethereal
+144,Seal of Yuxa & Wolpertinger,Orders,Xelhua,Q11_Transcendent
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Xiuhcoatl,Q1_Common
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Xiao,Q2_Uncommon
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Xing Tian,Q3_Rare
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Yagyō-san,Q4_Superior
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Yaksha,Q5_Epic
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Yara-ma-yha-who,Q6_Mythic
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Yeti,Q7_Ancient
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Yōsei,Q8_Arcane
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Yosuzume,Q9_Celestial
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Yowie,Q10_Ethereal
+145,Ward of Xiao and Yara-ma-yha-who,Orders,Yuki-onna,Q11_Transcendent
+146,Covenant of Zin & ZhūQuè,Orders,Zhū Què,Q1_Common
+146,Covenant of Zin & ZhūQuè,Orders,Yūrei,Q2_Uncommon
+146,Covenant of Zin & ZhūQuè,Orders,Zahhak,Q3_Rare
+146,Covenant of Zin & ZhūQuè,Orders,Žaltys,Q4_Superior
+146,Covenant of Zin & ZhūQuè,Orders,Zamzummim,Q5_Epic
+146,Covenant of Zin & ZhūQuè,Orders,Zână,Q6_Mythic
+146,Covenant of Zin & ZhūQuè,Orders,Zduhać,Q7_Ancient
+146,Covenant of Zin & ZhūQuè,Orders,Zeus,Q8_Arcane
+146,Covenant of Zin & ZhūQuè,Orders,Zin,Q9_Celestial
+146,Covenant of Zin & ZhūQuè,Orders,Ziz,Q10_Ethereal
+146,Covenant of Zin & ZhūQuè,Orders,Zmeu,Q11_Transcendent

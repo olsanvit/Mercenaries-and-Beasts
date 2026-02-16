@@ -1,12 +1,18 @@
 @page "/expeditions"
-@using MercenariesAndBeasts.Infrastructure
-@using MercenariesAndBeasts.Domain.Players
-@using MercenariesAndBeasts.Domain.Progress
+@using System.Globalization
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-@inject GameDbContext Db
+
+@using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Domain.Progress
+@using MercenariesAndBeasts.Domain.Localization
+
+@inject IDbContextFactory<GameDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
 @attribute [Authorize]
 @rendermode InteractiveServer
 
@@ -23,105 +29,118 @@ else if (player is null)
 else
 {
     <div class="row g-4">
-
+        <!-- LEFT: list -->
         <div class="col-12 col-lg-6">
             <div class="card-like">
                 <h3>Available expeditions</h3>
-                <p class="text-muted mb-3">
-                    Up to 5 locations based on your current progress.
-                </p>
+                <p class="text-muted mb-3">Last 5 unlocked + next 2 locked.</p>
 
-                @if (!availableExpeditions.Any())
-                {
-                    <p>No expeditions unlocked yet.</p>
-                }
-                else
-                {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var loc in availableExpeditions)
-                        {
-                            var prog = expeditionProgress
-                                .FirstOrDefault(p => p.LocationId == loc.Id);
+                <ul class="list-group list-group-flush">
+                    @foreach (var row in leftList)
+                    {
+                        var isSelected = row.Location?.Id == selectedLocationId;
+                        var isLocked = row.IsLocked;
 
-                            <li class="list-group-item bg-transparent text-light">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>@loc.NameEn</strong>
-                                        <div class="text-muted small">
-                                            Recommended level @loc.MinLevel@loc.MaxLevel
-                                        </div>
-                                        @if (prog is null)
-                                        {
-                                            <span class="badge bg-secondary mt-1">Not started</span>
-                                        }
-                                        else if (prog.IsCompleted)
-                                        {
-                                            <span class="badge bg-success mt-1">Completed</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-warning text-dark mt-1">
-                                                Stage @prog.MaxStageReached / 10
-                                            </span>
-                                        }
-                                    </div>
-                                    <div>
-                                        <a class="btn btn-sm btn-primary" href="@($"/expeditions/{loc.Id}")">
-                                            Enter
-                                        </a>
-                                    </div>
+                        <li class="list-group-item bg-transparent text-light"
+                            style="opacity:@(isLocked ? "0.45" : "1");">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div style="min-width:0;">
+                                    <strong class="text-truncate d-block">@row.Title</strong>
+                                    <div class="text-muted small">@row.Subtitle</div>
+
+                                    @if (!isLocked && row.Progress is null)
+                                    {
+                                        <span class="badge bg-secondary mt-1">Not started</span>
+                                    }
+                                    else if (!isLocked && row.Progress?.IsCompleted == true)
+                                    {
+                                        <span class="badge bg-success mt-1">Completed</span>
+                                    }
+                                    else if (!isLocked && row.Progress is not null)
+                                    {
+                                        <span class="badge bg-warning text-dark mt-1">
+                                            Stage @row.Progress.MaxStageReached / 10
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-dark mt-1">Locked</span>
+                                    }
                                 </div>
-                            </li>
-                        }
-                    </ul>
-                }
+
+                                <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")"
+                                        disabled="@isLocked"
+                                        @onclick="() => SelectLocation(row.Location!.Id)">
+                                    @(isSelected ? "Selected" : "Open")
+                                </button>
+                            </div>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
 
+        <!-- RIGHT: detail -->
         <div class="col-12 col-lg-6">
             <div class="card-like">
-                <h3>Recent expeditions</h3>
-                <p class="text-muted mb-3">
-                    Last 5 expeditions you have played.
-                </p>
-
-                @if (!recentExpeditions.Any())
+                @if (selectedLocation is null)
                 {
-                    <p>No expedition history yet.</p>
+                    <h3>Expedition</h3>
+                    <p class="text-muted m-0">Pick a location on the left.</p>
                 }
                 else
                 {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var prog in recentExpeditions)
+                    <h3 class="m-0">@LocName(selectedLocation)</h3>
+                    <div class="text-muted">Recommended level @selectedLocation.MinLevel–@selectedLocation.MaxLevel</div>
+
+                    <div class="mt-2">
+                        @if (selectedProgress is null)
                         {
-                            <li class="list-group-item bg-transparent text-light">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <strong>@prog.Location.NameEn</strong>
-                                        <div class="text-muted small">
-                                            Updated @prog.LastUpdatedUtc.ToLocalTime()
-                                                .ToString("yyyy-MM-dd HH:mm")
-                                        </div>
-                                        @if (prog.IsCompleted)
-                                        {
-                                            <span class="badge bg-success mt-1">Completed</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-warning text-dark mt-1">
-                                                Stage @prog.MaxStageReached / 10
-                                            </span>
-                                        }
-                                    </div>
-                                    <div>
-                                        <a class="btn btn-sm btn-outline-secondary" href="@($"/expeditions/{prog.LocationId}")">
-                                            Continue
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
+                            <span class="badge bg-secondary">Not started</span>
                         }
-                    </ul>
+                        else if (selectedProgress.IsCompleted)
+                        {
+                            <span class="badge bg-success">Completed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">In progress</span>
+                        }
+                    </div>
+
+                    <hr />
+
+                    <h5>Enemies (3 Orders)</h5>
+
+                    @if (encounters.Count == 0)
+                    {
+                        <div class="text-muted">No encounters rolled.</div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var e in encounters)
+                            {
+                                <div class="p-3 border rounded d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div><b>@e.Name</b></div>
+                                        <div class="text-muted small">Slot @e.SlotIndex</div>
+                                    </div>
+
+                                    <a class="btn btn-primary btn-sm"
+                                       href="@($"/expeditions/{selectedLocation.Id}/fight/{e.SlotIndex}")">
+                                        Attack
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(LocDesc(selectedLocation)))
+                    {
+                        <hr />
+                        <div class="text-muted">@LocDesc(selectedLocation)</div>
+                    }
                 }
             </div>
         </div>
@@ -132,75 +151,293 @@ else
     private bool isLoading = true;
     private PlayerProfile? player;
 
-    private List<Location> availableExpeditions = new();
-    private List<PlayerExpeditionProgress> expeditionProgress = new();
-    private List<PlayerExpeditionProgress> recentExpeditions = new();
+    private List<Location> unlocked = new();
+    private List<PlayerExpeditionProgress> progress = new();
 
+    private Guid? selectedLocationId;
+    private Location? selectedLocation;
+    private PlayerExpeditionProgress? selectedProgress;
+
+    private List<EncounterVm> encounters = new();
+
+    // Orders pool (MercenaryTemplate)
+    private List<MercenaryTemplate> allOrders = new();
+    private Dictionary<Guid, MercenaryTemplate> _orderById = new();
+
+    private List<LeftLocationRow> leftList = new();
+
+    private sealed class LeftLocationRow
+    {
+        public Location? Location { get; set; }
+        public PlayerExpeditionProgress? Progress { get; set; }
+        public bool IsLocked { get; set; }
+        public string Title { get; set; } = "";
+        public string Subtitle { get; set; } = "";
+    }
+
+    private sealed class EncounterVm
+    {
+        public int SlotIndex { get; set; }
+        public Guid TemplateId { get; set; }
+        public string Name { get; set; } = "";
+    }
+
+    // ===== Localization cache (fast lookup) =====
+    // key: (entityType, entityId, culture)
+    private readonly Dictionary<(string, Guid, string), LocalizedText> _locByKey = new();
+
+
+protected override async Task OnAfterRenderAsync(bool firstRender)
+{
+    if (firstRender && selectedLocationId.HasValue)
+    {
+        await SelectLocation(selectedLocationId.Value);
+    }
+}
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
 
-        
-        // získání aktuálního ClaimsPrincipal
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(auth.User);
+            if (user is null) return;
 
-        if (user is null || !user.Identity?.IsAuthenticated == true)
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            player = await db.Players.FirstOrDefaultAsync(p => p.UserId == user.Id);
+            if (player is null) return;
+
+            progress = await db.PlayerExpeditionProgresses
+                .Where(p => p.PlayerId == player.Id)
+                .ToListAsync();
+
+            var allLocations = await db.Locations
+                .OrderBy(l => l.UnlockOrder)
+                .ToListAsync();
+
+            allOrders = await db.MercenaryTemplates
+                .OrderBy(x => x.BaseLevel).ThenBy(x => x.Code)
+                .ToListAsync();
+
+            _orderById = allOrders.ToDictionary(x => x.Id, x => x);
+
+            // unlock rule: max completed + 1 (join přes allLocations)
+            var maxCompleted = progress
+                .Where(p => p.IsCompleted)
+                .Join(allLocations, p => p.LocationId, l => l.Id, (p, l) => l.UnlockOrder)
+                .DefaultIfEmpty(0)
+                .Max();
+
+            var maxUnlockedOrder = maxCompleted + 1;
+
+            unlocked = allLocations
+                .Where(l => l.UnlockOrder <= maxUnlockedOrder)
+                .OrderBy(l => l.UnlockOrder)
+                .ToList();
+
+            var last5 = unlocked.TakeLast(5).ToList();
+
+            var nextLocked = allLocations
+                .Where(l => l.UnlockOrder > maxUnlockedOrder)
+                .OrderBy(l => l.UnlockOrder)
+                .Take(2)
+                .ToList();
+
+            // preload localization pro left list (Location)
+            var leftIds = last5.Concat(nextLocked).Select(x => x.Id).Distinct().ToList();
+            await LoadLocalizationsAsync(db, nameof(Location), leftIds);
+
+            leftList = new();
+
+            foreach (var l in last5)
+            {
+                var pr = progress.FirstOrDefault(p => p.LocationId == l.Id);
+
+                leftList.Add(new LeftLocationRow
+                {
+                    Location = l,
+                    Progress = pr,
+                    IsLocked = false,
+                    Title = LocName(l),
+                    Subtitle = $"Recommended level {l.MinLevel}–{l.MaxLevel}"
+                });
+            }
+
+            foreach (var l in nextLocked)
+            {
+                leftList.Add(new LeftLocationRow
+                {
+                    Location = l,
+                    Progress = null,
+                    IsLocked = true,
+                    Title = LocName(l),
+                    Subtitle = "Locked"
+                });
+            }
+
+            var first = last5.FirstOrDefault();
+            selectedLocationId = first?.Id;
+        }
+        finally
         {
             isLoading = false;
-            return;
         }
+    }
 
-        var appUser = await UserManager.GetUserAsync(user);
-        if (appUser is null)
+    private async Task SelectLocation(Guid id)
+    {
+        selectedLocationId = id;
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        selectedLocation =
+            unlocked.FirstOrDefault(l => l.Id == id)
+            ?? await db.Locations.FirstOrDefaultAsync(l => l.Id == id);
+
+        if (selectedLocation is null)
+            return;
+
+        // ensure loc localization (kdyby nebyla v cache)
+        await LoadLocalizationsAsync(db, nameof(Location), new List<Guid> { selectedLocation.Id });
+
+        // načti progress TRACKED v tomhle db (nepoužívej detached z listu pro SaveChanges)
+        var pr = await db.PlayerExpeditionProgresses
+            .FirstOrDefaultAsync(p => p.PlayerId == player!.Id && p.LocationId == id);
+
+        if (pr is null)
         {
-            isLoading = false;
-            return;
+            pr = new PlayerExpeditionProgress
+            {
+                Id = Guid.NewGuid(),
+                PlayerId = player!.Id,
+                LocationId = selectedLocation.Id,
+                IsCompleted = false,
+                LastUpdatedUtc = DateTime.UtcNow
+            };
+
+            db.PlayerExpeditionProgresses.Add(pr);
+            await db.SaveChangesAsync();
+
+            // update local cache list
+            progress.Add(pr);
         }
 
-        player = await Db.Players
-            .FirstOrDefaultAsync(p => p.UserId == appUser.Id);
+        selectedProgress = pr;
 
-        if (player is null)
+        // ensure 3 encounters exist (TRACKED entity => SaveChanges funguje)
+        await EnsureEncountersAsync(db, pr);
+
+        // preload localization pro vybrané 3 orders
+        var orderIds = new[]
         {
-            isLoading = false;
-            return;
+            pr.EncounterOrder1TemplateId,
+            pr.EncounterOrder2TemplateId,
+            pr.EncounterOrder3TemplateId
         }
+        .Where(x => x.HasValue)
+        .Select(x => x!.Value)
+        .Distinct()
+        .ToList();
 
-        expeditionProgress = await Db.PlayerExpeditionProgresses
-            .Include(p => p.Location)
-            .Where(p => p.PlayerId == player.Id)
+        await LoadLocalizationsAsync(db, nameof(MercenaryTemplate), orderIds);
+
+        // build UI VMs
+        encounters = new();
+        AddEncounterVm(1, pr.EncounterOrder1TemplateId);
+        AddEncounterVm(2, pr.EncounterOrder2TemplateId);
+        AddEncounterVm(3, pr.EncounterOrder3TemplateId);
+
+        StateHasChanged();
+    }
+
+    private void AddEncounterVm(int slot, Guid? templateId)
+    {
+        if (!templateId.HasValue) return;
+
+        encounters.Add(new EncounterVm
+        {
+            SlotIndex = slot,
+            TemplateId = templateId.Value,
+            Name = OrderName(templateId.Value)
+        });
+    }
+
+    private async Task EnsureEncountersAsync(GameDbContext db, PlayerExpeditionProgress pr)
+    {
+        if (pr.EncounterOrder1TemplateId.HasValue &&
+            pr.EncounterOrder2TemplateId.HasValue &&
+            pr.EncounterOrder3TemplateId.HasValue)
+            return;
+
+        if (allOrders.Count < 3)
+            throw new InvalidOperationException("Need at least 3 Orders in MercenaryTemplates.");
+
+        // deterministický seed z player+location (stabilní)
+        var seed = HashCode.Combine(player!.Id, pr.LocationId);
+        var rng = new Random(seed);
+
+        var picks = allOrders
+            .OrderBy(_ => rng.Next())
+            .Take(3)
+            .Select(x => x.Id)
+            .ToList();
+
+        pr.EncounterOrder1TemplateId = picks[0];
+        pr.EncounterOrder2TemplateId = picks[1];
+        pr.EncounterOrder3TemplateId = picks[2];
+        pr.EncounterRolledUtc = DateTime.UtcNow;
+        pr.LastUpdatedUtc = DateTime.UtcNow;
+
+        await db.SaveChangesAsync();
+    }
+
+    // ===========================
+    // Localization (fast cache)
+    // ===========================
+
+    private async Task LoadLocalizationsAsync(GameDbContext db, string entityType, List<Guid> entityIds)
+    {
+        if (entityIds.Count == 0) return;
+
+        var locs = await db.LocalizedTexts
+            .Where(x => x.EntityType == entityType && entityIds.Contains(x.EntityId))
             .ToListAsync();
 
-        // max unlock podle progressu:
-        // - najdi max UnlockOrder, kde IsCompleted == true
-        // - povol i další (current) lokaci
-        var allLocations = await Db.Locations
-            .OrderBy(l => l.UnlockOrder)
-            .ToListAsync();
+        foreach (var l in locs)
+            _locByKey[(l.EntityType, l.EntityId, l.Culture)] = l;
+    }
 
-        var completedOrders = expeditionProgress
-            .Where(p => p.IsCompleted)
-            .Select(p => p.Location.UnlockOrder)
-            .ToList();
+    private string LocName(Location loc)
+        => Localize(nameof(Location), loc.Id, field: "Name", fallback: loc.NameEn);
 
-        var maxCompletedOrder = completedOrders.Any()
-            ? completedOrders.Max()
-            : 0;
+    private string LocDesc(Location loc)
+        => Localize(nameof(Location), loc.Id, field: "Description", fallback: loc.DescriptionEn ?? "");
 
-        var maxUnlockedOrder = maxCompletedOrder + 1;
+    private string OrderName(Guid templateId)
+    {
+        var fallback = _orderById.TryGetValue(templateId, out var mt)
+            ? (mt.NameEn ?? "Unknown Order")
+            : "Unknown Order";
 
-        availableExpeditions = allLocations
-            .Where(l => l.UnlockOrder <= maxUnlockedOrder)
-            .OrderBy(l => l.UnlockOrder)
-            .Take(5)
-            .ToList();
+        return Localize(nameof(MercenaryTemplate), templateId, field: "Name", fallback: fallback);
+    }
 
-        recentExpeditions = expeditionProgress
-            .OrderByDescending(p => p.LastUpdatedUtc)
-            .Take(5)
-            .ToList();
+    private string Localize(string entityType, Guid entityId, string field, string fallback)
+    {
+        var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
-        isLoading = false;
+        if (!_locByKey.TryGetValue((entityType, entityId, culture), out var loc) || loc is null)
+            return fallback;
+
+        string? text = field switch
+        {
+            "Name" => loc.Name,
+            "Description" => loc.Description,
+            _ => null
+        };
+
+        return string.IsNullOrWhiteSpace(text) ? fallback : text!;
     }
 }

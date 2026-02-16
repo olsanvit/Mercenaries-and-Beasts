@@ -11,15 +11,6 @@ public class BaseGuid
     [Required]
     public string NameEn {get;set;} = String.Empty;
     public string DescriptionEn {get;set;} = String.Empty;
-    // CS
-    [MaxLength(128)]
-    public string? NameCs { get; set; }
-    public string? DescriptionCs { get; set; }
-
-    // DE
-    [MaxLength(128)]
-    public string? NameDe { get; set; }
-    public string? DescriptionDe { get; set; }
 
     public string? ImagePath { get; set; }           // např. "/images/monsters/XXX.webp"
     public string? ImagePromptMeta { get; set; }     // volitelné – jaký AI prompt to vygeneroval

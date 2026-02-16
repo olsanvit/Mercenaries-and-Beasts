@@ -144,4 +144,7 @@
   <data name="AiGenDungeon" xml:space="preserve">
     <value>Ai Generate Dugeon</value>
   </data>
+  <data name="Home" xml:space="preserve">
+    <value>Doma</value>
+  </data>
 </root>

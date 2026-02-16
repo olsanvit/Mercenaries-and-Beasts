@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,26 +44,42 @@ namespace MercenariesAndBeasts.Infrastructure.AI
         private readonly int _baseDelayMs;
         private readonly ImageClient _imageClient;
 
+        private static readonly JsonSerializerOptions LlmJsonOpts = new(JsonSerializerDefaults.Web)
+        {
+            PropertyNameCaseInsensitive = true,
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
+
         public ChatGptAsker(
             string apiKey,
             bool isSimple,
-            int maxParallelism = 5,
-            int maxRetries = 5,
+            int maxParallelism = 3,
+            int maxRetries = 2,
             int baseDelayMs = 750)
         {
+            
             if (string.IsNullOrWhiteSpace(apiKey))
                 throw new InvalidOperationException("OPENAI_API_KEY environment variable is not set.");
 
             var model = isSimple ? ModelGpt4 : ModelGpt5;
+            
+            var options = new OpenAIClientOptions
+            {
+                NetworkTimeout = TimeSpan.FromMinutes(8)
+            };
 
-            _client = new ChatClient(model: model, apiKey: apiKey);
-            _imageClient = new ImageClient(
-                    model: "gpt-image-1",   // nebo "dall-e-3" pokud chceš
-                    apiKey: apiKey);
+            var credential = new ApiKeyCredential(apiKey);
+            var openAi = new OpenAIClient(credential, options);
+
+            _client = openAi.GetChatClient(model);
+
+            _imageClient = openAi.GetImageClient("gpt-image-1");
             _maxParallelism = Math.Max(1, maxParallelism);
             _throttle = new SemaphoreSlim(_maxParallelism);
             _maxRetries = Math.Max(0, maxRetries);
             _baseDelayMs = Math.Max(100, baseDelayMs);
+                LlmJsonOpts.Converters.Add(new JsonStringEnumConverter());
         }
 
         private static bool LooksLikeInsufficientQuota(Exception ex)

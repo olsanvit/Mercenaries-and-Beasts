@@ -1,0 +1,109 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+@inject AdminUserService AdminUsers
+
+@using MercenariesAndBeasts.Infrastructure.Players;
+<h2>Users</h2>
+
+@if (_loading)
+{
+    <p>Loading…</p>
+}
+else
+{
+    <table class="table table-dark table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Profile</th>
+                <th>Created</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in _users)
+            {
+                <tr>
+                    <td>@u.Email</td>
+
+                    <td>
+                        @if (u.HasProfile)
+                        {
+                            <span class="badge bg-success">YES</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">NO</span>
+                        }
+                    </td>
+
+                    <td>
+                        @(u.ProfileCreatedUtc?.ToString("yyyy-MM-dd HH:mm") ?? "-")
+                    </td>
+
+                    <td>
+                       @if (!u.HasProfile)
+                        {
+                            <button class="btn btn-sm btn-warning"
+                                    @onclick="() => CreateProfile(u)">
+                                Create Profile
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-danger"
+                                    @onclick="() => RecreateProfile(u)">
+                                Recreate Profile
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<AdminUserRow> _users = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _users = await AdminUsers.GetUsersAsync();
+        _loading = false;
+    }
+
+    private async Task CreateProfile(AdminUserRow user)
+    {
+        try
+        {
+            await AdminUsers.CreateProfileAsync(user.UserId);
+            Toasts.Success($"Profile created for {user.Email}", "Admin");
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Admin");
+        }
+    }
+    private async Task RecreateProfile(AdminUserRow user)
+        {
+            try
+            {
+                await AdminUsers.RecreateProfileAsync(user.UserId);
+                Toasts.Warning($"Profile recreated for {user.Email}", "Admin");
+                await LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                Toasts.Error(ex.Message, "Admin");
+            }
+        }
+}

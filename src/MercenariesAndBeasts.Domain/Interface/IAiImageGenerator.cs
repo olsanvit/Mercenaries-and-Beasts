@@ -1,5 +1,3 @@
-using MercenariesAndBeasts.Domain.Units;
-
 namespace MercenariesAndBeasts.Domain.Interface;
 
 public interface IAiImageGenerator

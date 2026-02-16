@@ -1,0 +1,39 @@
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@using MercenariesAndBeasts.Infrastructure
+
+@if (!string.IsNullOrWhiteSpace(_country))
+{
+    <span class="badge rounded-pill bg-secondary" title="Country">@_country</span>
+}
+else
+{
+    <span class="badge rounded-pill bg-dark text-muted" title="Country not set">--</span>
+}
+
+@code {
+
+    private string? _country;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var principal = authState.User;
+
+        if (principal?.Identity?.IsAuthenticated != true)
+            return;
+
+        // ✅ bez UserManager (žádný DB hit do Identity)
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return;
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        _country = await db.Players
+            .AsNoTracking()
+            .Where(p => p.UserId == userId)
+            .Select(p => p.CountryCode)
+            .FirstOrDefaultAsync();
+    }
+}
