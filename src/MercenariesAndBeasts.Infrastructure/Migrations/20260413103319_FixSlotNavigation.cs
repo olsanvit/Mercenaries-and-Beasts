@@ -11,29 +11,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_PlayerBeastSlots_PlayerMonsters_BeastId",
-                table: "PlayerBeastSlots");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_PlayerMercenarySlots_PlayerMercenaries_MercenaryId",
-                table: "PlayerMercenarySlots");
-
-            migrationBuilder.DropIndex(
-                name: "IX_PlayerMercenarySlots_MercenaryId",
-                table: "PlayerMercenarySlots");
-
-            migrationBuilder.DropIndex(
-                name: "IX_PlayerBeastSlots_BeastId",
-                table: "PlayerBeastSlots");
-
-            migrationBuilder.DropColumn(
-                name: "MercenaryId",
-                table: "PlayerMercenarySlots");
-
-            migrationBuilder.DropColumn(
-                name: "BeastId",
-                table: "PlayerBeastSlots");
+            migrationBuilder.Sql(@"ALTER TABLE ""PlayerBeastSlots"" DROP CONSTRAINT IF EXISTS ""FK_PlayerBeastSlots_PlayerMonsters_BeastId"";");
+            migrationBuilder.Sql(@"ALTER TABLE ""PlayerMercenarySlots"" DROP CONSTRAINT IF EXISTS ""FK_PlayerMercenarySlots_PlayerMercenaries_MercenaryId"";");
+            migrationBuilder.Sql(@"DROP INDEX IF EXISTS ""IX_PlayerMercenarySlots_MercenaryId"";");
+            migrationBuilder.Sql(@"DROP INDEX IF EXISTS ""IX_PlayerBeastSlots_BeastId"";");
+            migrationBuilder.Sql(@"ALTER TABLE ""PlayerMercenarySlots"" DROP COLUMN IF EXISTS ""MercenaryId"";");
+            migrationBuilder.Sql(@"ALTER TABLE ""PlayerBeastSlots"" DROP COLUMN IF EXISTS ""BeastId"";");
         }
 
         /// <inheritdoc />

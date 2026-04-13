@@ -157,7 +157,7 @@ public DbSet<PlayerExpeditionAchievements> PlayerExpeditionAchievementSummaries 
             .HasForeignKey(x => x.MercenaryInstanceId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        e.HasOne<PlayerItem>()
+        e.HasOne(x => x.PlayerItem)
             .WithMany()
             .HasForeignKey(x => x.PlayerItemId)
             .OnDelete(DeleteBehavior.SetNull);
@@ -174,7 +174,7 @@ public DbSet<PlayerExpeditionAchievements> PlayerExpeditionAchievementSummaries 
             .HasForeignKey(x => x.BeastInstanceId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        e.HasOne<PlayerItem>()
+        e.HasOne(x => x.PlayerItem)
             .WithMany()
             .HasForeignKey(x => x.PlayerItemId)
             .OnDelete(DeleteBehavior.SetNull);

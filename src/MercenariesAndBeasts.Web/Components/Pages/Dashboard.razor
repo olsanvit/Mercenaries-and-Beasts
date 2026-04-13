@@ -13,9 +13,15 @@
 @using System.Globalization
 @using static MercenariesAndBeasts.Domain.Items.ItemTemplate
 @using MercenariesAndBeasts.Web.Components
+@using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Infrastructure.Players
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject UserManager<AppUser> UserManager
 @inject ToastService Toasts
+@inject IDbContextFactory<GameDbContext> DbFactory
+@inject AuthenticationStateProvider AuthStateProvider
+@inject PlayerOnboardingService Onboarding
 
 @if (_isLoading)
 {
