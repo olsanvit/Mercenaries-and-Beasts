@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "MercenariesAndBeasts.Web (http)",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/MercenariesAndBeasts.Web", "--launch-profile", "http"],
+      "port": 5206
+    },
+    {
+      "name": "MercenariesAndBeasts.Web (https)",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/MercenariesAndBeasts.Web", "--launch-profile", "https"],
+      "port": 7089
+    }
+  ]
+}
