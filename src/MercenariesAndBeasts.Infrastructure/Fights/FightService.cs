@@ -14,6 +14,15 @@ public sealed class FightService : IFightService
     private const double MinSpeed = 0.01;
     private const double EpsilonHp = 0.0001;
 
+    /// <summary>
+    /// Provede simulaci boje v dungenu a vrátí výsledek (výhra/prohra, log akcí, loot).
+    /// Simulace je deterministická — stejný <see cref="FightRequest.Seed"/> vždy vrátí stejný výsledek.
+    /// </summary>
+    /// <param name="req">Parametry boje: hráčovy jednotky, nepřítel, stage a seed pro RNG.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>
+    /// <see cref="FightResult"/> s příznakem vítězství, textovým shrnutím, logem a lootem.
+    /// </returns>
     public Task<FightResult> ResolveDungeonFightAsync(FightRequest req, CancellationToken ct)
     {
         if (req is null) throw new ArgumentNullException(nameof(req));
@@ -130,6 +139,11 @@ public sealed class FightService : IFightService
     // ---------------------------
     // Attack resolution (uses StatBlock)
     // ---------------------------
+
+    /// <summary>
+    /// Vyřeší jeden útok od <paramref name="a"/> na <paramref name="t"/>.
+    /// Zahrnuje kontrolu zásahu, bloku, critu, armor penetration, lifesteal, trny a aplikaci statusů.
+    /// </summary>
     private static AttackOutcome ResolveAttack(Random rng, Combatant a, Combatant t, bool isCounter = false)
     {
         // HIT check: Accuracy vs Evasion
@@ -239,6 +253,10 @@ public sealed class FightService : IFightService
         return AttackOutcome.Hit(a, t, dealt, didCrit, didBlock, reflected, lifeStealHeal, isCounter, hitChance);
     }
 
+    /// <summary>
+    /// Zkusí aplikovat DOT statusy (Bleed, Poison, Burn, Shock, Freeze) na cíl <paramref name="t"/>
+    /// po útoku útočníka <paramref name="a"/>. Šance je modulována Potency a StatusResistance.
+    /// </summary>
     private static void TryApplyStatuses(Random rng, Combatant a, Combatant t)
     {
         // Potency pushes procs up, resistance pushes down
@@ -266,6 +284,9 @@ public sealed class FightService : IFightService
         }
     }
 
+    /// <summary>
+    /// Aplikuje status <paramref name="kind"/> na cíl s pravděpodobností <c>rawChance * resistFactor</c>.
+    /// </summary>
     private static void ApplyDotIf(Random rng, double rawChance, StatusKind kind, Combatant t, int dur, double resistFactor)
     {
         var chance = Clamp01(rawChance) * resistFactor;
@@ -275,6 +296,9 @@ public sealed class FightService : IFightService
             t.ActiveStatuses.Add(new ActiveStatus(kind, dur));
     }
 
+    /// <summary>
+    /// Po obdržení zásahu má cíl šanci na CleanseChance odstranit jeden náhodný aktivní negativní status.
+    /// </summary>
     private static void TryCleanse(Random rng, Combatant t)
     {
         var cleanse = Clamp01(t.Stats.CleanseChance);
@@ -291,6 +315,11 @@ public sealed class FightService : IFightService
     // ---------------------------
     // Loot (placeholder)
     // ---------------------------
+
+    /// <summary>
+    /// Sestaví řádky lootu po boji. Při prohře vrátí prázdný loot.
+    /// Odměny jsou deterministicky odvozeny ze stage čísla.
+    /// </summary>
     private static List<string> BuildLootLines(FightRequest req, bool didWin)
     {
         var list = new List<string>();
@@ -312,6 +341,11 @@ public sealed class FightService : IFightService
     // ---------------------------
     // Scheduler helpers
     // ---------------------------
+
+    /// <summary>
+    /// Spočítá časový interval do příštího tahu jednotky.
+    /// Vyšší Speed a TurnMeterGain/EnergyCostReduction znamenají kratší interval (jednotka jedná častěji).
+    /// </summary>
     private static double SpeedInterval(float speed, double turnMeterGain, double energyCostReduction)
     {
         // Higher speed => smaller interval.
@@ -326,6 +360,7 @@ public sealed class FightService : IFightService
         return (1.0 / s) / tempo;
     }
 
+    /// <summary>Omezí hodnotu na rozsah [0, 1].</summary>
     private static double Clamp01(double x) => x < 0 ? 0 : (x > 1 ? 1 : x);
 
     // ---------------------------

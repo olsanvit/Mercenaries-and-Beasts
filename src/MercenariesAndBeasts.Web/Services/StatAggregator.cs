@@ -13,6 +13,12 @@ public sealed class StatAggregator : IStatAggregator
 
     public StatAggregator(GameDbContext db) => _db = db;
 
+    /// <summary>
+    /// Sestaví kompletní <see cref="UnitSnapshot"/> pro žoldáka hráče včetně
+    /// základních statů šablony, level scalingu a bonusů z vybaveného gear.
+    /// </summary>
+    /// <param name="playerMercenaryId">ID instance žoldáka hráče (<c>PlayerMercenary.Id</c>).</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task<UnitSnapshot> BuildMercenaryAsync(Guid playerMercenaryId, CancellationToken ct = default)
     {
         var merc = await _db.PlayerMercenaries
@@ -69,6 +75,12 @@ public sealed class StatAggregator : IStatAggregator
         );
     }
 
+    /// <summary>
+    /// Sestaví kompletní <see cref="UnitSnapshot"/> pro příšeru hráče včetně
+    /// základních statů šablony, level scalingu a bonusů z vybaveného gear.
+    /// </summary>
+    /// <param name="playerMonsterId">ID instance příšery hráče (<c>PlayerMonster.Id</c>).</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task<UnitSnapshot> BuildBeastAsync(Guid playerMonsterId, CancellationToken ct = default)
     {
         var beast = await _db.PlayerMonsters
@@ -138,6 +150,10 @@ public sealed class StatAggregator : IStatAggregator
         s.Speed = (float)(s.Speed * (1.0 + 0.01 * (lvl - 1)));
     }
 
+    /// <summary>
+    /// Zajistí, že všechny staty jsou v platném rozsahu (šance na 0–1, CritMultiplier ≥ 1, Accuracy ≥ 0.1).
+    /// Volat vždy po sestavení finálního StatBlock před použitím v boji.
+    /// </summary>
     private static void NormalizeAndClamp(StatBlock s)
     {
         // chances / reductions / bonuses drž v 0..1
