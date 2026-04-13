@@ -1,3 +1,4 @@
+using MercenariesAndBeasts.Domain.Enums;
 using MercenariesAndBeasts.Domain.Utils;
 
 namespace MercenariesAndBeasts.Domain.Players;
@@ -27,4 +28,20 @@ public class PlayerDungeonAchievements : BaseGuid
 
     public bool IsFullyCompleted =>
         BossDefeated && AllStagesCleared && WinStreakAchieved;
+
+    // “náročnost”/požadavek – u některých achievementů je to číslo, u jiných bool
+    public int Required { get; set; }      // např. 3 win streak, 11 stages, 0 deaths => Required = 0 nebo 1
+    public int Current { get; set; }
+
+    public bool IsCompleted { get; set; }
+
+    public int DifficultyTier { get; set; } // třeba 1..10, “náhodně se zvedá”
+    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }
+public sealed record AchTemplate (
+    DungeonAchCode Code,
+    string Title,
+    string Description,
+    string RewardText,
+    Func<int, int> RequiredByTier // tier -> required
+);

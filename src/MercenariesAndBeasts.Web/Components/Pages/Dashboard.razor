@@ -12,6 +12,7 @@
 @using System.Reflection
 @using System.Globalization
 @using static MercenariesAndBeasts.Domain.Items.ItemTemplate
+@using MercenariesAndBeasts.Web.Components
 
 @inject UserManager<AppUser> UserManager
 @inject ToastService Toasts
@@ -29,659 +30,185 @@ else if (_profile is null)
 }
 else
 {
-    <div class="card-like mb-3 player-bar">
-        <div class="player-bar-left">
-            <span class="player-email">@_userEmail</span>
-
-            <span class="player-stat">
-                <b>Lv</b> @_profile.Level
-            </span>
-
-            <span class="player-stat">
-                <b>XP</b> @_profile.Experience
-            </span>
-
-            <span class="player-stat">
-                <b>Energy</b> @_profile.Energy / @_profile.MaxEnergy
-            </span>
-        </div>
-
-        <div class="player-bar-right">
-            <span class="currency soft">
-                <b>Soft:</b> @_profile.SoftCurrency
-            </span>
-            <span class="currency premium">
-                <b>Premium:</b> @_profile.PremiumCurrency
-            </span>
-        </div>
-    </div>
-
-    <ul class="nav nav-pills mb-3">
-        <li class="nav-item">
-            <button class="nav-link @(ActiveTab == Tab.Mercenaries ? "active" : "")"
-                    @onclick="() => ActiveTab = Tab.Mercenaries">
-                Orders (@_mercSlots.Count(s => s.MercenaryInstanceId != null))/5
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(ActiveTab == Tab.Beasts ? "active" : "")"
-                    @onclick="() => ActiveTab = Tab.Beasts">
-                Beasts (@_beastSlots.Count(s => s.BeastInstanceId != null))/5
-            </button>
-        </li>
-    </ul>
-
-    @if (ActiveTab == Tab.Mercenaries)
-    {
-        <div class="row g-3">
-            <div class="col-12 col-lg-2">
-                <div class="card-like">
-                    <div class="text-secondary mb-2">Order Slots</div>
-
-                    <div class="d-grid" style="gap:10px;">
-                        @foreach (var s in _mercSlots.OrderBy(x => x.SlotIndex))
-                        {
-                            var tpl = s.Mercenary?.Template;
-                            var name = tpl == null ? null : GetLocalizedName(tpl);
-                            var isActive = s.SlotIndex == _activeMercSlotIndex;
-
-                            <button class="btn @(isActive ? "btn-primary" : "btn-outline-secondary")"
-                                    @ondragover:preventDefault
-                                    @ondrop="() => OnDropToMercSlot(s)"
-                                    @onclick="() => SelectMercSlot(s.SlotIndex)">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>@s.SlotIndex</span>
-
-                                    @if (s.Mercenary?.Template is null)
-                                    {
-                                        <span class="badge bg-secondary">Empty</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="slot-name">@name</span>
-                                    }
-                                </div>
-                            </button>
-                        }
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-10">
-                @if (ActiveMercSlot is null)
-                {
-                    <div class="card-like">
-                        <div class="text-secondary">No slot selected.</div>
-                    </div>
-                }
-                else
-                {
-                    var slot = ActiveMercSlot;
-
-                    <div class="card-like"
-                         @ondragover:preventDefault
-                         @ondrop="() => OnDropToMercSlot(slot)">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div>
-                                <div class="text-secondary">Active slot</div>
-                            </div>
-
-                            @if (slot.MercenaryInstanceId is null)
-                            {
-                                <span class="badge bg-secondary">Empty</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">Equipped</span>
-                            }
-                        </div>
-
-                        @if (slot?.Mercenary?.Template is null)
-                        {
-                            <div class="text-secondary">
-                                No order equipped. Drag an <b>Order</b> here (or click equip in inventory).
-                            </div>
-                        }
-                        else
-                        {
-                            var m = slot.Mercenary;
-                            var t = m.Template;
-
-                            <div class="d-flex gap-3">
-                                @if (!string.IsNullOrWhiteSpace(t.ImagePath))
-                                {
-                                    <img src="@t.ImagePath" style="width:72px;height:72px;object-fit:cover;border-radius:14px;" />
-                                }
-                                else
-                                {
-                                    <div style="width:72px;height:72px;border-radius:14px;background:rgba(255,255,255,0.06);"></div>
-                                }
-
-                                <div style="min-width:0;">
-                                    <div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                        @GetLocalizedName(slot.Mercenary.Template)
-                                    </div>
-                                    <div class="text-secondary">
-                                        Lv @m.BaseLevel · @t.Element
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr />
-
-                            <div class="row g-3">
-                                <div class="col-12 col-lg-6">
-                                    <div class="detail-section-title">Equipment</div>
-
-                                    @if (m.Equipment is null || m.Equipment.Count == 0)
-                                    {
-                                        <div class="text-secondary">No equipment slots.</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="equip-grid">
-                                            @foreach (MercenaryEquipmentSlot eq in m.Equipment.OrderBy(e => (int)e.Slot))
-                                            {
-                                                <div class="equip-slot">
-                                                    <div class="equip-slot-name">@eq.Slot</div>
-
-                                                    @if (eq.PlayerItem is null)
-                                                    {
-                                                        <div class="equip-slot-item text-secondary">Empty</div>
-                                                    }
-                                                    else
-                                                    {
-                                                        var it = eq.PlayerItem;
-                                                        var tIt = it.Template;
-
-                                                        <div class="equip-slot-item">
-                                                            <div class="equip-item-title">
-                                                                @(tIt?.NameEn ?? "Item")
-                                                            </div>
-                                                            <div class="equip-item-meta text-secondary">
-                                                                Lv @it.Level · @it.Quality
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-
-                                <div class="col-12 col-lg-6">
-                                    <div class="detail-section-title">Stats</div>
-
-                                    <div class="stats-grid">
-                                        @foreach (var col in _statColumns)
-                                        {
-                                            var raw = col.GetValue(t.BaseStats);
-                                            if (raw is null) { continue; }
-
-                                            <div class="stat-row">
-                                                <span class="k">@col.Header</span>
-                                                <span class="v">
-                                                    @(col.Format?.Invoke(raw) ?? raw.ToString())
-                                                </span>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="row g-3">
-            <div class="col-12 col-lg-2">
-                <div class="card-like">
-                    <div class="text-secondary mb-2">Beast Slots</div>
-
-                    <div class="d-grid" style="gap:10px;">
-                        @foreach (var s in _beastSlots.OrderBy(x => x.SlotIndex))
-                        {
-                            var tpl = s.Beast?.Template;
-                            var name = tpl == null ? null : GetLocalizedName(tpl);
-                            var isActive = s.SlotIndex == _activeBeastSlotIndex;
-
-                            <button class="btn @(isActive ? "btn-primary" : "btn-outline-secondary")"
-                                    @ondragover:preventDefault
-                                    @ondrop="() => OnDropToBeastSlot(s)"
-                                    @onclick="() => SelectBeastSlot(s.SlotIndex)">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>@s.SlotIndex</span>
-                                    @if (s.BeastInstanceId is null)
-                                    {
-                                        <span class="badge bg-secondary">Empty</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="slot-name">@name</span>
-                                    }
-                                </div>
-                            </button>
-                        }
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-10">
-                @if (ActiveBeastSlot is null)
-                {
-                    <div class="card-like">
-                        <div class="text-secondary">No slot selected.</div>
-                    </div>
-                }
-                else
-                {
-                    var slot = ActiveBeastSlot;
-
-                    <div class="card-like"
-                         @ondragover:preventDefault
-                         @ondrop="() => OnDropToBeastSlot(slot)">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div>
-                                <div class="text-secondary">Active slot</div>
-                            </div>
-
-                            @if (slot.BeastInstanceId is null)
-                            {
-                                <span class="badge bg-secondary">Empty</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">Equipped</span>
-                            }
-                        </div>
-
-                        @if (slot.Beast is null)
-                        {
-                            <div class="text-secondary">
-                                No beast equipped. Drag a <b>Beast</b> here (or click equip in inventory).
-                            </div>
-                        }
-                        else
-                        {
-                            var b = slot.Beast;
-                            var t = b.Template;
-
-                            <div class="d-flex gap-3">
-                                @if (!string.IsNullOrWhiteSpace(t.ImagePath))
-                                {
-                                    <img src="@t.ImagePath" style="width:72px;height:72px;object-fit:cover;border-radius:14px;" />
-                                }
-                                else
-                                {
-                                    <div style="width:72px;height:72px;border-radius:14px;background:rgba(255,255,255,0.06);"></div>
-                                }
-
-                                <div style="min-width:0;">
-                                    <div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                        @GetLocalizedName(slot.Beast.Template)
-                                    </div>
-                                    <div class="text-secondary">
-                                        Lv @b.Level · @t.Element · @b.Rank
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr />
-
-                            <div class="row g-3">
-                                <div class="col-12 col-lg-6">
-                                    <div class="detail-section-title">Equipment</div>
-
-                                    @if (b.Equipment is null || b.Equipment.Count == 0)
-                                    {
-                                        <div class="text-secondary">No equipment slots.</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="equip-grid">
-                                            @foreach (var eq in b.Equipment.OrderBy(e => (int)e.Slot))
-                                            {
-                                                <div class="equip-slot">
-                                                    <div class="equip-slot-name">@eq.Slot</div>
-
-                                                    @if (eq.PlayerItem is null)
-                                                    {
-                                                        <div class="equip-slot-item text-secondary">Empty</div>
-                                                    }
-                                                    else
-                                                    {
-                                                        var it = eq.PlayerItem;
-                                                        var tIt = it.Template;
-
-                                                        <div class="equip-slot-item">
-                                                            <div class="equip-item-title">
-                                                                @(tIt?.NameEn ?? "Item")
-                                                            </div>
-                                                            <div class="equip-item-meta text-secondary">
-                                                                Lv @it.Level · @it.Quality
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-
-                                <div class="col-12 col-lg-6">
-                                    <div class="detail-section-title">Stats</div>
-
-                                    <div class="stats-grid">
-                                        @foreach (var col in _statColumns)
-                                        {
-                                            var raw = col.GetValue(t.BaseStats);
-                                            if (raw is null) { continue; }
-
-                                            <div class="stat-row">
-                                                <span class="k">@col.Header</span>
-                                                <span class="v">
-                                                    @(col.Format?.Invoke(raw) ?? raw.ToString())
-                                                </span>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        </div>
-    }
-
-    <hr class="my-4" />
-
-    <div class="card-like">
-        <div class="d-flex justify-content-between align-items-center">
-            <h3 class="m-0">Inventory</h3>
-            @*
-            @if (ActiveTab == Tab.Mercenaries)
-            {
-                <div class="text-secondary">Orders: @FilterOrderInventoryByTab().Count</div>
-            }
-            else
-            {
-                <div class="text-secondary">Beasts: @FilterBeastInventoryByTab().Count</div>
-            }*@
+    <div class="dash-layout">
+        <div class="dash-switcher mb-3">
+            <ul class="nav nav-pills m-0">
+                <li class="nav-item">
+                    <button class="nav-link @(ActiveTab == Tab.Mercenaries ? "active" : "")"
+                            @onclick="() => ActiveTab = Tab.Mercenaries">
+                        Orders @_mercSlots.Count(s => s.MercenaryInstanceId != null)/5
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link @(ActiveTab == Tab.Beasts ? "active" : "")"
+                            @onclick="() => ActiveTab = Tab.Beasts">
+                        Beasts @_beastSlots.Count(s => s.BeastInstanceId != null)/5
+                    </button>
+                </li>
+            </ul>
         </div>
 
         @if (ActiveTab == Tab.Mercenaries)
         {
-            <div class="inv-tabs">
-                @foreach (var tab in _orderTabs)
-                {
-                    var active = tab.Key == _activeOrderTab.Key;
-
-                    <div class="inv-tab @(active ? "active" : "")"
-                         @onclick="() => _activeOrderTab = tab">
-                        <div class="inv-tab-title">@tab.Label</div>
-                        <div class="inv-tab-sub">@CountOrderTab(tab)</div>
-                    </div>
-                }
-            </div>
-
-            var items = FilterOrderInventoryByTab()
-                .OrderByDescending(x => x.Quality)
-                .ThenByDescending(x => x.Level)
-                .ToList();
-
-            @if (items.Count == 0)
-            {
-                <div class="text-secondary mt-3">No items in this category.</div>
-            }
-            else
-            {
-                <div class="inv-grid inv-grid-5">
-                    @foreach (var vm in items.Select(it => _invVmsById.TryGetValue(it.Id, out var v) ? v : null).Where(x => x != null))
-                    {
-                        var it = vm!.Item;
-                        var t = it.Template;
-
-                        <div class="inv-card card-like p-0"
-                             draggable="true"
-                             @ondragstart="() => DragItem(it)">
-
-                            <div class="inv-card-header px-3 py-2 border-bottom d-flex align-items-start justify-content-between @GetQualityHeaderClass(it.Quality)">
-                                <div class="me-2" style="min-width:0; width:100%;">
-                                    <div class="fw-bold text-truncate">@t.NameEn</div>
-
-                                    <div class="d-flex justify-content-between align-items-center mt-1">
-                                        <span class="badge bg-secondary">@vm.BadgeTier</span>
-                                        <div class="text-secondary small mb-1">Badge</div>
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-light"
-                                                title="Details"
-                                                @onclick="() => OpenItemModal(vm)">
-                                            👁
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="inv-card-body px-3 py-3 text-center">
-                                @if (!string.IsNullOrWhiteSpace(t.ImagePath))
-                                {
-                                    <img src="@t.ImagePath"
-                                         style="width:96px;height:96px;object-fit:cover;border-radius:14px;" />
-                                }
-                                else
-                                {
-                                    <div style="width:96px;height:96px;border-radius:14px;background:rgba(255,255,255,0.06);margin:0 auto;"></div>
-                                }
-
-                                <div class="text-secondary mt-2 small">
-                                    Q@((int)it.Quality) · Lv @it.Level
-                                </div>
-
-                                @if (IsGear(it))
-                                {
-                                    <div class="text-secondary small">
-                                        Slot: @(it.Template.MercenarySlot?.ToString() ?? "-")
-                                    </div>
-                                }
-                                else if (IsOrderUnitItem(it))
-                                {
-                                    <div class="text-secondary small">Order unit</div>
-                                }
-                            </div>
-
-                            <div class="inv-card-footer px-3 py-2 border-top">
-                                <div class="d-flex justify-content-between text-secondary small mb-1">
-                                    <span>Wins</span>
-                                    <span>@vm.WinsNow / @(vm.WinsNeed == 0 ? vm.WinsNow : vm.WinsNeed)</span>
-                                </div>
-
-                                <div class="progress" style="height:10px;">
-                                    <div class="progress-bar" style="width:@vm.WinsPct%"></div>
-                                </div>
-
-                                @if (vm.Resources.Count > 0)
-                                {
-                                    <div class="mt-2" style="display:flex;flex-direction:column;gap:4px;">
-                                        @foreach (var r in vm.Resources)
-                                        {
-                                            <div class="d-flex justify-content-between text-secondary small">
-                                                <span>@r.Name</span>
-                                                <span>@r.Have / @r.Need</span>
-                                            </div>
-                                            <div class="progress" style="height:10px;">
-                                                <div class="progress-bar" style="width:@r.Have / @r.Need%"></div>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
+            <MercenariesPanel
+                MercSlots="_mercSlots"
+                ActiveMercSlotIndex="_activeMercSlotIndex"
+                ActiveMercSlot="ActiveMercSlot"
+                OrderTabs="GetOrderTabsForView()"
+                ActiveOrderTabKey="_activeOrderTab.Key"
+                InventoryItems="GetMercInventoryItems()"
+                OnSelectMercSlot="SelectMercSlot"
+                OnDropToMercSlot="OnDropToMercSlot"
+                OnOrderTabSelected="SetActiveOrderTab"
+                OnInventoryDragStart="OnInventoryDragStart"
+                OnOpenItemModal="OpenItemModalFromItem"
+                GetLocalizedName="GetLocalizedName"
+                GetQualityHeaderClass="GetQualityHeaderClass"
+                GetBadgeTierText="GetBadgeTierText"
+                GetWinsNow="GetWinsNow"
+                GetWinsNeed="GetWinsNeed"
+                GetWinsPct="GetWinsPct"
+                GetResources="GetResourcesTuple"
+                CanDragInventoryItem="CanDragInventoryItem" />
         }
         else
         {
-            <div class="inv-tabs">
-                @foreach (var tab in _beastTabs)
-                {
-                    var active = tab.Key == _activeBeastTab.Key;
-
-                    <div class="inv-tab @(active ? "active" : "")"
-                         @onclick="() => _activeBeastTab = tab">
-                        <div class="inv-tab-title">@tab.Label</div>
-                        <div class="inv-tab-sub">@CountBeastTab(tab)</div>
-                    </div>
-                }
-            </div>
-
-            var items = FilterBeastInventoryByTab()
-                .OrderByDescending(x => x.Quality)
-                .ThenByDescending(x => x.Level)
-                .ToList();
-
-            @if (items.Count == 0)
-            {
-                <div class="text-secondary mt-3">No items in this category.</div>
-            }
-            else
-            {
-                <div class="inv-grid inv-grid-5">
-                    @foreach (var vm in items.Select(it => _invVmsById.TryGetValue(it.Id, out var v) ? v : null).Where(x => x != null))
-                    {
-                        var it = vm!.Item;
-                        var t = it.Template;
-
-                        <div class="inv-card card-like p-0"
-                             draggable="true"
-                             @ondragstart="() => DragItem(it)">
-
-                            <div class="inv-card-header px-3 py-2 border-bottom d-flex align-items-start justify-content-between @GetQualityHeaderClass(it.Quality)">
-                                <div class="me-2" style="min-width:0; width:100%;">
-                                    <div class="fw-bold text-truncate">@t.NameEn</div>
-
-                                    <div class="d-flex justify-content-between align-items-center mt-1">
-                                        <div class="badge bg-secondary">@it.BadgeTier</div>
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-light"
-                                                title="Details"
-                                                @onclick="() => OpenItemModal(vm)">
-                                            👁
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="inv-card-body px-3 py-3 text-center">
-                                @if (!string.IsNullOrWhiteSpace(t.ImagePath))
-                                {
-                                    <img src="@t.ImagePath"
-                                         style="width:96px;height:96px;object-fit:cover;border-radius:14px;" />
-                                }
-                                else
-                                {
-                                    <div style="width:96px;height:96px;border-radius:14px;background:rgba(255,255,255,0.06);margin:0 auto;"></div>
-                                }
-
-                                <div class="text-secondary mt-2 small">
-                                    Q@((int)it.Quality) · Lv @it.Level
-                                </div>
-
-                                @if (IsGear(it))
-                                {
-                                    <div class="text-secondary small">
-                                        Slot: @(it.Template.MonsterSlot?.ToString() ?? "-")
-                                    </div>
-                                }
-                                else if (IsBeastUnitItem(it))
-                                {
-                                    <div class="text-secondary small">Beast unit</div>
-                                }
-                            </div>
-
-                            <div class="inv-card-footer px-3 py-2 border-top">
-                                <div class="d-flex justify-content-between text-secondary small mb-1">
-                                    <span>Wins</span>
-                                    <span>@vm.WinsNow / @(vm.WinsNeed == 0 ? vm.WinsNow : vm.WinsNeed)</span>
-                                </div>
-
-                                <div class="progress" style="height:10px;">
-                                    <div class="progress-bar" style="width:@vm.WinsPct%"></div>
-                                </div>
-
-                                @if (vm.Resources.Count > 0)
-                                {
-                                    <div class="mt-2" style="display:flex;flex-direction:column;gap:4px;">
-                                        @foreach (var r in vm.Resources)
-                                        {
-                                            <div class="d-flex justify-content-between text-secondary small">
-                                                <span>@r.Name</span>
-                                                <span>@r.Have / @r.Need</span>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
+            <BeastsPanel
+                BeastSlots="_beastSlots"
+                ActiveBeastSlotIndex="_activeBeastSlotIndex"
+                ActiveBeastSlot="ActiveBeastSlot"
+                BeastTabs="GetBeastTabsForView()"
+                ActiveBeastTabKey="_activeBeastTab.Key"
+                InventoryItems="GetBeastInventoryItems()"
+                OnSelectBeastSlot="SelectBeastSlot"
+                OnDropToBeastSlot="OnDropToBeastSlot"
+                OnBeastTabSelected="SetActiveBeastTab"
+                OnInventoryDragStart="OnInventoryDragStart"
+                OnOpenItemModal="OpenItemModalFromItem"
+                GetLocalizedName="GetLocalizedName"
+                GetQualityHeaderClass="GetQualityHeaderClass"
+                GetBadgeTierText="GetBadgeTierText"
+                GetWinsNow="GetWinsNow"
+                GetWinsNeed="GetWinsNeed"
+                GetWinsPct="GetWinsPct"
+                GetResources="GetResourcesTuple"
+                CanDragInventoryItem="CanDragInventoryItem" />
         }
     </div>
 
     @if (_showItemModal && _activeItemVm is not null)
-{
-    var it = _activeItemVm.Item;
-    var t = it.Template;
+    {
+        var it = _activeItemVm.Item;
+        var t = it.Template;
 
-    ItemEquipSlot? slot = t.MercenarySlot ?? t.MonsterSlot;
-    var slotName = slot.HasValue ? HumanizeSlot(slot.Value) : null;
+        ItemEquipSlot? slot = t.MercenarySlot ?? t.MonsterSlot;
+        var slotName = slot.HasValue ? HumanizeSlot(slot.Value) : null;
 
-    <div class="modal-backdrop-blazor" @onclick="CloseItemModal">
-        <div class="modal-card-blazor modal-item" @onclick:stopPropagation>
+        <div class="modal-backdrop-blazor" @onclick="CloseItemModal">
+            <div class="modal-card-blazor modal-item" @onclick:stopPropagation>
+                <div class="modal-item-head">
+                    <div class="modal-head-row-1">
+                        <div class="modal-head-left">
+                            @if (!string.IsNullOrWhiteSpace(t.ImagePath))
+                            {
+                                <img src="@t.ImagePath" class="modal-item-img-head" />
+                            }
+                            else
+                            {
+                                <div class="modal-item-img-head placeholder"></div>
+                            }
 
-            <!-- HEADER -->
-            <div class="modal-item-head">
-                <div class="modal-item-head-left">
-                    <div class="modal-title-row">
-                        <h3 class="m-0 text-truncate">@t.NameEn</h3>
+                            <div style="min-width:0;">
+                                <h3 class="m-0 text-truncate">@t.NameEn</h3>
+                                <div class="text-secondary small text-truncate mt-1">
+                                    @_activeItemVm.BadgeTier · Q@((int)it.Quality) · Lvl @it.Level · @t.OwnerKind
+                                    @if (!string.IsNullOrWhiteSpace(slotName))
+                                    {
+                                        <span> · @slotName</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="modal-sub text-secondary text-truncate">
+                    <div class="modal-head-row-2">
+                        <div class="d-flex align-items-center gap-3 flex-grow-1">
+                            <span class="text-secondary small">
+                                Wins: @_activeItemVm.WinsNow /
+                                @(_activeItemVm.WinsNeed == 0 ? _activeItemVm.WinsNow : _activeItemVm.WinsNeed)
+                            </span>
 
-                        <div class="text-secondary small mb-1">@it.BadgeTier</div>
+                            <div class="progress flex-grow-1" style="height:8px;">
+                                <div class="progress-bar" style="width:@_activeItemVm.WinsPct%"></div>
+                            </div>
+                        </div>
 
-                        Q@((int)it.Quality) · Lvl @it.Level · @t.OwnerKind
-                        @if (!string.IsNullOrWhiteSpace(slotName))
-                        {
-                            <span> · @slotName</span>
-                        }
+                        <button type="button"
+                                class="btn btn-sm btn-outline-light modal-close ms-3"
+                                @onclick="CloseItemModal">✕</button>
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-sm btn-outline-light modal-close"
-                        @onclick="CloseItemModal">✕</button>
-            </div>
+                <hr class="my-2" />
 
-            <hr class="my-3" />
+                <div class="modal-item-body modal-body-scroll">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="text-secondary small">Stats</div>
+                        <div class="text-secondary small">
+                            Lv @it.Level → next Lv @(it.Level + 1)
+                        </div>
+                    </div>
 
-            <!-- BODY -->
-            <div class="modal-item-body">
+                    @{
+                        var currSb = GetFinalStats(it);
 
-                <div class="modal-item-top">
-                    @if (!string.IsNullOrWhiteSpace(t.ImagePath))
-                    {
-                        <img src="@t.ImagePath" class="modal-item-img" />
+                        var nextIt = new PlayerItem
+                        {
+                            Id = it.Id,
+                            PlayerId = it.PlayerId,
+                            TemplateId = it.TemplateId,
+                            Template = it.Template,
+                            Level = it.Level + 1,
+                            Quality = it.Quality,
+                            BonusStats = it.BonusStats,
+                            Wins = it.Wins
+                        };
+
+                        var nextSb = GetFinalStats(nextIt);
                     }
-                    else
-                    {
-                        <div class="modal-item-img placeholder"></div>
-                    }
 
+                    <div class="stats-grid-cards">
+                        @foreach (var col in _statColumns)
+                        {
+                            var c = col.GetValue(currSb);
+                            var n = col.GetValue(nextSb);
+
+                            if (IsStatZero(c) && IsStatZero(n))
+                                continue;
+
+                            <div class="stat-card">
+                                <div class="stat-card-k">@col.Header</div>
+                                <div class="stat-card-v">
+                                    <span class="fw-bold">
+                                        @(col.Format?.Invoke(c) ?? c?.ToString() ?? "-")
+                                    </span>
+                                    <span class="text-secondary ms-2">
+                                        (next: @(col.Format?.Invoke(n) ?? n?.ToString() ?? "-"))
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    @if (it.BonusStats is not null)
+                    {
+                        <div class="text-secondary small mt-2">
+                            Includes BonusStats (prefix/suffix/enchant).
+                        </div>
+                    }
+                </div>
+
+                <div class="modal-item-foot">
                     @if (_activeItemVm.Resources.Count > 0)
                     {
                         <div class="resources-3col">
@@ -702,84 +229,9 @@ else
                         </div>
                     }
                 </div>
-
-                <!-- Badge / wins -->
-                <div class="mt-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-secondary">@_activeItemVm.BadgeTier</span>
-                        <span class="text-secondary small">
-                            Wins: @_activeItemVm.WinsNow / @(_activeItemVm.WinsNeed == 0 ? _activeItemVm.WinsNow : _activeItemVm.WinsNeed)
-                        </span>
-                    </div>
-
-                    <div class="progress mt-2" style="height:10px;">
-                        <div class="progress-bar" style="width:@_activeItemVm.WinsPct%"></div>
-                    </div>
-                </div>
-
             </div>
-
-            <!-- FOOTER (STATS) -->
-            <div class="modal-item-foot">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="text-secondary small">Stats</div>
-                    <div class="text-secondary small">
-                        Lv @it.Level → next Lv @(it.Level + 1)
-                    </div>
-                </div>
-
-                @{
-                    var currSb = GetFinalStats(it);
-
-                    var nextIt = new PlayerItem
-                    {
-                        Id = it.Id,
-                        PlayerId = it.PlayerId,
-                        TemplateId = it.TemplateId,
-                        Template = it.Template,
-                        Level = it.Level + 1,
-                        Quality = it.Quality,
-                        BonusStats = it.BonusStats,
-                        Wins = it.Wins
-                    };
-
-                    var nextSb = GetFinalStats(nextIt);
-                }
-
-                <div class="stats-grid-cards">
-                    @foreach (var col in _statColumns)
-                    {
-                        var c = col.GetValue(currSb);
-                        var n = col.GetValue(nextSb);
-
-                        if (IsStatZero(c) && IsStatZero(n))
-                            continue;
-
-                        <div class="stat-card">
-                            <div class="stat-card-k">@col.Header</div>
-                            <div class="stat-card-v">
-                                <span class="fw-bold">
-                                    @(col.Format?.Invoke(c) ?? c?.ToString() ?? "-")
-                                </span>
-                                <span class="text-secondary ms-2">
-                                    (next: @(col.Format?.Invoke(n) ?? n?.ToString() ?? "-"))
-                                </span>
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                @if (it.BonusStats is not null)
-                {
-                    <div class="text-secondary small mt-2">
-                        Includes BonusStats (prefix/suffix/enchant).
-                    </div>
-                }
-            </div>
-
         </div>
-    </div>
-}
+    }
 
     @if (_showProfileSetupModal)
     {
@@ -851,7 +303,6 @@ else
     private bool _showItemModal;
     private InvItemVm? _activeItemVm;
 
-    // pieces cache: TemplateId -> Pieces
     private Dictionary<Guid, long> _piecesByTemplateId = new();
 
     private bool _itemUpgrading;
@@ -875,20 +326,7 @@ else
         public bool CanUpgrade => Need > 0 && Have >= Need;
     }
 
-    private void OpenItemModal(InvItemVm vm)
-    {
-        _activeItemVm = vm;
-        _showItemModal = true;
-    }
-
-    private void CloseItemModal()
-    {
-        _showItemModal = false;
-        _activeItemVm = null;
-    }
-
     private enum InvFilterKind { All, Units, GearSlot }
-
     private sealed record InvTabVm(string Key, string Label, InvFilterKind Kind, ItemEquipSlot? Slot = null);
 
     private IReadOnlyList<InvTabVm> _orderTabs = BuildOrderTabs();
@@ -899,6 +337,71 @@ else
 
     private PlayerBeastSlot? ActiveBeastSlot => _beastSlots?.FirstOrDefault(s => s.SlotIndex == _activeBeastSlotIndex);
     private PlayerMercenarySlot? ActiveMercSlot => _mercSlots?.FirstOrDefault(s => s.SlotIndex == _activeMercSlotIndex);
+
+    private IReadOnlyList<(string Key, string Label, int Count)> GetOrderTabsForView()
+        => _orderTabs.Select(x => (x.Key, x.Label, CountOrderTab(x))).ToList();
+
+    private IReadOnlyList<(string Key, string Label, int Count)> GetBeastTabsForView()
+        => _beastTabs.Select(x => (x.Key, x.Label, CountBeastTab(x))).ToList();
+
+    private void SetActiveOrderTab(string key)
+    {
+        var tab = _orderTabs.FirstOrDefault(x => x.Key == key);
+        if (tab is not null) _activeOrderTab = tab;
+    }
+
+    private void SetActiveBeastTab(string key)
+    {
+        var tab = _beastTabs.FirstOrDefault(x => x.Key == key);
+        if (tab is not null) _activeBeastTab = tab;
+    }
+
+    private List<PlayerItem> GetMercInventoryItems() =>
+        FilterOrderInventoryByTab()
+            .OrderByDescending(x => x.Quality)
+            .ThenByDescending(x => x.Level)
+            .ToList();
+
+    private List<PlayerItem> GetBeastInventoryItems() =>
+        FilterBeastInventoryByTab()
+            .OrderByDescending(x => x.Quality)
+            .ThenByDescending(x => x.Level)
+            .ToList();
+
+    private string GetBadgeTierText(PlayerItem it)
+        => _invVmsById.TryGetValue(it.Id, out var vm) ? vm.BadgeTier.ToString() : "-";
+
+    private int GetWinsNow(PlayerItem it)
+        => _invVmsById.TryGetValue(it.Id, out var vm) ? vm.WinsNow : 0;
+
+    private int GetWinsNeed(PlayerItem it)
+        => _invVmsById.TryGetValue(it.Id, out var vm) ? vm.WinsNeed : 0;
+
+    private int GetWinsPct(PlayerItem it)
+        => _invVmsById.TryGetValue(it.Id, out var vm) ? vm.WinsPct : 0;
+
+    private IEnumerable<(string Name, long Have, long Need)> GetResourcesTuple(PlayerItem it)
+        => _invVmsById.TryGetValue(it.Id, out var vm)
+            ? vm.Resources.Select(r => (r.Name, r.Have, r.Need))
+            : Enumerable.Empty<(string Name, long Have, long Need)>();
+
+    private void OpenItemModal(InvItemVm vm)
+    {
+        _activeItemVm = vm;
+        _showItemModal = true;
+    }
+
+    private void OpenItemModalFromItem(PlayerItem item)
+    {
+        if (_invVmsById.TryGetValue(item.Id, out var vm))
+            OpenItemModal(vm);
+    }
+
+    private void CloseItemModal()
+    {
+        _showItemModal = false;
+        _activeItemVm = null;
+    }
 
     private void SelectBeastSlot(int idx) => _activeBeastSlotIndex = idx;
     private void SelectMercSlot(int idx) => _activeMercSlotIndex = idx;
@@ -916,11 +419,40 @@ else
         => it.Template.OwnerKind == ItemOwnerKind.Beast
            && (it.Template.IsUnitItem || it.Template.MonsterTemplateId.HasValue);
 
+    private bool IsItemActiveInMercSlots(PlayerItem it)
+        => IsOrderUnitItem(it)
+           && it.LinkedMercenaryInstanceId.HasValue
+           && _mercSlots.Any(s => s.MercenaryInstanceId == it.LinkedMercenaryInstanceId);
+
+    private bool IsItemActiveInBeastSlots(PlayerItem it)
+        => IsBeastUnitItem(it)
+           && it.LinkedMonsterInstanceId.HasValue
+           && _beastSlots.Any(s => s.BeastInstanceId == it.LinkedMonsterInstanceId);
+
+    private bool CanDragInventoryItem(PlayerItem it)
+    {
+        if (IsOrderUnitItem(it))
+            return !IsItemActiveInMercSlots(it);
+
+        if (IsBeastUnitItem(it))
+            return !IsItemActiveInBeastSlots(it);
+
+        return true;
+    }
+
+    private void OnInventoryDragStart(PlayerItem it)
+    {
+        if (!CanDragInventoryItem(it))
+            return;
+
+        DragItem(it);
+    }
+
     private static IReadOnlyList<InvTabVm> BuildOrderTabs()
     {
         var tabs = new List<InvTabVm>
         {
-            new("all",   "All",       InvFilterKind.All)
+            new("all", "All", InvFilterKind.All)
         };
 
         var slots = Enum.GetValues<ItemEquipSlot>()
@@ -938,7 +470,7 @@ else
     {
         var tabs = new List<InvTabVm>
         {
-            new("all",   "All",       InvFilterKind.All)
+            new("all", "All", InvFilterKind.All)
         };
 
         var slots = Enum.GetValues<ItemEquipSlot>()
@@ -1031,11 +563,6 @@ else
         Toasts.Info($"Dragging: {it.Template.NameEn}", "Drag");
     }
 
-    // ---- your drop/equip methods remain unchanged ----
-    // (EquipBeastAsync, EquipMercenaryAsync, MoveOrSwapBeastSlotAsync, MoveOrSwapMercSlotAsync)
-    // Keeping as-is in this reply for brevity.
-
-    // ---------------- Load + VMs ----------------
     private async Task LoadAsync()
     {
         _isLoading = true;
@@ -1075,7 +602,6 @@ else
                 return;
             }
 
-            // ✅ load pieces once, cache by template
             _piecesByTemplateId = await Db.Set<PlayerItemPieces>()
                 .AsNoTracking()
                 .Where(x => x.PlayerId == _profile.Id)
@@ -1090,14 +616,26 @@ else
                 .OrderBy(s => s.SlotIndex)
                 .ToListAsync();
 
+            Toasts.Info(
+                string.Join(" | ", _mercSlots.Select(s =>
+                    $"{s.SlotIndex}: fk={(s.MercenaryInstanceId.HasValue ? "Y" : "N")} nav={(s.Mercenary is null ? "NULL" : "OK")}")),
+                "Merc slots"
+            );
+
             _beastSlots = await Db.PlayerBeastSlots
                 .Where(s => s.PlayerProfileId == _profile.Id)
-                .Include(s => s.Beast).ThenInclude(bm => bm.Template)
-                .Include(s => s.Beast).ThenInclude(bm => bm.Equipment)
+                .Include(s => s.Beast)!.ThenInclude(b => b.Template)
+                .Include(s => s.Beast)!.ThenInclude(b => b.Equipment)
                     .ThenInclude(eq => eq.PlayerItem)!.ThenInclude(pi => pi.Template)
                         .ThenInclude(t => t.UpgradeResources)
                 .OrderBy(s => s.SlotIndex)
                 .ToListAsync();
+
+            Toasts.Info(
+                string.Join(" | ", _beastSlots.Select(s =>
+                    $"{s.SlotIndex}: fk={(s.BeastInstanceId.HasValue ? "Y" : "N")} nav={(s.Beast is null ? "NULL" : "OK")}")),
+                "Beast slots"
+            );
 
             _inventory = _profile.Inventory?.ToList() ?? new();
 
@@ -1162,15 +700,9 @@ else
 
             return type switch
             {
-                ItemUpgradeResourceType.Core =>
-                    baseCost * Math.Max(1, it.Level),
-
-                ItemUpgradeResourceType.Catalyst =>
-                    baseCost * (1L << Math.Max(0, ((int)it.Quality) - 1)),
-
-                ItemUpgradeResourceType.Essence =>
-                    baseCost * Math.Max(1, it.Level / 2),
-
+                ItemUpgradeResourceType.Core => baseCost * Math.Max(1, it.Level),
+                ItemUpgradeResourceType.Catalyst => baseCost * (1L << Math.Max(0, ((int)it.Quality) - 1)),
+                ItemUpgradeResourceType.Essence => baseCost * Math.Max(1, it.Level / 2),
                 _ => 0
             };
         }
@@ -1204,15 +736,11 @@ else
             _ => 0
         };
 
-    // ---------------- Localization helpers ----------------
     private string GetLocalizedName(BaseGuid entity)
     {
-        // ⚠️ zjednodušeno: pokud chceš async DB lookup, musíš cacheovat
-        // teď nechávám fallback na NameEn, protože async v renderu je pain
         return entity.NameEn;
     }
 
-    // ---------------- Stats UI ----------------
     private sealed record StatCol(string Header, Func<StatBlock?, object?> GetValue, Func<object?, string>? Format = null);
     private static readonly IReadOnlyList<StatCol> _statColumns = BuildStatColumns();
 
@@ -1308,7 +836,6 @@ else
         };
     }
 
-    // ---------------- Upgrade (stub) ----------------
     private async Task UpgradeItemAsync(InvItemVm vm, InvResVm r)
     {
         if (_profile is null) return;
@@ -1318,13 +845,9 @@ else
         _itemUpgrading = true;
         try
         {
-            // TODO: call your service here:
-            // await InventoryService.UpgradeAsync(vm.Item.Id, r.Type);
-
             Toasts.Success("Upgraded", $"{vm.Item.Template.NameEn} ({r.Type})");
 
-            await LoadAsync(); // refresh pieces + vm + stats
-            // keep modal open but refresh active vm reference:
+            await LoadAsync();
             if (_invVmsById.TryGetValue(vm.Item.Id, out var newVm))
                 _activeItemVm = newVm;
         }
@@ -1339,7 +862,6 @@ else
         }
     }
 
-    // ---------------- Profile setup modal ----------------
     private ProfileSetupModel _setup = new();
 
     private sealed class ProfileSetupModel
@@ -1351,272 +873,358 @@ else
     private static readonly IReadOnlyList<CountryCatalog.CountryOpt> Countries = CountryCatalog.GetAll();
 
     private async Task SaveProfileSetupAsync()
-{
-    if (_profile is null || string.IsNullOrWhiteSpace(_userId))
-        return;
-
-    var cc = (_setup.CountryCode ?? "").Trim().ToUpperInvariant();
-    var un = (_setup.UserName ?? "").Trim();
-
-    if (cc.Length != 2)
     {
-        Toasts.Error("Pick a valid country.", "Profile");
-        return;
-    }
+        if (_profile is null || string.IsNullOrWhiteSpace(_userId))
+            return;
 
-    if (!IsValidUserName(un))
-    {
-        Toasts.Error("Username is invalid.", "Profile");
-        return;
-    }
+        var cc = (_setup.CountryCode ?? "").Trim().ToUpperInvariant();
+        var un = (_setup.UserName ?? "").Trim();
 
-    await using (var db = await DbFactory.CreateDbContextAsync())
-    {
-        var prof = await db.Players.FirstOrDefaultAsync(p => p.UserId == _userId);
-        if (prof is null)
+        if (cc.Length != 2)
         {
-            Toasts.Error("Profile not found.", "Profile");
+            Toasts.Error("Pick a valid country.", "Profile");
             return;
         }
 
-        prof.CountryCode = cc;
-        await db.SaveChangesAsync();
+        if (!IsValidUserName(un))
+        {
+            Toasts.Error("Username is invalid.", "Profile");
+            return;
+        }
+
+        await using (var db = await DbFactory.CreateDbContextAsync())
+        {
+            var prof = await db.Players.FirstOrDefaultAsync(p => p.UserId == _userId);
+            if (prof is null)
+            {
+                Toasts.Error("Profile not found.", "Profile");
+                return;
+            }
+
+            prof.CountryCode = cc;
+            await db.SaveChangesAsync();
+        }
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var principal = authState.User;
+        var appUser = await UserManager.GetUserAsync(principal);
+
+        if (appUser is null)
+        {
+            Toasts.Error("User not found.", "Profile");
+            return;
+        }
+
+        appUser.UserName = un;
+        appUser.NormalizedUserName = UserManager.NormalizeName(un);
+
+        var res = await UserManager.UpdateAsync(appUser);
+        if (!res.Succeeded)
+        {
+            var msg = string.Join("; ", res.Errors.Select(e => e.Description));
+            Toasts.Error(msg, "Profile");
+            return;
+        }
+
+        _showProfileSetupModal = false;
+        Toasts.Success("Profile saved.", "Profile");
+
+        await LoadAsync();
     }
 
-    var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-    var principal = authState.User;
-    var appUser = await UserManager.GetUserAsync(principal);
-
-    if (appUser is null)
+    private static bool IsValidUserName(string s)
     {
-        Toasts.Error("User not found.", "Profile");
-        return;
-    }
-
-    appUser.UserName = un;
-    appUser.NormalizedUserName = UserManager.NormalizeName(un);
-
-    var res = await UserManager.UpdateAsync(appUser);
-    if (!res.Succeeded)
-    {
-        var msg = string.Join("; ", res.Errors.Select(e => e.Description));
-        Toasts.Error(msg, "Profile");
-        return;
-    }
-
-    _showProfileSetupModal = false;
-    Toasts.Success("Profile saved.", "Profile");
-
-    await LoadAsync();
-}
-private static bool IsValidUserName(string s)
-{
-    if (string.IsNullOrWhiteSpace(s))
-        return false;
-
-    if (s.Length < 3 || s.Length > 20)
-        return false;
-
-    foreach (var ch in s)
-    {
-        var ok =
-            char.IsLetterOrDigit(ch) ||
-            ch == '_' ||
-            ch == '-' ||
-            ch == '.';
-
-        if (!ok)
+        if (string.IsNullOrWhiteSpace(s))
             return false;
-    }
 
-    return true;
-}
-    // ---------------- Drag & drop ----------------
-private async Task OnDropToMercSlot(PlayerMercenarySlot slot)
-{
-    try
-    {
-        if (_draggedItemId.HasValue)
+        if (s.Length < 3 || s.Length > 20)
+            return false;
+
+        foreach (var ch in s)
         {
-            await EquipMercenaryAsync(slot.Id, _draggedItemId.Value);
-            Toasts.Success("Order equipped.", "Dashboard");
-        }
-        else if (_draggedFromSlotId.HasValue)
-        {
-            await MoveOrSwapMercSlotAsync(_draggedFromSlotId.Value, slot.Id);
-            Toasts.Success("Slot updated.", "Dashboard");
+            var ok =
+                char.IsLetterOrDigit(ch) ||
+                ch == '_' ||
+                ch == '-' ||
+                ch == '.';
+
+            if (!ok)
+                return false;
         }
 
-        await LoadAsync();
+        return true;
     }
-    catch (Exception ex)
-    {
-        Toasts.Error(ex.Message, "Dashboard");
-    }
-    finally
-    {
-        _draggedItemId = null;
-        _draggedFromSlotId = null;
-    }
-}
 
-private async Task OnDropToBeastSlot(PlayerBeastSlot slot)
-{
-    try
+    private async Task OnDropToMercSlot(PlayerMercenarySlot slot)
     {
-        if (_profile is null)
-            throw new InvalidOperationException("Profile not loaded.");
-
-        if (_draggedItemId.HasValue)
+        try
         {
-            await EquipBeastAsync(slot.Id, _draggedItemId.Value);
-            Toasts.Success("Beast equipped.", "Dashboard");
+            if (_draggedItemId.HasValue)
+            {
+                await EquipMercenaryAsync(slot.Id, _draggedItemId.Value);
+                Toasts.Success("Order equipped.", "Dashboard");
+            }
+            else if (_draggedFromSlotId.HasValue)
+            {
+                await MoveOrSwapMercSlotAsync(_draggedFromSlotId.Value, slot.Id);
+                Toasts.Success("Slot updated.", "Dashboard");
+            }
+
+            await LoadAsync();
         }
-        else if (_draggedFromBeastSlotId.HasValue)
+        catch (Exception ex)
         {
-            await MoveOrSwapBeastSlotAsync(_draggedFromBeastSlotId.Value, slot.Id);
-            Toasts.Success("Beast slot updated.", "Dashboard");
+            Toasts.Error(ex.Message, "Dashboard");
+        }
+        finally
+        {
+            _draggedItemId = null;
+            _draggedFromSlotId = null;
+        }
+    }
+
+    private async Task OnDropToBeastSlot(PlayerBeastSlot slot)
+    {
+        try
+        {
+            if (_profile is null)
+                throw new InvalidOperationException("Profile not loaded.");
+
+            if (_draggedItemId.HasValue)
+            {
+                await EquipBeastAsync(slot.Id, _draggedItemId.Value);
+                Toasts.Success("Beast equipped.", "Dashboard");
+            }
+            else if (_draggedFromBeastSlotId.HasValue)
+            {
+                await MoveOrSwapBeastSlotAsync(_draggedFromBeastSlotId.Value, slot.Id);
+                Toasts.Success("Beast slot updated.", "Dashboard");
+            }
+
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Dashboard");
+        }
+        finally
+        {
+            _draggedItemId = null;
+            _draggedFromBeastSlotId = null;
+        }
+    }
+
+    private async Task EquipBeastAsync(Guid targetSlotId, Guid playerItemId)
+    {
+        if (_profile is null) throw new InvalidOperationException("Profile not loaded.");
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+
+        var targetSlot = await Db.PlayerBeastSlots
+            .FirstOrDefaultAsync(s => s.Id == targetSlotId && s.PlayerProfileId == _profile.Id);
+
+        if (targetSlot is null)
+            throw new InvalidOperationException("Target beast slot not found.");
+
+        var item = await Db.PlayerItems
+            .Include(i => i.Template)
+            .FirstOrDefaultAsync(i => i.Id == playerItemId && i.PlayerId == _profile.Id);
+
+        if (item?.Template is null)
+            throw new InvalidOperationException("Item not found in inventory.");
+
+        if (item.Template.OwnerKind != ItemOwnerKind.Beast)
+            throw new InvalidOperationException("Item is not a Beast unit item.");
+
+        if (item.Template.MonsterTemplateId is null)
+            throw new InvalidOperationException("Item template is not a beast unit template.");
+
+        if (item.LinkedMonsterInstanceId is null)
+        {
+            var beast = new PlayerMonster
+            {
+                Id = Guid.NewGuid(),
+                PlayerId = _profile.Id,
+                TemplateId = item.Template.MonsterTemplateId.Value,
+                Level = item.Level
+            };
+
+            beast.Equipment = new List<BeastEquipmentSlot>();
+            Db.PlayerMonsters.Add(beast);
+            item.LinkedMonsterInstanceId = beast.Id;
+        }
+        else
+        {
+            var beast = await Db.PlayerMonsters
+                .FirstOrDefaultAsync(b => b.Id == item.LinkedMonsterInstanceId && b.PlayerId == _profile.Id);
+
+            if (beast is null)
+                throw new InvalidOperationException("Linked beast instance not found.");
+
+            beast.Level = item.Level;
         }
 
-        await LoadAsync();
+        var incomingInstanceId = item.LinkedMonsterInstanceId!.Value;
+
+        var allSlots = await Db.PlayerBeastSlots
+            .Where(s => s.PlayerProfileId == _profile.Id)
+            .ToListAsync();
+
+        var fromSlot = allSlots.FirstOrDefault(s => s.BeastInstanceId == incomingInstanceId);
+
+        if (targetSlot.BeastInstanceId == incomingInstanceId)
+        {
+            await Db.SaveChangesAsync();
+            return;
+        }
+
+        var targetOldInstanceId = targetSlot.BeastInstanceId;
+        targetSlot.BeastInstanceId = incomingInstanceId;
+
+        if (fromSlot is not null && fromSlot.Id != targetSlot.Id)
+            fromSlot.BeastInstanceId = targetOldInstanceId;
+
+        await Db.SaveChangesAsync();
     }
-    catch (Exception ex)
+
+    private async Task EquipMercenaryAsync(Guid targetSlotId, Guid playerItemId)
     {
-        Toasts.Error(ex.Message, "Dashboard");
+        if (_profile is null) throw new InvalidOperationException("Profile not loaded.");
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+
+        var targetSlot = await Db.PlayerMercenarySlots
+            .FirstOrDefaultAsync(s => s.Id == targetSlotId && s.PlayerProfileId == _profile.Id);
+
+        if (targetSlot is null)
+            throw new InvalidOperationException("Target mercenary slot not found.");
+
+        var item = await Db.PlayerItems
+            .Include(i => i.Template)
+            .FirstOrDefaultAsync(i => i.Id == playerItemId && i.PlayerId == _profile.Id);
+
+        if (item?.Template is null)
+            throw new InvalidOperationException("Item not found in inventory.");
+
+        if (item.Template.OwnerKind != ItemOwnerKind.Mercenary)
+            throw new InvalidOperationException("Item is not a Mercenary unit item.");
+
+        if (item.Template.MercenaryTemplateId is null)
+            throw new InvalidOperationException("Item template is not a mercenary unit template.");
+
+        if (item.LinkedMercenaryInstanceId is null)
+        {
+            var merc = new PlayerMercenary
+            {
+                Id = Guid.NewGuid(),
+                PlayerId = _profile.Id,
+                TemplateId = item.Template.MercenaryTemplateId.Value,
+                Level = item.Level
+            };
+
+            merc.Equipment = new List<MercenaryEquipmentSlot>();
+            Db.PlayerMercenaries.Add(merc);
+
+            item.LinkedMercenaryInstanceId = merc.Id;
+        }
+        else
+        {
+            var merc = await Db.PlayerMercenaries
+                .FirstOrDefaultAsync(m => m.Id == item.LinkedMercenaryInstanceId && m.PlayerId == _profile.Id);
+
+            if (merc is null)
+                throw new InvalidOperationException("Linked mercenary instance not found.");
+
+            merc.Level = item.Level;
+        }
+
+        var incomingInstanceId = item.LinkedMercenaryInstanceId!.Value;
+
+        var allSlots = await Db.PlayerMercenarySlots
+            .Where(s => s.PlayerProfileId == _profile.Id)
+            .ToListAsync();
+
+        var fromSlot = allSlots.FirstOrDefault(s => s.MercenaryInstanceId == incomingInstanceId);
+
+        if (targetSlot.MercenaryInstanceId == incomingInstanceId)
+        {
+            await Db.SaveChangesAsync();
+            return;
+        }
+
+        var targetOldInstanceId = targetSlot.MercenaryInstanceId;
+        targetSlot.MercenaryInstanceId = incomingInstanceId;
+
+        if (fromSlot is not null && fromSlot.Id != targetSlot.Id)
+            fromSlot.MercenaryInstanceId = targetOldInstanceId;
+
+        await Db.SaveChangesAsync();
     }
-    finally
+
+    private async Task MoveOrSwapBeastSlotAsync(Guid fromSlotId, Guid toSlotId)
     {
-        _draggedItemId = null;
-        _draggedFromBeastSlotId = null;
+        if (_profile is null) throw new InvalidOperationException("Profile not loaded.");
+        if (fromSlotId == toSlotId) return;
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+
+        var slots = await Db.PlayerBeastSlots
+            .Where(s => s.PlayerProfileId == _profile.Id && (s.Id == fromSlotId || s.Id == toSlotId))
+            .ToListAsync();
+
+        var from = slots.FirstOrDefault(s => s.Id == fromSlotId);
+        var to = slots.FirstOrDefault(s => s.Id == toSlotId);
+
+        if (from is null || to is null)
+            throw new InvalidOperationException("Beast slot not found (not yours or missing).");
+
+        if (from.BeastInstanceId == to.BeastInstanceId)
+            return;
+
+        (from.BeastInstanceId, to.BeastInstanceId) = (to.BeastInstanceId, from.BeastInstanceId);
+
+        await Db.SaveChangesAsync();
     }
-}
 
-// ---------------- Equip methods ----------------
-private async Task EquipBeastAsync(Guid targetSlotId, Guid playerItemId)
-{
-    if (_profile is null) throw new InvalidOperationException("Profile not loaded.");
-
-    await using var Db = await DbFactory.CreateDbContextAsync();
-
-    var slot = await Db.Set<PlayerBeastSlot>()
-        .FirstOrDefaultAsync(s => s.Id == targetSlotId && s.PlayerProfileId == _profile.Id);
-
-    if (slot is null)
-        throw new InvalidOperationException("Target beast slot not found.");
-
-    var item = await Db.PlayerItems
-        .Include(i => i.Template)
-        .FirstOrDefaultAsync(i => i.Id == playerItemId && i.PlayerId == _profile.Id);
-
-    if (item is null)
-        throw new InvalidOperationException("Item not found in inventory.");
-
-    if (item.Template.OwnerKind != ItemOwnerKind.Beast)
-        throw new InvalidOperationException("Item is not a Beast unit item.");
-
-    if (item.LinkedMonsterInstanceId is null)
-        throw new InvalidOperationException("Unit item is not linked to a beast instance.");
-
-    var beastExists = await Db.PlayerMonsters
-        .AnyAsync(b => b.Id == item.LinkedMonsterInstanceId && b.PlayerId == _profile.Id);
-
-    if (!beastExists)
-        throw new InvalidOperationException("Linked beast instance does not exist (or does not belong to you).");
-
-    slot.BeastInstanceId = item.LinkedMonsterInstanceId;
-    await Db.SaveChangesAsync();
-}
-
-private async Task EquipMercenaryAsync(Guid targetSlotId, Guid playerItemId)
-{
-    if (_profile is null) throw new InvalidOperationException("Profile not loaded.");
-
-    await using var Db = await DbFactory.CreateDbContextAsync();
-
-    var slot = await Db.PlayerMercenarySlots
-        .FirstOrDefaultAsync(s => s.Id == targetSlotId && s.PlayerProfileId == _profile.Id);
-
-    if (slot is null)
-        throw new InvalidOperationException("Target mercenary slot not found.");
-
-    var item = await Db.PlayerItems
-        .Include(i => i.Template)
-        .FirstOrDefaultAsync(i => i.Id == playerItemId && i.PlayerId == _profile.Id);
-
-    if (item is null)
-        throw new InvalidOperationException("Item not found in inventory.");
-
-    if (item.Template.OwnerKind != ItemOwnerKind.Mercenary)
-        throw new InvalidOperationException("Item is not a Mercenary unit item.");
-
-    if (item.LinkedMercenaryInstanceId is null)
-        throw new InvalidOperationException("Unit item is not linked to a mercenary instance.");
-
-    var mercExists = await Db.PlayerMercenaries
-        .AnyAsync(m => m.Id == item.LinkedMercenaryInstanceId && m.PlayerId == _profile.Id);
-
-    if (!mercExists)
-        throw new InvalidOperationException("Linked mercenary instance does not exist (or does not belong to you).");
-
-    slot.MercenaryInstanceId = item.LinkedMercenaryInstanceId;
-    await Db.SaveChangesAsync();
-}
-
-private async Task MoveOrSwapBeastSlotAsync(Guid fromSlotId, Guid toSlotId)
-{
-    if (_profile is null) throw new InvalidOperationException("Profile not loaded.");
-    if (fromSlotId == toSlotId) return;
-
-    await using var Db = await DbFactory.CreateDbContextAsync();
-
-    var slots = await Db.Set<PlayerBeastSlot>()
-        .Where(s => s.PlayerProfileId == _profile.Id && (s.Id == fromSlotId || s.Id == toSlotId))
-        .ToListAsync();
-
-    var from = slots.FirstOrDefault(s => s.Id == fromSlotId);
-    var to = slots.FirstOrDefault(s => s.Id == toSlotId);
-
-    if (from is null || to is null)
-        throw new InvalidOperationException("Beast slot not found.");
-
-    var tmp = from.BeastInstanceId;
-    from.BeastInstanceId = to.BeastInstanceId;
-    to.BeastInstanceId = tmp;
-
-    await Db.SaveChangesAsync();
-}
-
-private async Task MoveOrSwapMercSlotAsync(Guid fromSlotId, Guid toSlotId)
-{
-    if (_profile is null) throw new InvalidOperationException("Profile not loaded.");
-    if (fromSlotId == toSlotId) return;
-
-    await using var Db = await DbFactory.CreateDbContextAsync();
-
-    var slots = await Db.Set<PlayerMercenarySlot>()
-        .Where(s => (s.Id == fromSlotId || s.Id == toSlotId) && s.PlayerProfileId == _profile.Id)
-        .ToListAsync();
-
-    var from = slots.First(s => s.Id == fromSlotId);
-    var to = slots.First(s => s.Id == toSlotId);
-
-    (from.MercenaryInstanceId, to.MercenaryInstanceId) = (to.MercenaryInstanceId, from.MercenaryInstanceId);
-    await Db.SaveChangesAsync();
-}
-private static string GetQualityHeaderClass(QualityTier q)
-    => q switch
+    private async Task MoveOrSwapMercSlotAsync(Guid fromSlotId, Guid toSlotId)
     {
-        QualityTier.Q1_Common        => "qhdr qhdr-q1",
-        QualityTier.Q2_Uncommon      => "qhdr qhdr-q2",
-        QualityTier.Q3_Rare          => "qhdr qhdr-q3",
-        QualityTier.Q4_Superior      => "qhdr qhdr-q4",
-        QualityTier.Q5_Epic          => "qhdr qhdr-q5",
-        QualityTier.Q6_Mythic        => "qhdr qhdr-q6",
-        QualityTier.Q7_Ancient       => "qhdr qhdr-q7",
-        QualityTier.Q8_Arcane        => "qhdr qhdr-q8",
-        QualityTier.Q9_Celestial     => "qhdr qhdr-q9",
-        QualityTier.Q10_Ethereal     => "qhdr qhdr-q10",
-        QualityTier.Q11_Transcendent => "qhdr qhdr-q11",
-        _                            => "qhdr qhdr-q1",
-    };
+        if (_profile is null) throw new InvalidOperationException("Profile not loaded.");
+        if (fromSlotId == toSlotId) return;
+
+        await using var Db = await DbFactory.CreateDbContextAsync();
+
+        var slots = await Db.PlayerMercenarySlots
+            .Where(s => s.PlayerProfileId == _profile.Id && (s.Id == fromSlotId || s.Id == toSlotId))
+            .ToListAsync();
+
+        var from = slots.FirstOrDefault(s => s.Id == fromSlotId);
+        var to = slots.FirstOrDefault(s => s.Id == toSlotId);
+
+        if (from is null || to is null)
+            throw new InvalidOperationException("Mercenary slot not found (not yours or missing).");
+
+        if (from.MercenaryInstanceId == to.MercenaryInstanceId)
+            return;
+
+        (from.MercenaryInstanceId, to.MercenaryInstanceId) = (to.MercenaryInstanceId, from.MercenaryInstanceId);
+
+        await Db.SaveChangesAsync();
+    }
+
+    private static string GetQualityHeaderClass(QualityTier q)
+        => q switch
+        {
+            QualityTier.Q1_Common        => "qhdr qhdr-q1",
+            QualityTier.Q2_Uncommon      => "qhdr qhdr-q2",
+            QualityTier.Q3_Rare          => "qhdr qhdr-q3",
+            QualityTier.Q4_Superior      => "qhdr qhdr-q4",
+            QualityTier.Q5_Epic          => "qhdr qhdr-q5",
+            QualityTier.Q6_Mythic        => "qhdr qhdr-q6",
+            QualityTier.Q7_Ancient       => "qhdr qhdr-q7",
+            QualityTier.Q8_Arcane        => "qhdr qhdr-q8",
+            QualityTier.Q9_Celestial     => "qhdr qhdr-q9",
+            QualityTier.Q10_Ethereal     => "qhdr qhdr-q10",
+            QualityTier.Q11_Transcendent => "qhdr qhdr-q11",
+            _                            => "qhdr qhdr-q1",
+        };
 }

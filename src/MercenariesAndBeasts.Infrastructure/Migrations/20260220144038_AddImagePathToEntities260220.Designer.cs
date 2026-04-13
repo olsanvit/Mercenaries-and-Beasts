@@ -3,6 +3,7 @@ using System;
 using MercenariesAndBeasts.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MercenariesAndBeasts.Infrastructure.Migrations
 {
     [DbContext(typeof(GameDbContext))]
-    partial class GameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260220144038_AddImagePathToEntities260220")]
+    partial class AddImagePathToEntities260220
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1026,6 +1029,9 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("AchievementsId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("BaseLevel")
                         .HasColumnType("integer");
 
@@ -1093,6 +1099,8 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AchievementsId");
 
                     b.HasIndex("EncounterId");
 
@@ -1260,6 +1268,9 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<string>("ImagePromptMeta")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("MercenaryId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("MercenaryInstanceId")
                         .HasColumnType("uuid");
 
@@ -1274,6 +1285,8 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MercenaryId");
 
                     b.HasIndex("MercenaryInstanceId");
 
@@ -1445,17 +1458,10 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<Guid>("AchievementId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("CompletedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Current")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("DifficultyTier")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsCompleted")
@@ -1492,24 +1498,8 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<Guid>("AchievementId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("CompletedAtUtc")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Current")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("DifficultyTier")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid?>("PlayerExpeditionProgressId")
-                        .HasColumnType("uuid");
 
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("uuid");
@@ -1517,14 +1507,9 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                     b.Property<Guid>("ProgressId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Required")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AchievementId");
-
-                    b.HasIndex("PlayerExpeditionProgressId");
 
                     b.HasIndex("ProgressId", "AchievementId")
                         .IsUnique();
@@ -2708,6 +2693,12 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerExpeditionProgress", b =>
                 {
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerExpeditionAchievements", "Achievements")
+                        .WithMany()
+                        .HasForeignKey("AchievementsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerExpeditionEncounter", "Encounter")
                         .WithMany()
                         .HasForeignKey("EncounterId")
@@ -2725,6 +2716,8 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Achievements");
 
                     b.Navigation("Encounter");
 
@@ -2904,10 +2897,14 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                 {
                     b.HasOne("MercenariesAndBeasts.Domain.PlayerMercenary", "Mercenary")
                         .WithMany()
+                        .HasForeignKey("MercenaryId");
+
+                    b.HasOne("MercenariesAndBeasts.Domain.PlayerMercenary", null)
+                        .WithMany()
                         .HasForeignKey("MercenaryInstanceId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "PlayerProfile")
+                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
                         .WithMany("MercenarySlots")
                         .HasForeignKey("PlayerProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2915,7 +2912,7 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
 
                     b.Navigation("Mercenary");
 
-                    b.Navigation("PlayerProfile");
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Progress.DungeonAchievementDefinition", b =>
@@ -2974,10 +2971,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                         .HasForeignKey("AchievementId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerExpeditionProgress", null)
-                        .WithMany("Achievements")
-                        .HasForeignKey("PlayerExpeditionProgressId");
 
                     b.HasOne("MercenariesAndBeasts.Domain.Players.PlayerProfile", "Player")
                         .WithMany()
@@ -3090,11 +3083,6 @@ namespace MercenariesAndBeasts.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerDungeonProgress", b =>
-                {
-                    b.Navigation("Achievements");
-                });
-
-            modelBuilder.Entity("MercenariesAndBeasts.Domain.Players.PlayerExpeditionProgress", b =>
                 {
                     b.Navigation("Achievements");
                 });

@@ -1,6 +1,8 @@
-﻿@using MercenariesAndBeasts.Web.Components.Pages
+﻿@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Web.Components.Pages
 @using MercenariesAndBeasts.Web.Components.Pages.Shared
 @using System.Globalization
+@using System.Security.Claims
 
 @inherits LayoutComponentBase
 
@@ -11,6 +13,30 @@
 
     <main>
         <div class="top-row px-4">
+        @if (_profile is not null)
+        {
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="badge rounded-pill bg-info">
+                    <b>Lv</b> @_profile.Level
+                </span>
+
+                <span class="badge rounded-pill bg-info">
+                    <b>XP</b> @_profile.Experience
+                </span>
+
+                <span class="badge rounded-pill bg-info">
+                    <b>Energy</b> @_profile.Energy / @_profile.MaxEnergy
+                </span>
+
+                <span class="badge rounded-pill bg-info">
+                    <b>Soft:</b> @_profile.SoftCurrency
+                </span>
+
+                <span class="badge rounded-pill bg-info">
+                    <b>Premium:</b> @_profile.PremiumCurrency
+                </span>
+            </div>
+        }
                <span class="badge rounded-pill bg-info">
                     🔔  @Toasts.Toasts.Count
                 </span>
@@ -61,22 +87,34 @@
 @code {
 private string _userName = "Player";
 
+    private PlayerProfile? _profile;
+    private string? _userId;
+    private ClaimsPrincipal? _user;
 
     protected override async Task OnInitializedAsync()
     {
+        await using var Db = await DbFactory.CreateDbContextAsync();
         Toasts.OnToastsUpdated += StateHasChanged;
 
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var principal = authState.User;
+        var _user = authState.User;
 
-        if (principal?.Identity?.IsAuthenticated != true)
+        if (_user?.Identity?.IsAuthenticated != true)
             return;
 
-        var appUser = await UserManager.GetUserAsync(principal);
+        var appUser = await UserManager.GetUserAsync(_user);
         if (appUser is null)
             return;
 
+            _userId = _user.FindFirstValue(ClaimTypes.NameIdentifier);
         _userName = appUser.UserName ?? appUser.Email ?? "Player";
+
+            _profile = await Db.Players
+                .Include(p => p.MercenarySlots).ThenInclude(s => s.Mercenary).ThenInclude(m => m.Template)
+                .Include(p => p.BeastSlots).ThenInclude(s => s.Beast).ThenInclude(b => b.Template)
+                .Include(p => p.Inventory).ThenInclude(i => i.Template).ThenInclude(t => t.UpgradeResources)
+                .FirstOrDefaultAsync(p => p.UserId == _userId);
+
     }
 
     public void Dispose()

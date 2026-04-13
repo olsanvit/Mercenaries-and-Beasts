@@ -1,0 +1,351 @@
+@using MercenariesAndBeasts.Domain.Items
+@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Domain
+@using MercenariesAndBeasts.Domain.Utils
+@using static MercenariesAndBeasts.Domain.Items.ItemTemplate
+
+<section class="dash-top">
+    <div class="card-like inv-wrap">
+        <div class="inv-head">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <h6 class="m-0">Orders</h6>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="slotbar-scroll">
+                        <div class="slotbar">
+                            @foreach (var s in MercSlots.OrderBy(x => x.SlotIndex))
+                            {
+                                var isActive = s.SlotIndex == ActiveMercSlotIndex;
+
+                                <button class="btn @(isActive ? "btn-primary" : "btn-outline-secondary")"
+                                        @onclick="() => OnSelectMercSlot.InvokeAsync(s.SlotIndex)"
+                                        @ondragover:preventDefault
+                                        @ondrop="() => OnDropToMercSlot.InvokeAsync(s)">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold">@s.SlotIndex</span>
+                                        @if (s.MercenaryInstanceId is null)
+                                        {
+                                            <span class="badge bg-secondary">Empty</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="slot-name">@GetLocalizedName(s.Mercenary!.Template)</span>
+                                        }
+                                    </div>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (ActiveMercSlot is null)
+        {
+            <div class="card-like">
+                <div class="text-secondary">No slot selected.</div>
+            </div>
+        }
+        else
+        {
+            var m = ActiveMercSlot.Mercenary;
+            var t = m?.Template;
+
+            if (t is null)
+            {
+                <div class="card-like">
+                    <div class="text-secondary">Empty slot.</div>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex gap-3">
+                    @if (!string.IsNullOrWhiteSpace(t.ImagePath))
+                    {
+                        <img src="@t.ImagePath" style="width:72px;height:72px;object-fit:cover;border-radius:14px;" />
+                    }
+                    else
+                    {
+                        <div style="width:72px;height:72px;border-radius:14px;background:rgba(255,255,255,0.06);"></div>
+                    }
+
+                    <div style="min-width:0;">
+                        <div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            @GetLocalizedName(ActiveMercSlot.Mercenary!.Template)
+                        </div>
+                        <div class="text-secondary">
+                            Lv @m!.BaseLevel · @t.Element
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inv-scroll">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="card-like"
+                                 @ondragover:preventDefault
+                                 @ondrop="() => OnDropToMercSlot.InvokeAsync(ActiveMercSlot)">
+                                <div class="slotbar-scroll slot-detail">
+                                    <div class="row g-3 slot-panels">
+                                        <div class="col-12 col-lg-8">
+                                            <div class="panel-scroll">
+                                                <div class="detail-section-title">Equipment</div>
+
+                                                @if (m.Equipment is null || m.Equipment.Count == 0)
+                                                {
+                                                    <div class="text-secondary">No equipment slots.</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="equip-grid">
+                                                        @foreach (MercenaryEquipmentSlot eq in m.Equipment.OrderBy(e => (int)e.Slot))
+                                                        {
+                                                            <div class="equip-slot">
+                                                                <div class="equip-slot-name">@eq.Slot</div>
+
+                                                                @if (eq.PlayerItem is null)
+                                                                {
+                                                                    <div class="equip-slot-item text-secondary">Empty</div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    var it = eq.PlayerItem;
+                                                                    var tIt = it.Template;
+
+                                                                    <div class="equip-slot-item">
+                                                                        <div class="equip-item-title">@(tIt?.NameEn ?? "Item")</div>
+                                                                        <div class="equip-item-meta text-secondary">Lv @it.Level · @it.Quality</div>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-lg-4">
+                                            <div class="panel-scroll">
+                                                <div class="detail-section-title">Stats</div>
+
+                                                <div class="stats-grid">
+                                                    @foreach (var row in GetStatRows(t.BaseStats))
+                                                    {
+                                                        <div class="stat-row">
+                                                            <span class="k">@row.Name</span>
+                                                            <span class="v">@row.Value</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+<section class="dash-bottom">
+    <div class="card-like inv-wrap">
+        <div class="inv-head">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0">Inventory</h6>
+            </div>
+
+            <div class="inv-tabs-wrap">
+                <div class="inv-tabs-scroll">
+                    <div class="inv-tabs">
+                        @foreach (var tab in OrderTabs)
+                        {
+                            var active = tab.Key == ActiveOrderTabKey;
+
+                            <div class="inv-tab @(active ? "active" : "")"
+                                 @onclick="() => OnOrderTabSelected.InvokeAsync(tab.Key)">
+                                <div class="inv-tab-title">@tab.Label</div>
+                                <div class="inv-tab-sub">@tab.Count</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inv-scroll">
+            @if (InventoryItems.Count == 0)
+            {
+                <div class="text-secondary mt-3">No items in this category.</div>
+            }
+            else
+            {
+                <div class="inv-grid inv-grid-5">
+                    @foreach (var it in InventoryItems)
+                    {
+                        var t = it.Template;
+                        var canDrag = CanDragInventoryItem(it);
+
+                        <div class="inv-card card-like p-0 @(canDrag ? "" : "drag-disabled")"
+                             draggable="@canDrag"
+                             @ondragstart="() => OnInventoryDragStart.InvokeAsync(it)">
+                            <div class="inv-card-header px-3 py-2 border-bottom d-flex align-items-start justify-content-between @GetQualityHeaderClass(it.Quality)">
+                                <div class="me-2" style="min-width:0; width:100%;">
+                                    <div class="fw-bold text-truncate">@t.NameEn</div>
+
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <span class="badge bg-secondary">@GetBadgeTierText(it)</span>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-light"
+                                                title="Details"
+                                                @onclick="() => OnOpenItemModal.InvokeAsync(it)">
+                                            👁
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="inv-card-body px-3 py-3 text-center">
+                                @if (!string.IsNullOrWhiteSpace(t.ImagePath))
+                                {
+                                    <img src="@t.ImagePath"
+                                         style="width:96px;height:96px;object-fit:cover;border-radius:14px;" />
+                                }
+                                else
+                                {
+                                    <div style="width:96px;height:96px;border-radius:14px;background:rgba(255,255,255,0.06);margin:0 auto;"></div>
+                                }
+
+                                <div class="text-secondary mt-2 small">
+                                    Q@((int)it.Quality) · Lv @it.Level ·
+
+                                    @if (IsGear(it))
+                                    {
+                                        <span class="text-secondary small">
+                                            Slot: @(it.Template.MercenarySlot?.ToString() ?? "-")
+                                        </span>
+                                    }
+                                    else if (IsOrderUnitItem(it))
+                                    {
+                                        <span class="text-secondary small">Order unit</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="inv-card-footer px-3 py-2 border-top">
+                                <div class="d-flex justify-content-between text-secondary small mb-1">
+                                    <span>Wins</span>
+                                    <span>@GetWinsNow(it) / @(GetWinsNeed(it) == 0 ? GetWinsNow(it) : GetWinsNeed(it))</span>
+                                </div>
+
+                                <div class="progress" style="height:10px;">
+                                    <div class="progress-bar" style="width:@GetWinsPct(it)%"></div>
+                                </div>
+
+                                @{
+                                    var resources = GetResources(it).ToList();
+                                }
+
+                                @if (resources.Count > 0)
+                                {
+                                    <div class="mt-2" style="display:flex;flex-direction:column;gap:4px;">
+                                        @foreach (var r in resources)
+                                        {
+                                            <div class="d-flex justify-content-between text-secondary small">
+                                                <span>@r.Name</span>
+                                                <span>@r.Have / @r.Need</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<PlayerMercenarySlot> MercSlots { get; set; } = Array.Empty<PlayerMercenarySlot>();
+    [Parameter, EditorRequired] public int ActiveMercSlotIndex { get; set; }
+    [Parameter] public PlayerMercenarySlot? ActiveMercSlot { get; set; }
+
+    [Parameter, EditorRequired] public IReadOnlyList<(string Key, string Label, int Count)> OrderTabs { get; set; } = Array.Empty<(string Key, string Label, int Count)>();
+    [Parameter, EditorRequired] public string ActiveOrderTabKey { get; set; } = "all";
+    [Parameter, EditorRequired] public IReadOnlyList<PlayerItem> InventoryItems { get; set; } = Array.Empty<PlayerItem>();
+
+    [Parameter, EditorRequired] public EventCallback<int> OnSelectMercSlot { get; set; }
+    [Parameter, EditorRequired] public EventCallback<PlayerMercenarySlot> OnDropToMercSlot { get; set; }
+    [Parameter, EditorRequired] public EventCallback<string> OnOrderTabSelected { get; set; }
+    [Parameter, EditorRequired] public EventCallback<PlayerItem> OnInventoryDragStart { get; set; }
+    [Parameter, EditorRequired] public EventCallback<PlayerItem> OnOpenItemModal { get; set; }
+
+    [Parameter, EditorRequired] public Func<BaseGuid, string> GetLocalizedName { get; set; } = _ => "";
+    [Parameter, EditorRequired] public Func<QualityTier, string> GetQualityHeaderClass { get; set; } = _ => "";
+    [Parameter, EditorRequired] public Func<PlayerItem, string> GetBadgeTierText { get; set; } = _ => "-";
+    [Parameter, EditorRequired] public Func<PlayerItem, int> GetWinsNow { get; set; } = _ => 0;
+    [Parameter, EditorRequired] public Func<PlayerItem, int> GetWinsNeed { get; set; } = _ => 0;
+    [Parameter, EditorRequired] public Func<PlayerItem, int> GetWinsPct { get; set; } = _ => 0;
+    [Parameter, EditorRequired] public Func<PlayerItem, IEnumerable<(string Name, long Have, long Need)>> GetResources { get; set; } = _ => Enumerable.Empty<(string Name, long Have, long Need)>();
+    [Parameter, EditorRequired] public Func<PlayerItem, bool> CanDragInventoryItem { get; set; } = _ => true;
+
+    private static bool IsGear(PlayerItem it)
+        => it.Template.MercenarySlot.HasValue || it.Template.MonsterSlot.HasValue;
+
+    private static bool IsOrderUnitItem(PlayerItem it)
+        => it.Template.OwnerKind == ItemOwnerKind.Mercenary
+           && (it.Template.IsUnitItem || it.Template.MercenaryTemplateId.HasValue);
+
+    private static IEnumerable<(string Name, string Value)> GetStatRows(StatBlock? sb)
+    {
+        if (sb is null) yield break;
+
+        foreach (var p in typeof(StatBlock).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).OrderBy(x => x.Name))
+        {
+            var raw = p.GetValue(sb);
+            if (raw is null) continue;
+
+            var display = raw switch
+            {
+                float f => f.ToString("0.##"),
+                double d => d.ToString("0.##"),
+                _ => raw.ToString() ?? "-"
+            };
+
+            yield return (HumanizeStatName(p.Name), display);
+        }
+    }
+
+    private static string HumanizeStatName(string name) => name switch
+    {
+        "MaxHp" => "HP",
+        "Attack" => "ATK",
+        "Defense" => "DEF",
+        "Speed" => "SPD",
+        "CritChance" => "Crit %",
+        "CritMultiplier" => "Crit x",
+        "ArmorPenetration" => "Pen",
+        "Accuracy" => "Acc",
+        "Evasion" => "Eva",
+        "BlockChance" => "Block %",
+        "DamageBonus" => "DMG +",
+        "DamageReduction" => "DMG -",
+        "TrueDamageBonus" => "True +",
+        "TurnMeterGain" => "TM +",
+        "CooldownReduction" => "CDR",
+        "ActionCostReduction" => "Cost -",
+        "LifeSteal" => "LS",
+        "HpRegen" => "Regen",
+        "EnergyRegen" => "E.Regen",
+        "StatusDurationBonus" => "Status +",
+        "StatusResistance" => "Status Res",
+        _ => name
+    };
+}

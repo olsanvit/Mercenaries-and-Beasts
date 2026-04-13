@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Authentication.Google;
 using MercenariesAndBeasts.Infrastructure.Players;
 using MercenariesAndBeasts.Domain.Localization;
 using MercenariesAndBeasts.Infrastructure.Fights;
+using Npgsql;
+using System.Net;
+using System.Net.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,14 +57,67 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 //var cs = builder.Configuration.GetConnectionString("MacGameDatabase");
 
-var cs = builder.Configuration.GetConnectionString("QNAPGameDatabase");
+
+var csRaw = builder.Configuration.GetConnectionString("QNAPGameDatabase");
+if (string.IsNullOrWhiteSpace(csRaw))
+    throw new InvalidOperationException("Connection string 'QNAPGameDatabase' is missing.");
+
+var cs = PreferIPv4Host(csRaw);
+
 Console.WriteLine("CS = " + Mask(cs));
+Console.WriteLine("DB Host resolved = " + DescribeHost(cs));
 
 static string Mask(string? s)
 {
     if (string.IsNullOrWhiteSpace(s)) return "(null)";
-    return System.Text.RegularExpressions.Regex.Replace(
-        s, "(?i)Password=([^;]+)", "Password=***");
+    return System.Text.RegularExpressions.Regex.Replace(s, "(?i)Password=([^;]+)", "Password=***");
+}
+
+static string DescribeHost(string cs)
+{
+    try
+    {
+        var b = new NpgsqlConnectionStringBuilder(cs);
+        return $"{b.Host}:{b.Port} (Database={b.Database}, SSL={b.SslMode})";
+    }
+    catch
+    {
+        return "(unable to parse connection string)";
+    }
+}
+
+/// <summary>
+/// Pokud je Host hostname (ne IP), pokusí se ho přeložit a vynutit IPv4.
+/// </summary>
+static string PreferIPv4Host(string cs)
+{
+    var b = new NpgsqlConnectionStringBuilder(cs);
+
+    // když už je to IP (v4/v6), neřeš
+    if (IPAddress.TryParse(b.Host, out _))
+        return b.ToString();
+
+    // zkus DNS -> vyber IPv4
+    try
+    {
+        var addrs = Dns.GetHostAddresses(b.Host);
+        var v4 = addrs.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
+        if (v4 != null)
+        {
+            Console.WriteLine($"Host '{b.Host}' -> using IPv4 {v4}");
+            b.Host = v4.ToString();
+        }
+        else
+        {
+            Console.WriteLine($"Host '{b.Host}' -> no IPv4 found (only: {string.Join(", ", addrs.Select(a => a.ToString()))})");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"DNS resolve failed for '{b.Host}': {ex.Message}");
+    }
+
+    return b.ToString();
 }
 // Factory (singleton-safe)
 builder.Services.AddDbContextFactory<GameDbContext>(options =>

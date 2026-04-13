@@ -452,5 +452,14 @@ modelBuilder.Entity<ItemTemplate>()
     e.Property(x => x.BadgeTier).HasConversion<int>();
     e.Property(x => x.Wins).IsRequired();
 });
+modelBuilder.Entity<PlayerMercenarySlot>()
+    .HasOne(s => s.PlayerProfile)
+    .WithMany(p => p.MercenarySlots)
+    .HasForeignKey(s => s.PlayerProfileId);
+
+modelBuilder.Entity<PlayerMercenarySlot>()
+    .HasOne(s => s.Mercenary)
+    .WithMany()
+    .HasForeignKey(s => s.MercenaryInstanceId);
 }
 }

@@ -333,4 +333,13 @@ public enum ItemBadgeTier
     Adamantite,
     Vibranium
 }
+public enum DungeonAchCode
+{
+    BossDefeat,
+    ClearAllStages,
+    WinStreak,
+    NoDeaths,
+    FinishUnderTurns,
+    // ... až do 22 TODO
+}
 }

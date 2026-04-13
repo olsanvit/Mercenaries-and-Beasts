@@ -12,16 +12,12 @@ namespace MercenariesAndBeasts.Infrastructure.Players;
 /// <summary>
 /// Creates a PlayerProfile on first login and seeds starter party + starter inventory.
 /// 
-/// ✅ New rules applied:
-/// - NO contracts / eggs
-/// - NO LinkedMonsterInstanceId / LinkedMercenaryInstanceId
-/// - PlayerItem always references ItemTemplate (TemplateId)
-/// - ItemTemplate uses:
-///     - OwnerKind (Mercenary / Beast)
-///     - EquipSlot (ItemEquipSlot, 1..99 merc, 100..199 beast)
-/// - Starter inventory gives: 1× item for EACH EquipSlot per owner kind (if templates exist)
-/// - Party slots equip UNIT instances (merc/beast) same as before
-/// - Equipment slots on units are created empty (player decides what to equip)
+/// Current behavior:
+/// - seeds 5 merc unit items + 5 beast unit items
+/// - creates 5+5 party slots if missing
+/// - auto-equips up to 5 units into empty slots
+/// - creates equipment slots only for newly created unit instances
+/// - keeps one instance at most once in party
 /// </summary>
 public class PlayerOnboardingService
 {
@@ -38,7 +34,6 @@ public class PlayerOnboardingService
 
     public async Task EnsurePlayerInitializedAsync(string userId, CancellationToken ct = default)
     {
-        // 1) Load profile + slots + inventory
         var profile = await _db.Players
             .Include(p => p.MercenarySlots)
             .Include(p => p.BeastSlots)
@@ -66,114 +61,73 @@ public class PlayerOnboardingService
             await _db.SaveChangesAsync(ct);
         }
 
-        // 2) Create party slots (5+5) if missing
+        // 1) Create party slots (5 + 5) if missing
         if (profile.MercenarySlots.Count == 0)
         {
             for (int i = 1; i <= 5; i++)
+            {
                 _db.PlayerMercenarySlots.Add(new PlayerMercenarySlot
                 {
                     PlayerProfileId = profile.Id,
                     SlotIndex = i
                 });
+            }
         }
 
         if (profile.BeastSlots.Count == 0)
         {
             for (int i = 1; i <= 5; i++)
+            {
                 _db.PlayerBeastSlots.Add(new PlayerBeastSlot
                 {
                     PlayerProfileId = profile.Id,
                     SlotIndex = i
                 });
+            }
         }
 
         await _db.SaveChangesAsync(ct);
 
-        // 3) Pick 2 starter templates (merc + beast)
-        //    (Later you can add IsStarter flag. For now: "first two")
-        var mercTemplates = await _db.MercenaryTemplates
-            .OrderBy(t => t.BaseLevel).ThenBy(t => t.Code)
-            .Take(2)
-            .ToListAsync(ct);
-
-        var beastTemplates = await _db.MonsterTemplates
-            .OrderBy(t => t.BaseLevel).ThenBy(t => t.Code)
-            .Take(2)
-            .ToListAsync(ct);
-
-        if (mercTemplates.Count < 2 || beastTemplates.Count < 2)
-            throw new InvalidOperationException("Missing starter templates (need at least 2 mercenary templates and 2 monster templates).");
-
-        // 4) Create 2 + 2 unit instances (lvl 1) with empty equipment slots
-        //    NOTE: These builders assume your equipment-slot entities use ItemEquipSlot.
-        var pm1 = new PlayerMercenary { Id = Guid.NewGuid(), PlayerId = profile.Id, TemplateId = mercTemplates[0].Id, Level = 1 };
-        pm1.Equipment = BuildMercEquipment(pm1.Id);
-
-        var pm2 = new PlayerMercenary { Id = Guid.NewGuid(), PlayerId = profile.Id, TemplateId = mercTemplates[1].Id, Level = 1 };
-        pm2.Equipment = BuildMercEquipment(pm2.Id);
-
-        _db.PlayerMercenaries.AddRange(pm1, pm2);
-
-        var bm1 = new PlayerMonster { Id = Guid.NewGuid(), PlayerId = profile.Id, TemplateId = beastTemplates[0].Id, Level = 1 };
-        bm1.Equipment = BuildBeastEquipment(bm1.Id);
-
-        var bm2 = new PlayerMonster { Id = Guid.NewGuid(), PlayerId = profile.Id, TemplateId = beastTemplates[1].Id, Level = 1 };
-        bm2.Equipment = BuildBeastEquipment(bm2.Id);
-
-        _db.PlayerMonsters.AddRange(bm1, bm2);
-
-        await _db.SaveChangesAsync(ct);
-
-        // 5) Assign units to party slots (1 and 2)
-        var mercSlots = await _db.PlayerMercenarySlots
-            .Where(s => s.PlayerProfileId == profile.Id)
-            .OrderBy(s => s.SlotIndex)
-            .ToListAsync(ct);
-
-        var beastSlots = await _db.PlayerBeastSlots
-            .Where(s => s.PlayerProfileId == profile.Id)
-            .OrderBy(s => s.SlotIndex)
-            .ToListAsync(ct);
-
-        mercSlots[0].MercenaryInstanceId = pm1.Id;
-        mercSlots[1].MercenaryInstanceId = pm2.Id;
-
-        beastSlots[0].BeastInstanceId = bm1.Id;
-        beastSlots[1].BeastInstanceId = bm2.Id;
-
+        // 2) Get starter unit templates (5 + 5)
         var beastUnitTpls = await _db.ItemTemplates
             .AsNoTracking()
             .Where(t => t.OwnerKind == ItemOwnerKind.Beast)
-            .Where(t => t.MonsterTemplateId != null)     // ✅ unit templates
-            .Where(t => t.MercenarySlot == null && t.MonsterSlot != null)
-            .OrderBy(t => Guid.NewGuid())
-            .Take(2)
+            .Where(t => t.MonsterTemplateId != null)
+            .OrderBy(t => t.Code)
+            .Take(5)
             .ToListAsync(ct);
 
-        foreach (var tpl in beastUnitTpls)
-        {
-            _db.PlayerItems.Add(new PlayerItem
-            {
-                Id = Guid.NewGuid(),
-                PlayerId = profile.Id,
-                TemplateId = tpl.Id,
-                Level = 1,
-                Quality = tpl.BaseQuality,
-                BonusStats = StatBlock.Zero,
-                Wins = 0
-            });
-        }
-
-        var orderUnitTpls = await _db.ItemTemplates
+        var mercUnitTpls = await _db.ItemTemplates
             .AsNoTracking()
             .Where(t => t.OwnerKind == ItemOwnerKind.Mercenary)
-            .Where(t => t.MercenaryTemplateId != null)     // ✅ unit templates
-            .Where(t => t.MercenarySlot != null && t.MonsterSlot == null)
-            .OrderBy(t => Guid.NewGuid())
-            .Take(2)
+            .Where(t => t.MercenaryTemplateId != null)
+            .OrderBy(t => t.Code)
+            .Take(5)
             .ToListAsync(ct);
 
-        foreach (var tpl in orderUnitTpls)
+        if (mercUnitTpls.Count < 5 || beastUnitTpls.Count < 5)
+        {
+            throw new InvalidOperationException(
+                "Missing starter UNIT item templates (need at least 5 merc unit templates and 5 beast unit templates).");
+        }
+
+        // 3) Existing unit item template ids for this player
+        var existingUnitTemplateIds = await _db.PlayerItems
+            .AsNoTracking()
+            .Join(
+                _db.ItemTemplates.AsNoTracking(),
+                pi => pi.TemplateId,
+                t => t.Id,
+                (pi, t) => new { pi.PlayerId, pi.TemplateId, t.OwnerKind, t.MercenaryTemplateId, t.MonsterTemplateId })
+            .Where(x => x.PlayerId == profile.Id)
+            .Where(x =>
+                (x.OwnerKind == ItemOwnerKind.Mercenary && x.MercenaryTemplateId != null) ||
+                (x.OwnerKind == ItemOwnerKind.Beast && x.MonsterTemplateId != null))
+            .Select(x => x.TemplateId)
+            .ToHashSetAsync(ct);
+
+        // 4) Add missing unit items only
+        foreach (var tpl in mercUnitTpls.Where(t => !existingUnitTemplateIds.Contains(t.Id)))
         {
             _db.PlayerItems.Add(new PlayerItem
             {
@@ -183,139 +137,398 @@ public class PlayerOnboardingService
                 Level = 1,
                 Quality = tpl.BaseQuality,
                 BonusStats = StatBlock.Zero,
-                Wins = 0
+                Wins = 0,
+                LinkedMercenaryInstanceId = null
             });
         }
+
+        foreach (var tpl in beastUnitTpls.Where(t => !existingUnitTemplateIds.Contains(t.Id)))
+        {
+            _db.PlayerItems.Add(new PlayerItem
+            {
+                Id = Guid.NewGuid(),
+                PlayerId = profile.Id,
+                TemplateId = tpl.Id,
+                Level = 1,
+                Quality = tpl.BaseQuality,
+                BonusStats = StatBlock.Zero,
+                Wins = 0,
+                LinkedMonsterInstanceId = null
+            });
+        }
+
         await _db.SaveChangesAsync(ct);
 
-        // 6) Starter inventory: 1× per equip slot (merc + beast)
+        // 5) Starter gear pack: 2 per equip slot
         await EnsureStarterEquipPackAsync(profile, ct);
 
+        // 6) Load slots and unit items fresh
+        var mercSlots = await _db.PlayerMercenarySlots
+    .Include(s => s.Mercenary)
+        .ThenInclude(b => b.Template)
+            .Where(s => s.PlayerProfileId == profile.Id)
+            .OrderBy(s => s.SlotIndex)
+            .ToListAsync(ct);
+
+            var beastSlots = await _db.PlayerBeastSlots
+        .Include(s => s.Beast)
+            .ThenInclude(b => b.Template)
+            .Where(s => s.PlayerProfileId == profile.Id)
+            .OrderBy(s => s.SlotIndex)
+            .ToListAsync(ct);
+
+        var unitItems = await _db.PlayerItems
+    .Include(x => x.Template)
+    .Where(pi => pi.PlayerId == profile.Id)
+    .ToListAsync(ct);
+
+        var mercUnitItems = unitItems
+            .Where(x => x.Template.OwnerKind == ItemOwnerKind.Mercenary && x.Template.MercenaryTemplateId != null)
+            .OrderBy(x => x.Template.Code)
+            .Select(x => x)
+            .Take(5)
+            .ToList();
+
+        var beastUnitItems = unitItems
+            .Where(x => x.Template.OwnerKind == ItemOwnerKind.Beast && x.Template.MonsterTemplateId != null)
+            .OrderBy(x => x.Template.Code)
+            .Select(x => x)
+            .Take(5)
+            .ToList();
+
+        // 7) Auto-equip into empty slots only
+        var mercCount = Math.Min(5, Math.Min(mercSlots.Count, mercUnitItems.Count));
+        for (int i = 0; i < mercCount; i++)
+        {
+            if (mercSlots[i].MercenaryInstanceId is null)
+            {
+                await EnsureMercUnitEquippedAsync(
+                    profile.Id,
+                    mercSlots[i].Id,
+                    mercUnitItems[i].Id,
+                    ct);
+            }
+        }
+
+        var beastCount = Math.Min(5, Math.Min(beastSlots.Count, beastUnitItems.Count));
+        for (int i = 0; i < beastCount; i++)
+        {
+            if (beastSlots[i].BeastInstanceId is null)
+            {
+                await EnsureBeastUnitEquippedAsync(
+                    profile.Id,
+                    beastSlots[i].Id,
+                    beastUnitItems[i].Id,
+                    ct);
+            }
+        }
+
+        await _db.SaveChangesAsync(ct);
+
+var mercDebug = await _db.PlayerMercenarySlots
+    .Where(s => s.PlayerProfileId == profile.Id)
+    .Include(s => s.Mercenary)
+        .ThenInclude(m => m.Template)
+    .OrderBy(s => s.SlotIndex)
+    .Select(s => new
+    {
+        s.SlotIndex,
+        InstanceId = s.MercenaryInstanceId,
+        MercId = s.Mercenary != null ? s.Mercenary.Id : (Guid?)null,
+        TemplateName = s.Mercenary != null && s.Mercenary.Template != null
+            ? s.Mercenary.Template.NameEn
+            : "NULL"
+    })
+    .ToListAsync(ct);
+
+_logger.LogWarning("MERC AFTER EQUIP: " +
+    string.Join(" | ", mercDebug.Select(x =>
+        $"{x.SlotIndex}: fk={(x.InstanceId != null ? "Y" : "N")}, inst={(x.MercId != null ? "OK" : "NULL")}, tpl={x.TemplateName}")));
+// =====================
+// 🔍 DEBUG VÝPIS BEASTŮ
+// =====================
+var beastDebug = await _db.PlayerBeastSlots
+    .Where(s => s.PlayerProfileId == profile.Id)
+    .Include(s => s.Beast)
+        .ThenInclude(b => b.Template)
+    .OrderBy(s => s.SlotIndex)
+    .Select(s => new
+    {
+        s.SlotIndex,
+        InstanceId = s.BeastInstanceId,
+        BeastId = s.Beast != null ? s.Beast.Id : (Guid?)null,
+        TemplateName = s.Beast != null && s.Beast.Template != null
+            ? s.Beast.Template.NameEn
+            : "NULL"
+    })
+    .ToListAsync(ct);
+
+_logger.LogWarning("BEASTS AFTER EQUIP: " +
+    string.Join(" | ", beastDebug.Select(x =>
+        $"{x.SlotIndex}: fk={(x.InstanceId != null ? "Y" : "N")}, inst={(x.BeastId != null ? "OK" : "NULL")}, tpl={x.TemplateName}")));
         profile.IsInitialized = true;
         await _db.SaveChangesAsync(ct);
 
-        _logger.LogInformation("Player initialized for UserId={UserId}, PlayerId={PlayerId}", userId, profile.Id);
+        _logger.LogInformation(
+            "Player initialized for UserId={UserId}, PlayerId={PlayerId}",
+            userId,
+            profile.Id);
     }
+private async Task EnsureMercUnitEquippedAsync(
+    Guid playerId,
+    Guid targetSlotId,
+    Guid playerItemId,
+    CancellationToken ct)
+{
+    var slot = await _db.PlayerMercenarySlots
+        .FirstOrDefaultAsync(s => s.Id == targetSlotId && s.PlayerProfileId == playerId, ct);
+
+    if (slot is null)
+        return;
+
+    var item = await _db.PlayerItems
+        .Include(i => i.Template)
+        .FirstOrDefaultAsync(i => i.Id == playerItemId && i.PlayerId == playerId, ct);
+
+    if (item?.Template is null)
+        return;
+
+    if (item.Template.OwnerKind != ItemOwnerKind.Mercenary || item.Template.MercenaryTemplateId is null)
+        return;
+
+    PlayerMercenary? merc = null;
+
+    if (item.LinkedMercenaryInstanceId is not null)
+    {
+        merc = await _db.PlayerMercenaries
+            .FirstOrDefaultAsync(m => m.Id == item.LinkedMercenaryInstanceId.Value && m.PlayerId == playerId, ct);
+    }
+
+    if (merc is null)
+    {
+        merc = new PlayerMercenary
+        {
+            Id = Guid.NewGuid(),
+            PlayerId = playerId,
+            TemplateId = item.Template.MercenaryTemplateId.Value,
+            Level = item.Level
+        };
+
+        merc.Equipment = BuildMercEquipment(merc.Id);
+
+        _db.PlayerMercenaries.Add(merc);
+        item.LinkedMercenaryInstanceId = merc.Id;
+    }
+    else
+    {
+        merc.Level = item.Level;
+    }
+
+    var mercId = merc.Id;
+
+    var otherSlots = await _db.PlayerMercenarySlots
+        .Where(s => s.PlayerProfileId == playerId)
+        .ToListAsync(ct);
+
+    foreach (var s in otherSlots)
+    {
+        if (s.Id != slot.Id && s.MercenaryInstanceId == mercId)
+            s.MercenaryInstanceId = null;
+    }
+
+    slot.MercenaryInstanceId = mercId;
+}
+
+    private async Task EnsureBeastUnitEquippedAsync(
+    Guid playerId,
+    Guid targetSlotId,
+    Guid playerItemId,
+    CancellationToken ct)
+{
+    var slot = await _db.PlayerBeastSlots
+        .FirstOrDefaultAsync(s => s.Id == targetSlotId && s.PlayerProfileId == playerId, ct);
+
+    if (slot is null)
+        return;
+
+    var item = await _db.PlayerItems
+        .Include(i => i.Template)
+        .FirstOrDefaultAsync(i => i.Id == playerItemId && i.PlayerId == playerId, ct);
+
+    if (item?.Template is null)
+        return;
+
+    if (item.Template.OwnerKind != ItemOwnerKind.Beast || item.Template.MonsterTemplateId is null)
+        return;
+
+    PlayerMonster? beast = null;
+
+    if (item.LinkedMonsterInstanceId is not null)
+    {
+        beast = await _db.PlayerMonsters
+            .FirstOrDefaultAsync(b => b.Id == item.LinkedMonsterInstanceId.Value && b.PlayerId == playerId, ct);
+    }
+
+    if (beast is null)
+    {
+        beast = new PlayerMonster
+        {
+            Id = Guid.NewGuid(),
+            PlayerId = playerId,
+            TemplateId = item.Template.MonsterTemplateId.Value,
+            Level = item.Level
+        };
+
+        beast.Equipment = BuildBeastEquipment(beast.Id);
+
+        _db.PlayerMonsters.Add(beast);
+        item.LinkedMonsterInstanceId = beast.Id;
+    }
+    else
+    {
+        beast.Level = item.Level;
+    }
+
+    var beastId = beast.Id;
+
+    var otherSlots = await _db.PlayerBeastSlots
+        .Where(s => s.PlayerProfileId == playerId)
+        .ToListAsync(ct);
+
+    foreach (var s in otherSlots)
+    {
+        if (s.Id != slot.Id && s.BeastInstanceId == beastId)
+            s.BeastInstanceId = null;
+    }
+
+    slot.BeastInstanceId = beastId;
+}
 
     /// <summary>
-    /// Gives the player ONE item for each equip slot (for merc and for beast),
-    /// based on ItemTemplate.EquipSlot.
-    ///
-    /// Idempotent: if player already owns ANY item with that EquipSlot, it skips it.
-    ///
-    /// This assumes your GameSeed created ItemTemplates with:
-    /// - EquipSlot filled
-    /// - OwnerKind filled
+    /// Gives the player TWO items for each equip slot (merc and beast),
+    /// if missing.
     /// </summary>
-   private async Task EnsureStarterEquipPackAsync(PlayerProfile profile, CancellationToken ct)
-{
-    // 0) co už hráč má (sloty + templateIds)
-    var owned = await _db.PlayerItems
-        .AsNoTracking()
-        .Where(pi => pi.PlayerId == profile.Id)
-        .Select(pi => new
-        {
-            pi.TemplateId,
-            Merc = pi.Template.MercenarySlot,
-            Beast = pi.Template.MonsterSlot
-        })
-        .ToListAsync(ct);
-
-    var ownedTemplateIds = owned.Select(x => x.TemplateId).ToHashSet();
-
-    // slot -> kolik itemů pro ten slot už hráč má
-    var ownedCountBySlot = owned
-        .SelectMany(x => new ItemEquipSlot?[] { x.Merc, x.Beast })
-        .Where(s => s.HasValue && s.Value != ItemEquipSlot.None)
-        .Select(s => s!.Value)
-        .GroupBy(s => s)
-        .ToDictionary(g => g.Key, g => g.Count());
-
-    // 1) načti všechny item templates, co mají slot
-    //    a připrav per-slot seznam kandidatů (deterministicky podle Code)
-    var templates = await _db.ItemTemplates
-        .AsNoTracking()
-        .Where(t => t.MercenarySlot != null || t.MonsterSlot != null)
-        .Select(t => new
-        {
-            t.Id,
-            t.Code,
-            t.OwnerKind,
-            t.BaseQuality,
-            Slot = (ItemEquipSlot?)(t.MercenarySlot ?? t.MonsterSlot)
-        })
-        .ToListAsync(ct);
-
-    var templatesBySlot = templates
-        .Where(t => t.Slot.HasValue && t.Slot.Value != ItemEquipSlot.None)
-        .GroupBy(t => t.Slot!.Value)
-        .ToDictionary(g => g.Key, g => g.OrderBy(x => x.Code).ToList());
-
-    // 2) pro každý slot: zajisti aspoň 2 kusy
-    var allSlots = Enum.GetValues<ItemEquipSlot>()
-        .Where(s => s != ItemEquipSlot.None)
-        .OrderBy(s => (int)s)
-        .ToList();
-
-    foreach (var slot in allSlots)
+    private async Task EnsureStarterEquipPackAsync(PlayerProfile profile, CancellationToken ct)
     {
-        var have = ownedCountBySlot.TryGetValue(slot, out var cnt) ? cnt : 0;
-        var need = 2 - have;
-        if (need <= 0)
-            continue;
+        var owned = await (
+            from pi in _db.PlayerItems.AsNoTracking()
+            join t in _db.ItemTemplates.AsNoTracking() on pi.TemplateId equals t.Id
+            where pi.PlayerId == profile.Id
+            select new
+            {
+                pi.TemplateId,
+                Slot = (ItemEquipSlot?)(t.MercenarySlot ?? t.MonsterSlot)
+            }
+        ).ToListAsync(ct);
 
-        if (!templatesBySlot.TryGetValue(slot, out var candidates) || candidates.Count == 0)
-            continue;
+        var ownedTemplateIds = owned.Select(x => x.TemplateId).ToHashSet();
 
-        // vyber max 2 kandidáty, kteří ještě nejsou v inventory (bez duplicit TemplateId)
-        // a sedí owner na slot (merc/beast)
-        var expectedOwner = slot.IsMercenarySlot() ? ItemOwnerKind.Mercenary : ItemOwnerKind.Beast;
+        var ownedCountBySlot = owned
+            .Where(x => x.Slot.HasValue && x.Slot.Value != ItemEquipSlot.None)
+            .GroupBy(x => x.Slot!.Value)
+            .ToDictionary(g => g.Key, g => g.Count());
 
-        var picks = candidates
-            .Where(t => t.OwnerKind == expectedOwner)
-            .Where(t => !ownedTemplateIds.Contains(t.Id))
-            .Take(need)
+        var templates = await _db.ItemTemplates
+            .AsNoTracking()
+            .Where(t => t.MercenarySlot != null || t.MonsterSlot != null)
+            .Select(t => new
+            {
+                t.Id,
+                t.Code,
+                t.OwnerKind,
+                t.BaseQuality,
+                Slot = (ItemEquipSlot?)(t.MercenarySlot ?? t.MonsterSlot)
+            })
+            .ToListAsync(ct);
+
+        var templatesBySlot = templates
+            .Where(t => t.Slot.HasValue && t.Slot.Value != ItemEquipSlot.None)
+            .GroupBy(t => t.Slot!.Value)
+            .ToDictionary(g => g.Key, g => g.OrderBy(x => x.Code).ToList());
+
+        var allSlots = Enum.GetValues<ItemEquipSlot>()
+            .Where(s => s != ItemEquipSlot.None)
+            .OrderBy(s => (int)s)
             .ToList();
 
-        foreach (var tpl in picks)
+        foreach (var slot in allSlots)
         {
-            try
-            {
-                _db.PlayerItems.Add(new PlayerItem
-                {
-                    Id = Guid.NewGuid(),
-                    PlayerId = profile.Id,
-                    TemplateId = tpl.Id,
-                    Level = 1,
-                    Quality = tpl.BaseQuality,
-                    BonusStats = StatBlock.Zero
-                });
+            var have = ownedCountBySlot.TryGetValue(slot, out var cnt) ? cnt : 0;
+            var need = 2 - have;
+            if (need <= 0)
+                continue;
 
+            if (!templatesBySlot.TryGetValue(slot, out var candidates) || candidates.Count == 0)
+                continue;
+
+            var expectedOwner = slot.IsMercenarySlot()
+                ? ItemOwnerKind.Mercenary
+                : ItemOwnerKind.Beast;
+
+            var pool = candidates
+                .Where(t => t.OwnerKind == expectedOwner)
+                .ToList();
+
+            if (pool.Count == 0)
+                continue;
+
+            var uniquePicks = pool
+                .Where(t => !ownedTemplateIds.Contains(t.Id))
+                .Take(need)
+                .ToList();
+
+            foreach (var tpl in uniquePicks)
+            {
+                AddStarterItem(profile.Id, tpl.Id, tpl.BaseQuality, slot);
                 ownedTemplateIds.Add(tpl.Id);
-
-                if (ownedCountBySlot.ContainsKey(slot))
-                    ownedCountBySlot[slot]++;
-                else
-                    ownedCountBySlot[slot] = 1;
+                have++;
+                need--;
+                ownedCountBySlot[slot] = have;
+                if (need == 0)
+                    break;
             }
-            catch (Exception ex)
+
+            if (need > 0)
             {
-                _errors.Capture(ex, "Failed to add starter PlayerItem (2-per-slot)",
-                    new
-                    {
-                        PlayerId = profile.Id,
-                        Slot = slot.ToString(),
-                        SlotValue = (int)slot,
-                        TemplateId = tpl.Id,
-                        TemplateCode = tpl.Code,
-                        TemplateOwner = tpl.OwnerKind.ToString()
-                    });
+                foreach (var tpl in pool.Take(need))
+                {
+                    AddStarterItem(profile.Id, tpl.Id, tpl.BaseQuality, slot);
+                    have++;
+                    ownedCountBySlot[slot] = have;
+                }
             }
         }
+
+        await _db.SaveChangesAsync(ct);
     }
 
-    await _db.SaveChangesAsync(ct);
-}
+    private void AddStarterItem(Guid playerId, Guid templateId, QualityTier quality, ItemEquipSlot slot)
+    {
+        try
+        {
+            _db.PlayerItems.Add(new PlayerItem
+            {
+                Id = Guid.NewGuid(),
+                PlayerId = playerId,
+                TemplateId = templateId,
+                Level = 1,
+                Quality = quality,
+                BonusStats = StatBlock.Zero,
+                Wins = 0
+            });
+        }
+        catch (Exception ex)
+        {
+            _errors.Capture(ex, "Failed to add starter PlayerItem (2-per-slot)",
+                new
+                {
+                    PlayerId = playerId,
+                    Slot = slot.ToString(),
+                    SlotValue = (int)slot,
+                    TemplateId = templateId
+                });
+        }
+    }
 
     /// <summary>
     /// DEV helper to fully reset a player profile and re-run onboarding.
@@ -330,15 +543,14 @@ public class PlayerOnboardingService
 
         if (profile is not null)
         {
-            // 1) PlayerItems
             var items = await _db.PlayerItems
-            .Include(x => x.Template)
+                .Include(x => x.Template)
                 .Where(x => x.PlayerId == profile.Id)
-            .Where(pi => pi.Template.MercenarySlot != null || pi.Template.MonsterSlot != null)
+                .Where(pi => pi.Template.MercenarySlot != null || pi.Template.MonsterSlot != null)
                 .ToListAsync(ct);
+
             _db.PlayerItems.RemoveRange(items);
 
-            // 2) Mercs + equipment slots
             var mercIds = await _db.PlayerMercenaries
                 .Where(m => m.PlayerId == profile.Id)
                 .Select(m => m.Id)
@@ -357,7 +569,6 @@ public class PlayerOnboardingService
                 _db.PlayerMercenaries.RemoveRange(mercs);
             }
 
-            // 3) Beasts + equipment slots
             var beastIds = await _db.PlayerMonsters
                 .Where(b => b.PlayerId == profile.Id)
                 .Select(b => b.Id)
@@ -376,7 +587,6 @@ public class PlayerOnboardingService
                 _db.PlayerMonsters.RemoveRange(beasts);
             }
 
-            // 4) Party slots
             var mercSlots = await _db.PlayerMercenarySlots
                 .Where(s => s.PlayerProfileId == profile.Id)
                 .ToListAsync(ct);
@@ -387,7 +597,6 @@ public class PlayerOnboardingService
                 .ToListAsync(ct);
             _db.PlayerBeastSlots.RemoveRange(beastSlots);
 
-            // 5) Progress / achievements (optional)
             var expProg = await _db.PlayerExpeditionProgresses.Where(x => x.PlayerId == profile.Id).ToListAsync(ct);
             _db.PlayerExpeditionProgresses.RemoveRange(expProg);
 
@@ -400,7 +609,6 @@ public class PlayerOnboardingService
             var dunAch = await _db.PlayerDungeonAchievements.Where(x => x.PlayerId == profile.Id).ToListAsync(ct);
             _db.PlayerDungeonAchievements.RemoveRange(dunAch);
 
-            // 6) Profile
             _db.Players.Remove(profile);
 
             await _db.SaveChangesAsync(ct);
@@ -409,47 +617,35 @@ public class PlayerOnboardingService
         await EnsurePlayerInitializedAsync(userId, ct);
     }
 
-    // ==========================================================
-    // Equipment slot builders
-    // ==========================================================
-    //
-    // These assume:
-    // - MercenaryEquipmentSlot.Slot is ItemEquipSlot (Merc_*)
-    // - BeastEquipmentSlot.Slot is ItemEquipSlot (Beast_*)
-    //
-    // If your entities still use MercenaryItemSlot / MonsterItemSlot,
-    // you MUST migrate them to ItemEquipSlot (recommended),
-    // otherwise the whole "unified slot enum" concept is broken.
-    //
-
     private static List<MercenaryEquipmentSlot> BuildMercEquipment(Guid mercId)
-{
-    var mercSlots = Enum.GetValues<ItemEquipSlot>()
-        .Where(s => s.IsMercenarySlot() && s != ItemEquipSlot.None)
-        .OrderBy(s => (int)s)
-        .ToList();
-
-    return mercSlots.Select(s => new MercenaryEquipmentSlot
     {
-        Id = Guid.NewGuid(),
-        MercenaryInstanceId = mercId,
-        Slot = s,
-        PlayerItemId = null
-    }).ToList();
-}
-private static List<BeastEquipmentSlot> BuildBeastEquipment(Guid beastId)
-{
-    var beastSlots = Enum.GetValues<ItemEquipSlot>()
-        .Where(s => s.IsBeastSlot() && s != ItemEquipSlot.None)
-        .OrderBy(s => (int)s)
-        .ToList();
+        var mercSlots = Enum.GetValues<ItemEquipSlot>()
+            .Where(s => s.IsMercenarySlot() && s != ItemEquipSlot.None)
+            .OrderBy(s => (int)s)
+            .ToList();
 
-    return beastSlots.Select(s => new BeastEquipmentSlot
+        return mercSlots.Select(s => new MercenaryEquipmentSlot
+        {
+            Id = Guid.NewGuid(),
+            MercenaryInstanceId = mercId,
+            Slot = s,
+            PlayerItemId = null
+        }).ToList();
+    }
+
+    private static List<BeastEquipmentSlot> BuildBeastEquipment(Guid beastId)
     {
-        Id = Guid.NewGuid(),
-        BeastInstanceId = beastId,
-        Slot = s,
-        PlayerItemId = null
-    }).ToList();
-}
+        var beastSlots = Enum.GetValues<ItemEquipSlot>()
+            .Where(s => s.IsBeastSlot() && s != ItemEquipSlot.None)
+            .OrderBy(s => (int)s)
+            .ToList();
+
+        return beastSlots.Select(s => new BeastEquipmentSlot
+        {
+            Id = Guid.NewGuid(),
+            BeastInstanceId = beastId,
+            Slot = s,
+            PlayerItemId = null
+        }).ToList();
+    }
 }

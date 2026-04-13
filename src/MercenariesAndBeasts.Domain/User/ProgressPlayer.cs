@@ -29,12 +29,17 @@ namespace MercenariesAndBeasts.Domain.Progress
 
         public Guid PlayerId { get; set; }
         public PlayerProfile Player { get; set; } = null!;
+    public string Code { get; set; } = null!; // 1 z 22
+    public int Required { get; set; }
+    public int Current { get; set; }
+    public bool IsCompleted { get; set; }
 public Guid ProgressId { get; set; }
 public PlayerExpeditionProgress Progress { get; set; } = null!;
         public Guid AchievementId { get; set; }
         public ExpeditionAchievementDefinition Achievement { get; set; } = null!;
 
         public DateTime CompletedAtUtc { get; set; }
+    public int DifficultyTier { get; set; } // “náhodně se zvyšuje”
     }
 
     public class DungeonAchievementDefinition
@@ -65,7 +70,9 @@ public PlayerExpeditionProgress Progress { get; set; } = null!;
         public DateTime CompletedAtUtc { get; set; }
 
             public bool IsCompleted { get; set; }
+    public string Code { get; set; } = null!; // např. "Boss", "WinStreak", ...
             public int Current { get; set; }
             public int Required { get; set; }
+    public int DifficultyTier { get; set; } // náročnost
     }
 }

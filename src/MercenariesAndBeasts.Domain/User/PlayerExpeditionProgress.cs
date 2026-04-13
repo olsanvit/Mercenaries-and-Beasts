@@ -1,4 +1,5 @@
 
+using MercenariesAndBeasts.Domain.Progress;
 using MercenariesAndBeasts.Domain.Utils;
 
 namespace MercenariesAndBeasts.Domain.Players;
@@ -19,7 +20,8 @@ public class PlayerExpeditionProgress : BaseGuid
     public DateTime LastUpdatedUtc { get; set; } = DateTime.UtcNow;
 
     // 1:1
-    public PlayerExpeditionAchievements Achievements { get; set; } = null!;
+    
+    public ICollection<PlayerExpeditionAchievement> Achievements { get; set; } = new List<PlayerExpeditionAchievement>();
     public PlayerExpeditionEncounter Encounter { get; set; } = null!;
 
     // ✅ OFFERS (5)

@@ -8,6 +8,7 @@
 @using MercenariesAndBeasts.Domain.Players
 @using MercenariesAndBeasts.Domain.Progress
 @using MercenariesAndBeasts.Domain.Localization
+
 @inject IDbContextFactory<GameDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
@@ -27,126 +28,200 @@ else if (player is null)
 }
 else
 {
-    <div class="row g-4">
-        <!-- LEFT: list -->
-        <div class="col-12 col-lg-6">
-            <div class="card-like">
-                <h3>Available dungeons</h3>
-                <p class="text-muted mb-3">Last 5 unlocked + next 2 locked.</p>
+    <div class="dng-fight-layout">
 
-                <ul class="list-group list-group-flush">
-                    @foreach (var row in leftList)
-                    {
-                        var isSelected = row.Dungeon?.Id == selectedDungeonId;
-                        var isLocked = row.IsLocked;
+        <!-- ================= TOP 80% ================= -->
+        <div class="dng-fight-top">
+            <div class="dng-fight-top-grid">
 
-                        <li class="list-group-item bg-transparent text-light"
-                            style="opacity:@(isLocked ? "0.45" : "1");">
-                            <div class="d-flex justify-content-between align-items-center">
+                <!-- LEFT: list -->
+                <div class="card-like dng-panel">
+                    <div class="dng-panel-head">
+                        <h3 class="m-0">Available dungeons</h3>
+                        <p class="text-muted mb-0 small">Last 5 unlocked + next 2 locked.</p>
+                    </div>
+
+                    <div class="dng-panel-body panel-scroll">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var row in leftList)
+                            {
+                                var isSelected = row.Dungeon?.Id == selectedDungeonId;
+                                var isLocked = row.IsLocked;
+
+                                <li class="list-group-item bg-transparent text-light"
+                                    style="opacity:@(isLocked ? "0.45" : "1");">
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                        <div style="min-width:0;">
+                                            <strong class="text-truncate d-block">@row.Title</strong>
+                                            <div class="text-muted small">@row.Subtitle</div>
+
+                                            @if (!isLocked && row.Progress is null)
+                                            {
+                                                <span class="badge bg-secondary mt-1">Not started</span>
+                                            }
+                                            else if (!isLocked && row.Progress?.IsCompleted == true)
+                                            {
+                                                <span class="badge bg-success mt-1">Completed</span>
+                                            }
+                                            else if (!isLocked && row.Progress is not null)
+                                            {
+                                                <span class="badge bg-warning text-dark mt-1">
+                                                    Stage @row.Progress.CurrentStage / @TotalStages
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-dark mt-1">Locked</span>
+                                            }
+                                        </div>
+
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")"
+                                                    disabled="@isLocked"
+                                                    @onclick="() => SelectDungeon(row.Dungeon!.Id)">
+                                                @(isSelected ? "Selected" : "Open")
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- RIGHT: detail -->
+                <div class="card-like dng-panel">
+                    <div class="dng-panel-head">
+                        @if (selectedDungeon is null)
+                        {
+                            <h3 class="m-0">Dungeon</h3>
+                            <p class="text-muted m-0 small">Pick a dungeon on the left.</p>
+                        }
+                        else
+                        {
+                            <h3 class="m-0">@DungeonName(selectedDungeon)</h3>
+                            <div class="text-muted small">
+                                Recommended level @selectedDungeon.MinLevel–@selectedDungeon.MaxLevel
+                            </div>
+                        }
+                    </div>
+
+                    <div class="dng-panel-body panel-scroll">
+                        @if (selectedDungeon is null)
+                        {
+                            <div class="text-muted">—</div>
+                        }
+                        else
+                        {
+                            <div class="mt-2">
+                                @if (selectedProgress is null)
+                                {
+                                    <span class="badge bg-secondary">Not started</span>
+                                }
+                                else if (selectedProgress.IsCompleted)
+                                {
+                                    <span class="badge bg-success">Completed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        Stage @currentStageUi / @TotalStages
+                                    </span>
+                                }
+                            </div>
+
+                            <hr />
+
+                            <h5>Current enemy</h5>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="enemy-portrait"></div>
                                 <div style="min-width:0;">
-                                    <strong class="text-truncate d-block">@row.Title</strong>
-                                    <div class="text-muted small">@row.Subtitle</div>
-
-                                    @if (!isLocked && row.Progress is null)
-                                    {
-                                        <span class="badge bg-secondary mt-1">Not started</span>
-                                    }
-                                    else if (!isLocked && row.Progress?.IsCompleted == true)
-                                    {
-                                        <span class="badge bg-success mt-1">Completed</span>
-                                    }
-                                    else if (!isLocked && row.Progress is not null)
-                                    {
-                                        <span class="badge bg-warning text-dark mt-1">
-                                            Stage @row.Progress.CurrentStage / @TotalStages
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-dark mt-1">Locked</span>
-                                    }
-                                </div>
-
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")"
-                                            disabled="@isLocked"
-                                            @onclick="() => SelectDungeon(row.Dungeon!.Id)">
-                                        @(isSelected ? "Selected" : "Open")
-                                    </button>
+                                    <div class="text-truncate"><b>@currentEnemyName</b></div>
+                                    <div class="text-muted small">Stage @currentStageUi / @TotalStages</div>
                                 </div>
                             </div>
-                        </li>
-                    }
-                </ul>
+
+                            <div class="mt-3 d-flex gap-2">
+                                @if (selectedProgress?.IsCompleted == true)
+                                {
+                                    <button class="btn btn-secondary" disabled>Completed</button>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-primary"
+                                       href="@($"/dungeons/{selectedDungeon.Id}/fight")">
+                                        Fight
+                                    </a>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(DungeonDescription(selectedDungeon)))
+                            {
+                                <hr />
+                                <div class="text-muted">@DungeonDescription(selectedDungeon)</div>
+                            }
+                        }
+                    </div>
+                </div>
 
             </div>
         </div>
 
-        <!-- RIGHT: detail -->
-        <div class="col-12 col-lg-6">
-            <div class="card-like">
-                @if (selectedDungeon is null)
-                {
-                    <h3>Dungeon</h3>
-                    <p class="text-muted m-0">Pick a dungeon on the left.</p>
-                }
-                else
-                {
-                    <h3 class="m-0">@DungeonName(selectedDungeon)</h3>
-                    <div class="text-muted">
-                        Recommended level @selectedDungeon.MinLevel–@selectedDungeon.MaxLevel
+        <!-- ================= BOTTOM 20% ================= -->
+        <div class="dng-fight-bottom">
+            <div class="card-like dng-panel">
+                <div class="dng-panel-head">
+                    <div class="fw-bold">Achievements</div>
+                    <div class="text-muted small">
+                        @(selectedDungeon is null ? "Pick a dungeon above." : $"For: {DungeonName(selectedDungeon)}")
                     </div>
+                </div>
 
-                    <div class="mt-2">
-                        @if (selectedProgress is null)
-                        {
-                            <span class="badge bg-secondary">Not started</span>
-                        }
-                        else if (selectedProgress.IsCompleted)
-                        {
-                            <span class="badge bg-success">Completed</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-warning text-dark">
-                                Stage @currentStageUi / @TotalStages
-                            </span>
-                        }
-                    </div>
-
-                    <hr />
-
-                    <h5>Current enemy</h5>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="enemy-portrait"></div>
-                        <div>
-                            <div><b>@currentEnemyName</b></div>
-                            <div class="text-muted">Stage @currentStageUi / @TotalStages</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3 d-flex gap-2">
-                        @if (selectedProgress?.IsCompleted == true)
-                        {
-                            <button class="btn btn-secondary" disabled>Completed</button>
-                        }
-                        else
-                        {
-                            <a class="btn btn-primary"
-                               href="@($"/dungeons/{selectedDungeon.Id}/fight")">
-                                Fight
-                            </a>
-                        }
-                    </div>
-
-                    @if (!string.IsNullOrWhiteSpace(DungeonDescription(selectedDungeon)))
+                <div class="dng-panel-body panel-scroll">
+                    @if (selectedDungeon is null)
                     {
-                        <hr />
-                        <div class="text-muted">@DungeonDescription(selectedDungeon)</div>
+                        <div class="text-muted">—</div>
                     }
-                }
+                    else if (dungeonAchievements.Count == 0)
+                    {
+                        <div class="text-muted">No achievements for this dungeon.</div>
+                    }
+                    else
+                    {
+                        @foreach (var a in dungeonAchievements)
+                        {
+                            <div class="ach-row">
+                                <div class="ach-title">@a.Title</div>
+
+                                @if (!string.IsNullOrWhiteSpace(a.Description))
+                                {
+                                    <div class="ach-meta text-muted small">@a.Description</div>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(a.RewardText))
+                                {
+                                    <div class="ach-meta text-muted small"><b>Reward:</b> @a.RewardText</div>
+                                }
+
+                                @if (a.IsCompleted)
+                                {
+                                    <span class="badge bg-success mt-2">Completed</span>
+                                }
+                                else if (a.IsLocked)
+                                {
+                                    <span class="badge bg-dark mt-2">Locked</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark mt-2">In progress</span>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
             </div>
         </div>
+
     </div>
 }
 
@@ -177,17 +252,28 @@ else
         public string Subtitle { get; set; } = "";
     }
 
+    // ===== Achievements VM =====
+    private List<AchievementVm> dungeonAchievements = new();
+
+    private sealed record AchievementVm(
+        string Title,
+        string? Description,
+        string? RewardText,
+        bool IsCompleted,
+        bool IsLocked
+    );
+
     // ===== Localization cache (fast lookup) =====
-    // key: (entityType, entityId, culture)
     private readonly Dictionary<(string, Guid, string), LocalizedText> _locByKey = new();
 
-protected override async Task OnAfterRenderAsync(bool firstRender)
-{
-    if (firstRender && selectedDungeonId.HasValue)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await SelectDungeon(selectedDungeonId.Value);
+        if (firstRender && selectedDungeonId.HasValue)
+        {
+            await SelectDungeon(selectedDungeonId.Value);
+        }
     }
-}
+
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
@@ -203,7 +289,6 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
             player = await db.Players.FirstOrDefaultAsync(p => p.UserId == user.Id);
             if (player is null) return;
 
-            // materializuj všechno do listů (žádné deferred enumerace)
             progress = await db.PlayerDungeonProgresses
                 .Where(p => p.PlayerId == player.Id)
                 .ToListAsync();
@@ -212,7 +297,6 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
                 .OrderBy(d => d.UnlockOrder)
                 .ToListAsync();
 
-            // unlock rule: max completed + 1
             var maxCompleted = progress
                 .Where(p => p.IsCompleted)
                 .Join(allDungeons, p => p.DungeonId, d => d.Id, (p, d) => d.UnlockOrder)
@@ -266,7 +350,6 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
                 });
             }
 
-            // auto-select first unlocked (z "last5", aby to odpovídalo UI)
             var first = last5.FirstOrDefault();
             selectedDungeonId = first?.Id;
         }
@@ -288,15 +371,16 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (selectedDungeon is null)
+        {
+            dungeonAchievements = new();
             return;
+        }
 
-        // progress cache z OnInitialized + fallback query (jen když tam není)
         selectedProgress = progress.FirstOrDefault(p => p.DungeonId == id)
             ?? await db.PlayerDungeonProgresses.FirstOrDefaultAsync(p => p.PlayerId == player!.Id && p.DungeonId == id);
 
         currentStageUi = selectedProgress?.CurrentStage ?? 1;
 
-        // preload monster localizations for selected dungeon
         var monsterIds = selectedDungeon.Stages?
             .Select(s => s.MonsterTemplateId)
             .Distinct()
@@ -305,8 +389,41 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
         await LoadLocalizationsAsync(db, nameof(MonsterTemplate), monsterIds);
 
         currentEnemyName = ResolveCurrentEnemyName(selectedDungeon, currentStageUi);
+
+        // ===== Achievements for selected dungeon =====
+        var totalStages = selectedDungeon.Stages?.Count > 0 ? selectedDungeon.Stages.Count : 11;
+
+            var pr = await GetOrCreateProgressWithAchievementsAsync(db, player!.Id, id, totalStages);
+
+            selectedProgress = pr;
+            currentStageUi = pr.CurrentStage;
+
+            dungeonAchievements = BuildDungeonAchievementVms(pr.Achievements!);
+
         StateHasChanged();
     }
+    private List<AchievementVm> BuildDungeonAchievementVms(
+    IEnumerable<PlayerDungeonAchievement> achievements)
+{
+    var defMap = AchievementPool.ToDictionary(x => x.Code);
+
+    return achievements.Select(a =>
+    {
+        defMap.TryGetValue(a.Code, out var def);
+
+        var title = def?.Title ?? a.Code;
+        var desc = def?.Description ?? "";
+        var reward = $"Tier {a.DifficultyTier} reward";
+
+        return new AchievementVm(
+            Title: title,
+            Description: $"{desc} (Tier {a.DifficultyTier})",
+            RewardText: reward,
+            IsCompleted: a.IsCompleted,
+            IsLocked: false
+        );
+    }).ToList();
+}
 
     private string ResolveCurrentEnemyName(Dungeon d, int stageNumber)
     {
@@ -327,9 +444,134 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
     }
 
     // ===========================
+    // Achievements loader (ADAPT TO YOUR MODEL)
+    // ===========================
+    private async Task<PlayerDungeonProgress> GetOrCreateProgressWithAchievementsAsync(
+    GameDbContext db,
+    Guid playerId,
+    Guid dungeonId,
+    int totalStages)
+{
+    var pr = await db.PlayerDungeonProgresses
+        .Include(p => p.Achievements)
+        .FirstOrDefaultAsync(p => p.PlayerId == playerId && p.DungeonId == dungeonId);
+
+    if (pr is null)
+    {
+        pr = new PlayerDungeonProgress
+        {
+            Id = Guid.NewGuid(),
+            PlayerId = playerId,
+            DungeonId = dungeonId,
+            CurrentStage = 1,
+            MaxStageReached = 1,
+            IsCompleted = false,
+            WinStreak = 0,
+            LastUpdatedUtc = DateTime.UtcNow
+        };
+
+        db.PlayerDungeonProgresses.Add(pr);
+        await db.SaveChangesAsync();
+    }
+
+    // Pokud nemá 5 achievementů → vytvoř 5 z 22
+    if (pr.Achievements.Count != 5)
+    {
+        if (pr.Achievements.Count > 0)
+            db.RemoveRange(pr.Achievements);
+
+        var selected = GenerateFiveAchievements(pr.Id, totalStages);
+
+        foreach (var a in selected)
+            pr.Achievements.Add(a);
+
+        await db.SaveChangesAsync();
+    }
+
+    return pr;
+}
+private List<PlayerDungeonAchievement> GenerateFiveAchievements(
+    Guid progressId,
+    int totalStages)
+{
+    var rng = new Random(progressId.GetHashCode());
+
+    var picked = AchievementPool
+        .OrderBy(_ => rng.Next())
+        .Take(5)
+        .ToList();
+
+    var list = new List<PlayerDungeonAchievement>();
+
+    foreach (var t in picked)
+    {
+        var tier = rng.Next(1, 6); // náročnost 1–5
+        var required = t.RequiredByTier(tier);
+
+        list.Add(new PlayerDungeonAchievement
+        {
+            Id = Guid.NewGuid(),
+            ProgressId = progressId,
+            Code = t.Code,
+            Required = required,
+            Current = 0,
+            IsCompleted = false,
+            DifficultyTier = tier
+        });
+    }
+
+    return list;
+}
+private sealed record AchTemplate(
+    string Code,
+    string Title,
+    string Description,
+    Func<int, int> RequiredByTier
+);
+
+private static readonly List<AchTemplate> AchievementPool = new()
+{
+    new("Boss", "Defeat Boss", "Defeat the final boss.", tier => 1),
+    new("WinStreak", "Win Streak", "Win fights in a row.", tier => 2 + tier),
+    new("Stages", "Clear Stages", "Clear stages in dungeon.", tier => 5 + tier),
+    // ... doplň do 22
+};
+private async Task<PlayerDungeonAchievements> GetOrCreateDungeonAchievementsAsync(
+    GameDbContext db,
+    Guid playerId,
+    Guid dungeonId,
+    int totalStagesFallback)
+{
+    var a = await db.Set<PlayerDungeonAchievements>()
+        .FirstOrDefaultAsync(x => x.PlayerId == playerId && x.DungeonId == dungeonId);
+
+    if (a is not null)
+    {
+        // když se ti v DB změnil počet stage (nebo dungeon má jinak), srovnej
+        if (a.TotalStages <= 0) a.TotalStages = totalStagesFallback;
+        return a;
+    }
+
+    a = new PlayerDungeonAchievements
+    {
+        Id = Guid.NewGuid(),
+        PlayerId = playerId,
+        DungeonId = dungeonId,
+        TotalStages = totalStagesFallback,
+        StagesCleared = 0,
+        BossDefeated = false,
+        BestWinStreak = 0,
+        RequiredWinStreak = 3
+    };
+
+    db.Add(a);
+    await db.SaveChangesAsync();
+    return a;
+}
+
+    // ===========================
     // Localization (fast cache)
     // ===========================
-
     private async Task LoadLocalizationsAsync(GameDbContext db, string entityType, List<Guid> entityIds)
     {
         if (entityIds.Count == 0) return;
@@ -344,12 +586,11 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
 
     private string DungeonName(Dungeon d) => Localize(nameof(Dungeon), d.Id, field: "Name", fallback: d.NameEn);
     private string DungeonDescription(Dungeon d) => Localize(nameof(Dungeon), d.Id, field: "Description", fallback: d.DescriptionEn ?? "");
-
     private string MonsterName(MonsterTemplate m) => Localize(nameof(MonsterTemplate), m.Id, field: "Name", fallback: m.NameEn);
 
     private string Localize(string entityType, Guid entityId, string field, string fallback)
     {
-        var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName; // cs/de/en/...
+        var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
         if (!_locByKey.TryGetValue((entityType, entityId, culture), out var loc) || loc is null)
             return fallback;
