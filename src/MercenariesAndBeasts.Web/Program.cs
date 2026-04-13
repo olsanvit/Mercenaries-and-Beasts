@@ -120,14 +120,14 @@ static string PreferIPv4Host(string cs)
     return b.ToString();
 }
 // Factory (singleton-safe)
-builder.Services.AddDbContextFactory<GameDbContext>(options =>
+builder.Services.AddDbContextFactory<MercenariesAndBeastsDbContext>(options =>
 {
     options.UseNpgsql(cs);
 });
 
 // Scoped DbContext pro Identity + běžné služby
 builder.Services.AddScoped(sp =>
-    sp.GetRequiredService<IDbContextFactory<GameDbContext>>().CreateDbContext());
+    sp.GetRequiredService<IDbContextFactory<MercenariesAndBeastsDbContext>>().CreateDbContext());
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     {
         // minimální nastavení, později doladíš
@@ -136,7 +136,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
         options.Password.RequireDigit = false;
         options.SignIn.RequireConfirmedAccount = false;
     })
-    .AddEntityFrameworkStores<GameDbContext>()
+    .AddEntityFrameworkStores<MercenariesAndBeastsDbContext>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 
@@ -231,7 +231,7 @@ app.MapPost("/logout", async (SignInManager<AppUser> signInManager) =>
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var db = services.GetRequiredService<GameDbContext>();
+    var db = services.GetRequiredService<MercenariesAndBeastsDbContext>();
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var seed = services.GetRequiredService<GameSeed>();

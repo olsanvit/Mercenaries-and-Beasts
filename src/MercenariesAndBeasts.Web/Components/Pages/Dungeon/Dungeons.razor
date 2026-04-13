@@ -9,7 +9,7 @@
 @using MercenariesAndBeasts.Domain.Progress
 @using MercenariesAndBeasts.Domain.Localization
 
-@inject IDbContextFactory<GameDbContext> DbFactory
+@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -447,7 +447,7 @@ else
     // Achievements loader (ADAPT TO YOUR MODEL)
     // ===========================
     private async Task<PlayerDungeonProgress> GetOrCreateProgressWithAchievementsAsync(
-    GameDbContext db,
+    MercenariesAndBeastsDbContext db,
     Guid playerId,
     Guid dungeonId,
     int totalStages)
@@ -537,7 +537,7 @@ private static readonly List<AchTemplate> AchievementPool = new()
     // ... doplň do 22
 };
 private async Task<PlayerDungeonAchievements> GetOrCreateDungeonAchievementsAsync(
-    GameDbContext db,
+    MercenariesAndBeastsDbContext db,
     Guid playerId,
     Guid dungeonId,
     int totalStagesFallback)
@@ -572,7 +572,7 @@ private async Task<PlayerDungeonAchievements> GetOrCreateDungeonAchievementsAsyn
     // ===========================
     // Localization (fast cache)
     // ===========================
-    private async Task LoadLocalizationsAsync(GameDbContext db, string entityType, List<Guid> entityIds)
+    private async Task LoadLocalizationsAsync(MercenariesAndBeastsDbContext db, string entityType, List<Guid> entityIds)
     {
         if (entityIds.Count == 0) return;
 

@@ -10,7 +10,7 @@
 @using MercenariesAndBeasts.Domain.Progress
 @using MercenariesAndBeasts.Domain.Localization
 
-@inject IDbContextFactory<GameDbContext> DbFactory
+@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
@@ -357,7 +357,7 @@ else
     // ===========================
     // Localization helpers
     // ===========================
-    private async Task LoadDungeonLocalizationsAsync(GameDbContext db, List<Guid> dungeonIds)
+    private async Task LoadDungeonLocalizationsAsync(MercenariesAndBeastsDbContext db, List<Guid> dungeonIds)
     {
         if (dungeonIds.Count == 0) { _dngLocs = new(); return; }
 
@@ -366,7 +366,7 @@ else
             .ToListAsync();
     }
 
-    private async Task LoadMonsterLocalizationsAsync(GameDbContext db, List<Guid> monsterIds)
+    private async Task LoadMonsterLocalizationsAsync(MercenariesAndBeastsDbContext db, List<Guid> monsterIds)
     {
         if (monsterIds.Count == 0) { _monsterLocs = new(); return; }
 

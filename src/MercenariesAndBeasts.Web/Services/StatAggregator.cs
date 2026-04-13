@@ -9,9 +9,9 @@ using MercenariesAndBeasts.Infrastructure;
 
 public sealed class StatAggregator : IStatAggregator
 {
-    private readonly GameDbContext _db;
+    private readonly MercenariesAndBeastsDbContext _db;
 
-    public StatAggregator(GameDbContext db) => _db = db;
+    public StatAggregator(MercenariesAndBeastsDbContext db) => _db = db;
 
     /// <summary>
     /// Sestaví kompletní <see cref="UnitSnapshot"/> pro žoldáka hráče včetně

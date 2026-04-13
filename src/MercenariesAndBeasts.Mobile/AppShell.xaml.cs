@@ -1,0 +1,9 @@
+namespace MercenariesAndBeasts.Mobile;
+
+public partial class AppShell : Shell
+{
+    public AppShell()
+    {
+        InitializeComponent();
+    }
+}

@@ -9,7 +9,7 @@
 @using MercenariesAndBeasts.Domain.Progress
 @using MercenariesAndBeasts.Domain.Localization
 
-@inject IDbContextFactory<GameDbContext> DbFactory
+@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -184,7 +184,7 @@ else
     // ===========================
     // Offers (5 slots) persistence
     // ===========================
-    private async Task EnsureOffers5Async(GameDbContext db, PlayerExpeditionProgress pr)
+    private async Task EnsureOffers5Async(MercenariesAndBeastsDbContext db, PlayerExpeditionProgress pr)
     {
         if (HasAll5(pr))
             return;
@@ -254,7 +254,7 @@ else
         .Select(x => x!.Value)
         .ToList();
 
-    private async Task LoadOffersVmAsync(GameDbContext db, PlayerExpeditionProgress pr)
+    private async Task LoadOffersVmAsync(MercenariesAndBeastsDbContext db, PlayerExpeditionProgress pr)
     {
         offers = new();
 
@@ -286,7 +286,7 @@ else
         }
     }
 
-    private async Task RerollAll5Async(GameDbContext db, PlayerExpeditionProgress pr)
+    private async Task RerollAll5Async(MercenariesAndBeastsDbContext db, PlayerExpeditionProgress pr)
     {
         var pool = await db.MercenaryTemplates.Select(x => x.Id).ToListAsync();
         if (pool.Count < 5) return;
@@ -298,7 +298,7 @@ else
             SetOfferId(pr, i + 1, picks[i]);
     }
 
-    private async Task RerollSomeAsync(GameDbContext db, PlayerExpeditionProgress pr, int count)
+    private async Task RerollSomeAsync(MercenariesAndBeastsDbContext db, PlayerExpeditionProgress pr, int count)
     {
         count = Math.Clamp(count, 1, 5);
 
@@ -315,7 +315,7 @@ else
         }
     }
 
-    private async Task LoadNewOfferNames5Async(GameDbContext db, PlayerExpeditionProgress pr)
+    private async Task LoadNewOfferNames5Async(MercenariesAndBeastsDbContext db, PlayerExpeditionProgress pr)
     {
         var ids = GetAllOfferIds(pr);
         await LoadOrderLocalizationsAsync(db, ids);
@@ -414,7 +414,7 @@ else
     // ===========================
     // Localization helpers
     // ===========================
-    private async Task LoadLocationLocalizationsAsync(GameDbContext db, List<Guid> locationIds)
+    private async Task LoadLocationLocalizationsAsync(MercenariesAndBeastsDbContext db, List<Guid> locationIds)
     {
         if (locationIds.Count == 0) { _locLocs = new(); return; }
 
@@ -423,7 +423,7 @@ else
             .ToListAsync();
     }
 
-    private async Task LoadOrderLocalizationsAsync(GameDbContext db, List<Guid> orderIds)
+    private async Task LoadOrderLocalizationsAsync(MercenariesAndBeastsDbContext db, List<Guid> orderIds)
     {
         if (orderIds.Count == 0) { _orderLocs = new(); return; }
 

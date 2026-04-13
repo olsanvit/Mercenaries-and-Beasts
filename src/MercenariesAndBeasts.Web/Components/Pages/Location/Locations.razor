@@ -9,7 +9,7 @@
 @using MercenariesAndBeasts.Domain.Progress
 @using MercenariesAndBeasts.Domain.Localization
 
-@inject IDbContextFactory<GameDbContext> DbFactory
+@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -513,7 +513,7 @@ private List<PlayerExpeditionAchievement> GenerateFiveExpeditionAchievements(
 
     return list;
 }private async Task<PlayerExpeditionProgress> GetOrCreateExpeditionProgressWithAchievementsAsync(
-    GameDbContext db,
+    MercenariesAndBeastsDbContext db,
     Guid playerId,
     Guid locationId,
     int baseTier)
@@ -581,7 +581,7 @@ private List<LocationAchievementVm> BuildLocationAchievementVms(
         );
     }).ToList();
 }
-    private async Task EnsureEncountersAsync(GameDbContext db, PlayerExpeditionProgress pr)
+    private async Task EnsureEncountersAsync(MercenariesAndBeastsDbContext db, PlayerExpeditionProgress pr)
     {
         if (pr.EncounterOrder1TemplateId.HasValue &&
             pr.EncounterOrder2TemplateId.HasValue &&
@@ -612,7 +612,7 @@ private List<LocationAchievementVm> BuildLocationAchievementVms(
     // ===========================
     // Achievements loader (ADAPT TO YOUR MODEL)
     // ===========================
-    private async Task<List<LocationAchievementVm>> LoadLocationAchievementsAsync(GameDbContext db, Guid locationId)
+    private async Task<List<LocationAchievementVm>> LoadLocationAchievementsAsync(MercenariesAndBeastsDbContext db, Guid locationId)
     {
         // TODO: napoj na svůj model
         // Příklad:
@@ -637,7 +637,7 @@ private List<LocationAchievementVm> BuildLocationAchievementVms(
     // ===========================
     // Localization (fast cache)
     // ===========================
-    private async Task LoadLocalizationsAsync(GameDbContext db, string entityType, List<Guid> entityIds)
+    private async Task LoadLocalizationsAsync(MercenariesAndBeastsDbContext db, string entityType, List<Guid> entityIds)
     {
         if (entityIds.Count == 0) return;
 
