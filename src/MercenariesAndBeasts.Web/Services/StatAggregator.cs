@@ -29,7 +29,7 @@ public sealed class StatAggregator : IStatAggregator
             .FirstAsync(m => m.Id == playerMercenaryId, ct);
 
         // 1) base (template)
-        var stats = Clone(merc.Template.BaseStats);
+        var stats = merc.Template.BaseStats.Clone();
 
         // 2) level scaling (unit level)
         ApplyLevelScaling(stats, merc.Level);
@@ -90,7 +90,7 @@ public sealed class StatAggregator : IStatAggregator
                     .ThenInclude(pi => pi!.Template)
             .FirstAsync(b => b.Id == playerMonsterId, ct);
 
-        var stats = Clone(beast.Template.BaseStats);
+        var stats = beast.Template.BaseStats.Clone();
 
         ApplyLevelScaling(stats, beast.Level);
 
@@ -135,59 +135,6 @@ public sealed class StatAggregator : IStatAggregator
 
     // ---------- helpers ----------
 
-    /// <summary>Vytvoří hlubokou kopii <see cref="StatBlock"/>, aby služba byla bez vedlejších efektů.</summary>
-    private static StatBlock Clone(StatBlock s) => new()
-    {
-        // CORE
-        MaxHp = s.MaxHp,           // ✅ chybělo
-        Attack = s.Attack,
-        Defense = s.Defense,
-        Speed = s.Speed,
-
-        // CRIT / PEN
-        CriticalChance = s.CriticalChance,
-        CriticalMultiplier = s.CriticalMultiplier,
-        ArmorPenetration = s.ArmorPenetration,
-
-        // HIT / AVOID
-        Accuracy = s.Accuracy,
-        Evasion = s.Evasion,
-        BlockChance = s.BlockChance,
-
-        // DAMAGE
-        DamageBonus = s.DamageBonus,
-        DamageReduction = s.DamageReduction,
-        TrueDamageBonus = s.TrueDamageBonus,
-
-        // TEMPO
-        TurnMeterGain = s.TurnMeterGain,
-
-        // SUSTAIN
-        LifeSteal = s.LifeSteal,
-        HpRegen = s.HpRegen,
-        EnergyRegen = s.EnergyRegen,
-
-        // ELEMENT
-        Element = s.Element,
-
-        // STATUS
-        BleedChance = s.BleedChance,
-        PoisonChance = s.PoisonChance,
-        BurnChance = s.BurnChance,
-        ShockChance = s.ShockChance,
-        FreezeChance = s.FreezeChance,
-
-        StatusDurationBonus = s.StatusDurationBonus,
-        StatusResistance = s.StatusResistance,
-        DotDamageBonus = s.DotDamageBonus,
-        DotDamageReduction = s.DotDamageReduction,
-        CleanseChance = s.CleanseChance
-    };
-
-    /// <summary>
-    /// Škáluje core staty (MaxHp, Attack, Defense, Speed) podle levelu jednotky.
-    /// Každý level přidává +3 % k HP/ATK/DEF a +1 % ke Speed.
-    /// </summary>
     private static void ApplyLevelScaling(StatBlock s, int level)
     {
         var lvl = Math.Max(1, level);

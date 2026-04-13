@@ -227,26 +227,47 @@ else
         // Enemy stats (fallback safe)
         var enemyStats = (enemy.BaseStats ?? StatBlock.Zero).Clone();
 
-        // TODO: Load player party + compute final StatBlocks (materialize here!)
+        // Load player party from mercenary and beast slots
         var playerUnits = new List<FightUnitInput>();
 
-        // Example skeleton (replace with your real party model):
-        // var party = await db.PlayerPartyUnits
-        //     .Where(x => x.PlayerId == player.Id)
-        //     .Include(x => x.MercenaryTemplate)
-        //     .Include(x => x.EquippedItems)
-        //     .ToListAsync();
-        //
-        // foreach (var u in party)
-        // {
-        //     var stats = BuildFinalStats(u); // StatBlock
-        //     playerUnits.Add(new FightUnitInput(u.Id, u.DisplayName, stats));
-        // }
+        var mercSlots = await db.PlayerMercenarySlots
+            .Where(s => s.PlayerProfileId == player.Id && s.MercenaryInstanceId != null)
+            .Include(s => s.Mercenary)
+                .ThenInclude(m => m!.Template)
+            .OrderBy(s => s.SlotIndex)
+            .ToListAsync();
+
+        var beastSlots = await db.PlayerBeastSlots
+            .Where(s => s.PlayerProfileId == player.Id && s.BeastInstanceId != null)
+            .Include(s => s.Beast)
+                .ThenInclude(b => b!.Template)
+            .OrderBy(s => s.SlotIndex)
+            .ToListAsync();
+
+        foreach (var slot in mercSlots)
+        {
+            if (slot.Mercenary?.Template is null) continue;
+            var m = slot.Mercenary;
+            var stats = m.Template.BaseStats.Clone();
+            ApplyLevelScaling(stats, m.Level);
+            stats.AddInPlace(m.BonusStats);
+            playerUnits.Add(new FightUnitInput(m.Id, m.Template.NameEn, stats));
+        }
+
+        foreach (var slot in beastSlots)
+        {
+            if (slot.Beast?.Template is null) continue;
+            var b = slot.Beast;
+            var stats = b.Template.BaseStats.Clone();
+            ApplyLevelScaling(stats, b.Level);
+            stats.AddInPlace(b.BonusStats);
+            playerUnits.Add(new FightUnitInput(b.Id, b.Template.NameEn, stats));
+        }
 
         if (playerUnits.Count == 0)
         {
             didWin = false;
-            resultText = "No player units configured for fight yet.";
+            resultText = "No units assigned to party slots. Add mercenaries or beasts to your party first.";
             return;
         }
 
@@ -385,5 +406,15 @@ else
         };
 
         return string.IsNullOrWhiteSpace(value) ? fallback : value!;
+    }
+
+    private static void ApplyLevelScaling(StatBlock s, int level)
+    {
+        var lvl = Math.Max(1, level);
+        var kCore = 1.0 + 0.03 * (lvl - 1);
+        s.MaxHp   = (float)(s.MaxHp   * kCore);
+        s.Attack  = (float)(s.Attack  * kCore);
+        s.Defense = (float)(s.Defense * kCore);
+        s.Speed   = (float)(s.Speed   * (1.0 + 0.01 * (lvl - 1)));
     }
 }

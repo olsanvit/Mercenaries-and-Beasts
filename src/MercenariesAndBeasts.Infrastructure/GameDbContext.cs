@@ -187,7 +187,7 @@ public DbSet<PlayerExpeditionAchievements> PlayerExpeditionAchievementSummaries 
     // ------------------------------------------------------------
     modelBuilder.Entity<PlayerMercenarySlot>(e =>
     {
-        e.HasOne<PlayerMercenary>()
+        e.HasOne(s => s.Mercenary)
             .WithMany()
             .HasForeignKey(s => s.MercenaryInstanceId)
             .OnDelete(DeleteBehavior.SetNull);
@@ -195,7 +195,7 @@ public DbSet<PlayerExpeditionAchievements> PlayerExpeditionAchievementSummaries 
 
     modelBuilder.Entity<PlayerBeastSlot>(e =>
     {
-        e.HasOne<PlayerMonster>()
+        e.HasOne(s => s.Beast)
             .WithMany()
             .HasForeignKey(s => s.BeastInstanceId)
             .OnDelete(DeleteBehavior.SetNull);
