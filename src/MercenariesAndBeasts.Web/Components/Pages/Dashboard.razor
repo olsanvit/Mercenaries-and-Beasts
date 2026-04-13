@@ -614,6 +614,7 @@ else
                 .ToDictionaryAsync(x => x.TemplateId, x => x.Pieces);
 
             _mercSlots = await Db.PlayerMercenarySlots
+                .AsNoTracking()
                 .Where(s => s.PlayerProfileId == _profile.Id)
                 .Include(s => s.Mercenary)!.ThenInclude(m => m.Template)
                 .Include(s => s.Mercenary)!.ThenInclude(m => m.Equipment)
@@ -629,6 +630,7 @@ else
             );
 
             _beastSlots = await Db.PlayerBeastSlots
+                .AsNoTracking()
                 .Where(s => s.PlayerProfileId == _profile.Id)
                 .Include(s => s.Beast)!.ThenInclude(b => b.Template)
                 .Include(s => s.Beast)!.ThenInclude(b => b.Equipment)
@@ -639,7 +641,7 @@ else
 
             Toasts.Info(
                 string.Join(" | ", _beastSlots.Select(s =>
-                    $"{s.SlotIndex}: fk={(s.BeastInstanceId.HasValue ? "Y" : "N")} nav={(s.Beast is null ? "NULL" : "OK")}")),
+                    $"{s.SlotIndex}: fk={(s.BeastInstanceId.HasValue ? "Y" : "N")} beast={(s.Beast is null ? "NULL" : "OK")} tpl={(s.Beast?.Template is null ? "NULL" : s.Beast.Template.NameEn)}")),
                 "Beast slots"
             );
 
