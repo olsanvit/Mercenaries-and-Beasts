@@ -164,6 +164,7 @@ builder.Services.AddTransient<HttpInterceptorHandler>();
 builder.Services.AddScoped<AdminUserService>();
 builder.Services.AddScoped<PlayerLootService>();
 builder.Services.AddScoped<IFightService, FightService>();
+builder.Services.AddScoped<IStatAggregator, StatAggregator>();
 builder.Services.AddSingleton<IErrorService, LogErrorService>();
 
 builder.Services.AddHttpClient("Backend")
