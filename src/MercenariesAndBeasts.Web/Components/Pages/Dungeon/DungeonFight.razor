@@ -9,6 +9,8 @@
 @using MercenariesAndBeasts.Domain
 @using MercenariesAndBeasts.Domain.Players
 @using MercenariesAndBeasts.Domain.Progress
+@using MercenariesAndBeasts.Domain.Enums
+@using MercenariesAndBeasts.Domain.User
 
 @inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
@@ -95,6 +97,7 @@ else
 
     private bool isLoading = true;
 
+    private string? _userId; // ASP.NET Identity user ID for inventory writes
     private PlayerProfile? player;
     private Dungeon? dungeon;
     private PlayerDungeonProgress? progress;
@@ -122,6 +125,8 @@ else
             var auth = await AuthStateProvider.GetAuthenticationStateAsync();
             var user = await UserManager.GetUserAsync(auth.User);
             if (user is null) return;
+
+            _userId = user.Id;
 
             await using var db = await DbFactory.CreateDbContextAsync();
 
@@ -323,26 +328,18 @@ else
         pr.CurrentStage = newStage;
         pr.LastUpdatedUtc = DateTime.UtcNow;
 
-        // Loot from service (fallback if empty)
+        await db.SaveChangesAsync();
+
+        // Apply loot items to player inventory
+        if (didWin && _userId is not null && fightResult.LootItems?.Count > 0)
+            await ApplyLootAsync(db, _userId, fightResult.LootItems);
+
+        // Loot display lines
         foreach (var line in fightResult.LootLines ?? Enumerable.Empty<string>())
             lootLines.Add(line);
 
         if (lootLines.Count == 0)
-        {
-            if (didWin)
-            {
-                var shards = 5 + currentStage;
-                var stones = 1 + (currentStage / 3);
-                lootLines.Add($"+{shards} Beast shards (from dungeon)");
-                lootLines.Add($"+{stones} Upgrade stones (beast)");
-            }
-            else
-            {
-                lootLines.Add("No loot.");
-            }
-        }
-
-        await db.SaveChangesAsync();
+            lootLines.Add(didWin ? "No specific loot this run." : "No loot.");
 
         // update UI cache copy
         if (progress is not null)
@@ -353,6 +350,51 @@ else
         }
 
         StateHasChanged();
+    }
+
+    // ===========================
+    // Inventory helpers
+    // ===========================
+
+    private static async Task ApplyLootAsync(
+        MercenariesAndBeastsDbContext db,
+        string userId,
+        List<LootItem> lootItems)
+    {
+        var types = lootItems.Select(x => x.ResourceType).Distinct().ToList();
+
+        // Find upgrade resource definitions (one ItemTemplate per resource type)
+        var resources = await db.ItemUpgradeResources
+            .Where(r => types.Contains(r.Type))
+            .ToListAsync();
+
+        if (resources.Count == 0) return; // no resources seeded in DB yet
+
+        foreach (var loot in lootItems)
+        {
+            var resource = resources.FirstOrDefault(r => r.Type == loot.ResourceType);
+            if (resource is null) continue;
+
+            var inv = await db.UserInventoryItems
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.ItemTemplateId == resource.ItemTemplateId);
+
+            if (inv is null)
+            {
+                db.UserInventoryItems.Add(new UserInventoryItem
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    ItemTemplateId = resource.ItemTemplateId,
+                    Quantity = loot.Quantity
+                });
+            }
+            else
+            {
+                inv.Quantity += loot.Quantity;
+            }
+        }
+
+        await db.SaveChangesAsync();
     }
 
     // ===========================

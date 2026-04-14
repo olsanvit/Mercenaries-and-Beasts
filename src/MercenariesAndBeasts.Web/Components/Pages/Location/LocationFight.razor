@@ -7,6 +7,9 @@
 @using MercenariesAndBeasts.Domain
 @using MercenariesAndBeasts.Domain.Players
 @using MercenariesAndBeasts.Domain.Progress
+@using MercenariesAndBeasts.Domain.Enums
+@using MercenariesAndBeasts.Domain.User
+@using MercenariesAndBeasts.Infrastructure.Fights
 
 @inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
@@ -98,6 +101,7 @@ else
 
     private bool isLoading = true;
 
+    private string? _userId;
     private PlayerProfile? player;
     private Location? location;
     private PlayerExpeditionProgress? progress;
@@ -120,6 +124,8 @@ else
             var auth = await AuthStateProvider.GetAuthenticationStateAsync();
             var user = await UserManager.GetUserAsync(auth.User);
             if (user is null) return;
+
+            _userId = user.Id;
 
             await using var db = await DbFactory.CreateDbContextAsync();
 
@@ -215,20 +221,80 @@ else
             }
 
             pr.TotalWins++;
-            lootLines.Add($"+10 Order shards (from location)");
-            lootLines.Add($"+2 Upgrade stones (merc)");
         }
         else
         {
             resultText = $"You lost to {EnemyName()}. The order remains.";
             pr.TotalLosses++;
-            lootLines.Add("No loot.");
         }
 
         pr.LastUpdatedUtc = DateTime.UtcNow;
         await db.SaveChangesAsync();
 
+        // Generate and apply upgrade resource loot on win
+        if (didWin && _userId is not null)
+        {
+            var lootRng = new Random(HashCode.Combine(player.Id, location.Id, SlotIndex, enemy.Id) ^ 0x1337_BEEF);
+            var resourceTypes = (ItemUpgradeResourceType[])Enum.GetValues(typeof(ItemUpgradeResourceType));
+            var count = lootRng.Next(1, 3); // 1 or 2 items
+            var lootItems = new List<LootItem>(count);
+
+            for (var i = 0; i < count; i++)
+            {
+                var type = resourceTypes[lootRng.Next(resourceTypes.Length)];
+                var qty  = lootRng.Next(1, 11);
+                lootItems.Add(new LootItem(type, qty));
+                lootLines.Add($"+{qty}× {type}");
+            }
+
+            await ApplyLootAsync(db, _userId, lootItems);
+        }
+        else
+        {
+            lootLines.Add("No loot.");
+        }
+
         StateHasChanged();
+    }
+
+    private static async Task ApplyLootAsync(
+        MercenariesAndBeastsDbContext db,
+        string userId,
+        List<LootItem> lootItems)
+    {
+        var types = lootItems.Select(x => x.ResourceType).Distinct().ToList();
+
+        var resources = await db.ItemUpgradeResources
+            .Where(r => types.Contains(r.Type))
+            .ToListAsync();
+
+        if (resources.Count == 0) return;
+
+        foreach (var loot in lootItems)
+        {
+            var resource = resources.FirstOrDefault(r => r.Type == loot.ResourceType);
+            if (resource is null) continue;
+
+            var inv = await db.UserInventoryItems
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.ItemTemplateId == resource.ItemTemplateId);
+
+            if (inv is null)
+            {
+                db.UserInventoryItems.Add(new UserInventoryItem
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    ItemTemplateId = resource.ItemTemplateId,
+                    Quantity = loot.Quantity
+                });
+            }
+            else
+            {
+                inv.Quantity += loot.Quantity;
+            }
+        }
+
+        await db.SaveChangesAsync();
     }
 
     private string EnemyName()
