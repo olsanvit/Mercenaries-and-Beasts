@@ -3,11 +3,10 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-
 @using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Domain
 @using MercenariesAndBeasts.Domain.Players
 @using MercenariesAndBeasts.Domain.Progress
-@using MercenariesAndBeasts.Domain.Localization
 
 @inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
@@ -16,7 +15,7 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
-<h1>@S["Locations"]</h1>
+<h1>Locations</h1>
 
 @if (isLoading)
 {
@@ -37,7 +36,7 @@ else
                 <!-- LEFT: list -->
                 <div class="card-like dng-panel">
                     <div class="dng-panel-head">
-                        <h3 class="m-0">Available expeditions</h3>
+                        <h3 class="m-0">Available locations</h3>
                         <p class="text-muted mb-0 small">Last 5 unlocked + next 2 locked.</p>
                     </div>
 
@@ -65,8 +64,8 @@ else
                                             }
                                             else if (!isLocked && row.Progress is not null)
                                             {
-                                                <span class="badge bg-warning text-dark mt-1">
-                                                    Stage @row.Progress.MaxStageReached / 10
+                                                <span class="badge bg-info text-dark mt-1">
+                                                    @row.Progress.TotalWins W / @row.Progress.TotalLosses L
                                                 </span>
                                             }
                                             else
@@ -89,11 +88,10 @@ else
 
                 <!-- RIGHT: detail -->
                 <div class="card-like dng-panel">
-
                     <div class="dng-panel-head">
                         @if (selectedLocation is null)
                         {
-                            <h3 class="m-0">Expedition</h3>
+                            <h3 class="m-0">Location</h3>
                             <p class="text-muted m-0 small">Pick a location on the left.</p>
                         }
                         else
@@ -101,6 +99,7 @@ else
                             <h3 class="m-0">@LocName(selectedLocation)</h3>
                             <div class="text-muted small">
                                 Recommended level @selectedLocation.MinLevel–@selectedLocation.MaxLevel
+                                · @selectedLocation.Element
                             </div>
                         }
                     </div>
@@ -123,17 +122,20 @@ else
                                 }
                                 else
                                 {
-                                    <span class="badge bg-warning text-dark">In progress</span>
+                                    <span class="badge bg-info text-dark">
+                                        @selectedProgress.TotalWins W / @selectedProgress.TotalLosses L
+                                    </span>
                                 }
                             </div>
 
                             <hr />
 
-                            <h5>Enemies (3 Orders)</h5>
+                            <h5>Orders (3)</h5>
+                            <p class="text-muted small mb-2">Select an order to fight it.</p>
 
                             @if (encounters.Count == 0)
                             {
-                                <div class="text-muted">No encounters rolled.</div>
+                                <div class="text-muted">No encounters rolled yet.</div>
                             }
                             else
                             {
@@ -142,13 +144,20 @@ else
                                     {
                                         <div class="p-3 border rounded d-flex justify-content-between align-items-center">
                                             <div style="min-width:0;">
-                                                <div class="text-truncate"><b>@e.Name</b></div>
-                                                <div class="text-muted small">Slot @e.SlotIndex</div>
+                                                @if (!string.IsNullOrWhiteSpace(e.ImagePath))
+                                                {
+                                                    <img src="@e.ImagePath"
+                                                         style="width:40px;height:40px;object-fit:cover;border-radius:6px;float:left;margin-right:10px;" />
+                                                }
+                                                <div class="fw-bold text-truncate">@e.Name</div>
+                                                <div class="text-muted small">
+                                                    Lv @e.BaseLevel · @e.Element · Slot @e.SlotIndex
+                                                </div>
                                             </div>
 
-                                            <a class="btn btn-primary btn-sm"
+                                            <a class="btn btn-primary btn-sm ms-2"
                                                href="@($"/expeditions/{selectedLocation.Id}/fight/{e.SlotIndex}")">
-                                                Attack
+                                                Fight
                                             </a>
                                         </div>
                                     }
@@ -158,12 +167,12 @@ else
                             @if (!string.IsNullOrWhiteSpace(LocDesc(selectedLocation)))
                             {
                                 <hr />
-                                <div class="text-muted">@LocDesc(selectedLocation)</div>
+                                <div class="text-muted small">@LocDesc(selectedLocation)</div>
                             }
                         }
                     </div>
-
                 </div>
+
             </div>
         </div>
 
@@ -184,7 +193,7 @@ else
                     }
                     else if (locationAchievements.Count == 0)
                     {
-                        <div class="text-muted">No achievements for this location.</div>
+                        <div class="text-muted">No achievements defined for this location.</div>
                     }
                     else
                     {
@@ -198,22 +207,15 @@ else
                                     <div class="ach-meta text-muted small">@a.Description</div>
                                 }
 
-                                @if (!string.IsNullOrWhiteSpace(a.RewardText))
-                                {
-                                    <div class="ach-meta text-muted small"><b>Reward:</b> @a.RewardText</div>
-                                }
-
                                 @if (a.IsCompleted)
                                 {
                                     <span class="badge bg-success mt-2">Completed</span>
                                 }
-                                else if (a.IsLocked)
-                                {
-                                    <span class="badge bg-dark mt-2">Locked</span>
-                                }
                                 else
                                 {
-                                    <span class="badge bg-warning text-dark mt-2">In progress</span>
+                                    <span class="badge bg-warning text-dark mt-2">
+                                        @a.Current / @a.Required
+                                    </span>
                                 }
                             </div>
                         }
@@ -229,7 +231,7 @@ else
     private bool isLoading = true;
     private PlayerProfile? player;
 
-    private List<Location> unlocked = new();
+    private List<Location> _allLocations = new();
     private List<PlayerExpeditionProgress> progress = new();
 
     private Guid? selectedLocationId;
@@ -237,9 +239,7 @@ else
     private PlayerExpeditionProgress? selectedProgress;
 
     private List<EncounterVm> encounters = new();
-
-    // Orders pool (MercenaryTemplate)
-    private List<MercenaryTemplate> allOrders = new();
+    private List<MercenaryTemplate> _allOrders = new();
     private Dictionary<Guid, MercenaryTemplate> _orderById = new();
 
     private List<LeftLocationRow> leftList = new();
@@ -258,29 +258,22 @@ else
         public int SlotIndex { get; set; }
         public Guid TemplateId { get; set; }
         public string Name { get; set; } = "";
+        public int BaseLevel { get; set; }
+        public string Element { get; set; } = "";
+        public string? ImagePath { get; set; }
     }
 
-    // ===== Achievements VM =====
-    private List<LocationAchievementVm> locationAchievements = new();
+    private List<AchievementVm> locationAchievements = new();
 
-    private sealed record LocationAchievementVm(
+    private sealed record AchievementVm(
         string Title,
         string? Description,
-        string? RewardText,
         bool IsCompleted,
-        bool IsLocked
+        int Current,
+        int Required
     );
 
-    // ===== Localization cache (fast lookup) =====
     private readonly Dictionary<(string, Guid, string), LocalizedText> _locByKey = new();
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && selectedLocationId.HasValue)
-        {
-            await SelectLocation(selectedLocationId.Value);
-        }
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -301,39 +294,37 @@ else
                 .Where(p => p.PlayerId == player.Id)
                 .ToListAsync();
 
-            var allLocations = await db.Locations
+            _allLocations = await db.Locations
                 .OrderBy(l => l.UnlockOrder)
                 .ToListAsync();
 
-            allOrders = await db.MercenaryTemplates
+            _allOrders = await db.MercenaryTemplates
                 .OrderBy(x => x.BaseLevel).ThenBy(x => x.Code)
                 .ToListAsync();
 
-            _orderById = allOrders.ToDictionary(x => x.Id, x => x);
+            _orderById = _allOrders.ToDictionary(x => x.Id);
 
-            // unlock rule: max completed + 1
             var maxCompleted = progress
                 .Where(p => p.IsCompleted)
-                .Join(allLocations, p => p.LocationId, l => l.Id, (p, l) => l.UnlockOrder)
+                .Join(_allLocations, p => p.LocationId, l => l.Id, (p, l) => l.UnlockOrder)
                 .DefaultIfEmpty(0)
                 .Max();
 
             var maxUnlockedOrder = maxCompleted + 1;
 
-            unlocked = allLocations
+            var unlocked = _allLocations
                 .Where(l => l.UnlockOrder <= maxUnlockedOrder)
                 .OrderBy(l => l.UnlockOrder)
                 .ToList();
 
             var last5 = unlocked.TakeLast(5).ToList();
 
-            var nextLocked = allLocations
+            var nextLocked = _allLocations
                 .Where(l => l.UnlockOrder > maxUnlockedOrder)
                 .OrderBy(l => l.UnlockOrder)
                 .Take(2)
                 .ToList();
 
-            // preload localization pro left list (Location)
             var leftIds = last5.Concat(nextLocked).Select(x => x.Id).Distinct().ToList();
             await LoadLocalizationsAsync(db, nameof(Location), leftIds);
 
@@ -342,7 +333,6 @@ else
             foreach (var l in last5)
             {
                 var pr = progress.FirstOrDefault(p => p.LocationId == l.Id);
-
                 leftList.Add(new LeftLocationRow
                 {
                     Location = l,
@@ -366,7 +356,8 @@ else
             }
 
             var first = last5.FirstOrDefault();
-            selectedLocationId = first?.Id;
+            if (first is not null)
+                await SelectLocationWithDb(db, first.Id);
         }
         finally
         {
@@ -377,210 +368,111 @@ else
     private async Task SelectLocation(Guid id)
     {
         selectedLocationId = id;
-
         await using var db = await DbFactory.CreateDbContextAsync();
+        await SelectLocationWithDb(db, id);
+    }
 
-        selectedLocation =
-            unlocked.FirstOrDefault(l => l.Id == id)
+    private async Task SelectLocationWithDb(MercenariesAndBeastsDbContext db, Guid id)
+    {
+        selectedLocationId = id;
+
+        selectedLocation = _allLocations.FirstOrDefault(l => l.Id == id)
             ?? await db.Locations.FirstOrDefaultAsync(l => l.Id == id);
 
         if (selectedLocation is null)
         {
             encounters = new();
             locationAchievements = new();
+            StateHasChanged();
             return;
         }
 
-        // ensure loc localization
-        await LoadLocalizationsAsync(db, nameof(Location), new List<Guid> { selectedLocation.Id });
+        await LoadLocalizationsAsync(db, nameof(Location), new List<Guid> { id });
 
-        // tracked progress
+        var pr = await GetOrCreateProgressAsync(db, player!.Id, id);
+        selectedProgress = pr;
+
+        // Ensure 3 orders are rolled and persisted
+        await EnsureEncountersAsync(db, pr);
+
+        // Build encounter VMs for slots 1–3
+        var orderIds = new[] { pr.EncounterOrder1TemplateId, pr.EncounterOrder2TemplateId, pr.EncounterOrder3TemplateId }
+            .Where(x => x.HasValue).Select(x => x!.Value).Distinct().ToList();
+
+        await LoadLocalizationsAsync(db, nameof(MercenaryTemplate), orderIds);
+
+        encounters = new();
+        AddEncounterVm(1, pr.EncounterOrder1TemplateId);
+        AddEncounterVm(2, pr.EncounterOrder2TemplateId);
+        AddEncounterVm(3, pr.EncounterOrder3TemplateId);
+
+        locationAchievements = BuildAchievementVms(pr.Achievements);
+
+        StateHasChanged();
+    }
+
+    private async Task<PlayerExpeditionProgress> GetOrCreateProgressAsync(
+        MercenariesAndBeastsDbContext db,
+        Guid playerId,
+        Guid locationId)
+    {
         var pr = await db.PlayerExpeditionProgresses
-            .FirstOrDefaultAsync(p => p.PlayerId == player!.Id && p.LocationId == id);
+            .Include(p => p.Achievements)
+                .ThenInclude(a => a.Achievement)
+            .FirstOrDefaultAsync(p => p.PlayerId == playerId && p.LocationId == locationId);
 
         if (pr is null)
         {
             pr = new PlayerExpeditionProgress
             {
                 Id = Guid.NewGuid(),
-                PlayerId = player!.Id,
-                LocationId = selectedLocation.Id,
+                PlayerId = playerId,
+                LocationId = locationId,
                 IsCompleted = false,
                 LastUpdatedUtc = DateTime.UtcNow
             };
-
             db.PlayerExpeditionProgresses.Add(pr);
             await db.SaveChangesAsync();
-
-            progress.Add(pr);
+            progress.Add(pr); // update local list
         }
 
-        selectedProgress = pr;
-
-        // ensure 3 encounters exist
-        await EnsureEncountersAsync(db, pr);
-
-        // preload localization for selected orders
-        var orderIds = new[]
+        // Seed achievements from DB definitions if none yet
+        if (pr.Achievements.Count == 0)
         {
-            pr.EncounterOrder1TemplateId,
-            pr.EncounterOrder2TemplateId,
-            pr.EncounterOrder3TemplateId
+            var defs = await db.ExpeditionAchievements
+                .Where(d => d.LocationId == locationId)
+                .OrderBy(d => d.Index)
+                .Take(5)
+                .ToListAsync();
+
+            if (defs.Count > 0)
+            {
+                var baseTier = Math.Clamp((selectedLocation!.MinLevel / 5) + 1, 1, 10);
+                var rng = new Random(pr.Id.GetHashCode());
+
+                foreach (var def in defs)
+                {
+                    var tier = Math.Clamp(baseTier + rng.Next(0, 3), 1, 10);
+                    pr.Achievements.Add(new PlayerExpeditionAchievement
+                    {
+                        Id = Guid.NewGuid(),
+                        ProgressId = pr.Id,
+                        PlayerId = playerId,
+                        AchievementId = def.Id,
+                        Code = def.Code,
+                        DifficultyTier = tier,
+                        Required = 1 + tier,
+                        Current = 0,
+                        IsCompleted = false
+                    });
+                }
+                await db.SaveChangesAsync();
+            }
         }
-        .Where(x => x.HasValue)
-        .Select(x => x!.Value)
-        .Distinct()
-        .ToList();
 
-        await LoadLocalizationsAsync(db, nameof(MercenaryTemplate), orderIds);
-
-        // build UI VMs
-        encounters = new();
-        AddEncounterVm(1, pr.EncounterOrder1TemplateId);
-        AddEncounterVm(2, pr.EncounterOrder2TemplateId);
-        AddEncounterVm(3, pr.EncounterOrder3TemplateId);
-
-        // achievements for location
-        locationAchievements = BuildLocationAchievementVms(pr.Achievements);
-
-        StateHasChanged();
-        // baseTier – klidně dle lokace (min level / unlock order / cokoliv)
-var baseTier = Math.Clamp((selectedLocation.MinLevel / 5) + 1, 1, 10);
-
-// progress + achievements (tracked, vytvoří pokud chybí)
-var pr1 = await GetOrCreateExpeditionProgressWithAchievementsAsync(db, player!.Id, selectedLocation.Id, baseTier);
-selectedProgress = pr;
+        return pr;
     }
 
-    private void AddEncounterVm(int slot, Guid? templateId)
-    {
-        if (!templateId.HasValue) return;
-
-        encounters.Add(new EncounterVm
-        {
-            SlotIndex = slot,
-            TemplateId = templateId.Value,
-            Name = OrderName(templateId.Value)
-        });
-    }
-private sealed record ExpAchTemplate(
-    string Code,
-    string Title,
-    string Description,
-    Func<int, int> RequiredByTier,
-    string RewardText
-);
-
-// TODO: doplň na 22 položek (ukázka pár kusů)
-private static readonly List<ExpAchTemplate> ExpeditionAchPool = new()
-{
-    new("Kills", "Defeat enemies", "Defeat enemies in this expedition.", tier => 5 + tier * 3, "+ Supplies"),
-    new("WinStreak", "Win streak", "Win consecutive fights without losing.", tier => 2 + (tier / 2), "+ Rare token"),
-    new("NoLoss", "Flawless run", "Win without losing any fight.", tier => 1, "+ Bonus chest"),
-    new("OrdersBeaten", "Defeat all 3 Orders", "Defeat all 3 encounter slots.", tier => 3, "+ Contract"),
-    // ... doplň až do 22
-};
-private List<PlayerExpeditionAchievement> GenerateFiveExpeditionAchievements(
-    Guid progressId,
-    int baseTier)
-{
-    var rng = new Random(progressId.GetHashCode());
-
-    var picked = ExpeditionAchPool
-        .OrderBy(_ => rng.Next())
-        .Take(5)
-        .ToList();
-
-    var list = new List<PlayerExpeditionAchievement>(5);
-
-    foreach (var t in picked)
-    {
-        // random bump náročnosti
-        var tier = Math.Clamp(baseTier + rng.Next(0, 4), 1, 10);
-        var required = t.RequiredByTier(tier);
-
-        list.Add(new PlayerExpeditionAchievement
-        {
-            Id = Guid.NewGuid(),
-            ProgressId = progressId,
-            Code = t.Code,
-            DifficultyTier = tier,
-            Required = required,
-            Current = 0,
-            IsCompleted = false
-        });
-    }
-
-    return list;
-}private async Task<PlayerExpeditionProgress> GetOrCreateExpeditionProgressWithAchievementsAsync(
-    MercenariesAndBeastsDbContext db,
-    Guid playerId,
-    Guid locationId,
-    int baseTier)
-{
-    var pr = await db.PlayerExpeditionProgresses
-        .Include(p => p.Achievements)
-        .FirstOrDefaultAsync(p => p.PlayerId == playerId && p.LocationId == locationId);
-
-    if (pr is null)
-    {
-        pr = new PlayerExpeditionProgress
-        {
-            Id = Guid.NewGuid(),
-            PlayerId = playerId,
-            LocationId = locationId,
-            IsCompleted = false,
-            LastUpdatedUtc = DateTime.UtcNow
-        };
-
-        db.PlayerExpeditionProgresses.Add(pr);
-        await db.SaveChangesAsync();
-
-        // update local cache list (aby levý panel hned ukázal progress)
-        progress.Add(pr);
-    }
-
-    // musí být přesně 5
-    if (pr.Achievements.Count != 5)
-    {
-        if (pr.Achievements.Count > 0)
-            db.RemoveRange(pr.Achievements);
-
-        var rows = GenerateFiveExpeditionAchievements(pr.Id, baseTier);
-
-        foreach (var a in rows)
-            pr.Achievements.Add(a);
-
-        await db.SaveChangesAsync();
-    }
-
-    return pr;
-}
-private List<LocationAchievementVm> BuildLocationAchievementVms(
-    IEnumerable<PlayerExpeditionAchievement> achievements)
-{
-    var defByCode = ExpeditionAchPool.ToDictionary(x => x.Code, x => x);
-
-    return achievements.Select(a =>
-    {
-        defByCode.TryGetValue(a.Code, out var def);
-
-        var title = def?.Title ?? a.Code;
-        var desc = def?.Description ?? "";
-        var reward = def?.RewardText ?? "";
-
-        // (volitelně) pokud chceš vidět i progress v UI, rozšiř VM o ProgressText
-        var decoratedDesc = $"{desc} (Tier {a.DifficultyTier})";
-
-        return new LocationAchievementVm(
-            Title: title,
-            Description: decoratedDesc,
-            RewardText: reward,
-            IsCompleted: a.IsCompleted,
-            IsLocked: false
-        );
-    }).ToList();
-}
     private async Task EnsureEncountersAsync(MercenariesAndBeastsDbContext db, PlayerExpeditionProgress pr)
     {
         if (pr.EncounterOrder1TemplateId.HasValue &&
@@ -588,96 +480,80 @@ private List<LocationAchievementVm> BuildLocationAchievementVms(
             pr.EncounterOrder3TemplateId.HasValue)
             return;
 
-        if (allOrders.Count < 3)
-            throw new InvalidOperationException("Need at least 3 Orders in MercenaryTemplates.");
+        if (_allOrders.Count < 3)
+            return; // not enough orders seeded yet
 
         var seed = HashCode.Combine(player!.Id, pr.LocationId);
         var rng = new Random(seed);
 
-        var picks = allOrders
-            .OrderBy(_ => rng.Next())
-            .Take(3)
-            .Select(x => x.Id)
-            .ToList();
+        var picks = _allOrders.OrderBy(_ => rng.Next()).Take(3).ToList();
 
-        pr.EncounterOrder1TemplateId = picks[0];
-        pr.EncounterOrder2TemplateId = picks[1];
-        pr.EncounterOrder3TemplateId = picks[2];
+        pr.EncounterOrder1TemplateId ??= picks[0].Id;
+        pr.EncounterOrder2TemplateId ??= picks[1].Id;
+        pr.EncounterOrder3TemplateId ??= picks[2].Id;
         pr.EncounterRolledUtc = DateTime.UtcNow;
         pr.LastUpdatedUtc = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
     }
 
-    // ===========================
-    // Achievements loader (ADAPT TO YOUR MODEL)
-    // ===========================
-    private async Task<List<LocationAchievementVm>> LoadLocationAchievementsAsync(MercenariesAndBeastsDbContext db, Guid locationId)
+    private void AddEncounterVm(int slot, Guid? templateId)
     {
-        // TODO: napoj na svůj model
-        // Příklad:
-        //
-        // var rows = await db.LocationAchievements
-        //     .Where(x => x.LocationId == locationId)
-        //     .OrderBy(x => x.SortOrder)
-        //     .AsNoTracking()
-        //     .ToListAsync();
-        //
-        // return rows.Select(x => new LocationAchievementVm(
-        //     Title: x.Title,
-        //     Description: x.Description,
-        //     RewardText: x.RewardText,
-        //     IsCompleted: ...,
-        //     IsLocked: ...
-        // )).ToList();
+        if (!templateId.HasValue) return;
 
-        return new List<LocationAchievementVm>();
+        _orderById.TryGetValue(templateId.Value, out var mt);
+        if (mt is null) return;
+
+        encounters.Add(new EncounterVm
+        {
+            SlotIndex = slot,
+            TemplateId = templateId.Value,
+            Name = OrderName(templateId.Value),
+            BaseLevel = mt.BaseLevel,
+            Element = mt.Element.ToString(),
+            ImagePath = mt.ImagePath
+        });
     }
 
-    // ===========================
-    // Localization (fast cache)
-    // ===========================
-    private async Task LoadLocalizationsAsync(MercenariesAndBeastsDbContext db, string entityType, List<Guid> entityIds)
+    private List<AchievementVm> BuildAchievementVms(IEnumerable<PlayerExpeditionAchievement> achievements)
     {
-        if (entityIds.Count == 0) return;
+        return achievements.Select(a => new AchievementVm(
+            Title: a.Achievement?.NameEn is { Length: > 0 } n ? n : a.Code,
+            Description: a.Achievement?.DescriptionEn is { Length: > 0 } d
+                ? $"{d} (Tier {a.DifficultyTier})"
+                : $"Tier {a.DifficultyTier}",
+            IsCompleted: a.IsCompleted,
+            Current: a.Current,
+            Required: a.Required
+        )).ToList();
+    }
 
+    // ===== Localization helpers =====
+
+    private async Task LoadLocalizationsAsync(MercenariesAndBeastsDbContext db, string entityType, List<Guid> ids)
+    {
+        if (ids.Count == 0) return;
         var locs = await db.LocalizedTexts
-            .Where(x => x.EntityType == entityType && entityIds.Contains(x.EntityId))
+            .Where(x => x.EntityType == entityType && ids.Contains(x.EntityId))
             .ToListAsync();
-
         foreach (var l in locs)
             _locByKey[(l.EntityType, l.EntityId, l.Culture)] = l;
     }
 
-    private string LocName(Location loc)
-        => Localize(nameof(Location), loc.Id, field: "Name", fallback: loc.NameEn);
-
-    private string LocDesc(Location loc)
-        => Localize(nameof(Location), loc.Id, field: "Description", fallback: loc.DescriptionEn ?? "");
-
-    private string OrderName(Guid templateId)
+    private string LocName(Location loc)   => Localize(nameof(Location),          loc.Id,        "Name",        loc.NameEn);
+    private string LocDesc(Location loc)   => Localize(nameof(Location),          loc.Id,        "Description", loc.DescriptionEn ?? "");
+    private string OrderName(Guid id)
     {
-        var fallback = _orderById.TryGetValue(templateId, out var mt)
-            ? (mt.NameEn ?? "Unknown Order")
-            : "Unknown Order";
-
-        return Localize(nameof(MercenaryTemplate), templateId, field: "Name", fallback: fallback);
+        var fallback = _orderById.TryGetValue(id, out var mt) ? (mt.NameEn ?? "Unknown Order") : "Unknown Order";
+        return Localize(nameof(MercenaryTemplate), id, "Name", fallback);
     }
 
     private string Localize(string entityType, Guid entityId, string field, string fallback)
     {
         var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-
-        if (!_locByKey.TryGetValue((entityType, entityId, culture), out var loc) || loc is null)
+        if (!_locByKey.TryGetValue((entityType, entityId, culture), out var loc))
             return fallback;
-
-        string? text = field switch
-        {
-            "Name" => loc.Name,
-            "Description" => loc.Description,
-            _ => null
-        };
-
+        var text = field == "Name" ? loc.Name : field == "Description" ? loc.Description : null;
         return string.IsNullOrWhiteSpace(text) ? fallback : text!;
     }
 }

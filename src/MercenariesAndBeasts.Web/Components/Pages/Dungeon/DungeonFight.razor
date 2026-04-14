@@ -6,9 +6,9 @@
 
 @using MercenariesAndBeasts.Infrastructure
 @using MercenariesAndBeasts.Infrastructure.Fights
+@using MercenariesAndBeasts.Domain
 @using MercenariesAndBeasts.Domain.Players
 @using MercenariesAndBeasts.Domain.Progress
-@using MercenariesAndBeasts.Domain.Localization
 
 @inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
@@ -320,6 +320,7 @@ else
             newStage = Math.Max(1, currentStage - 1);
         }
 
+        pr.CurrentStage = newStage;
         pr.LastUpdatedUtc = DateTime.UtcNow;
 
         // Loot from service (fallback if empty)

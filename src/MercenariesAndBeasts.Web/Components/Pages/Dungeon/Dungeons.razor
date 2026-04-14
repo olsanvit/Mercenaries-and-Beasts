@@ -3,11 +3,10 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-
 @using MercenariesAndBeasts.Infrastructure
+@using MercenariesAndBeasts.Domain
 @using MercenariesAndBeasts.Domain.Players
 @using MercenariesAndBeasts.Domain.Progress
-@using MercenariesAndBeasts.Domain.Localization
 
 @inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 @inject UserManager<AppUser> UserManager
@@ -16,7 +15,7 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
-<h1>@S["Dungeons"]</h1>
+<h1>Dungeons</h1>
 
 @if (isLoading)
 {
@@ -66,7 +65,7 @@ else
                                             else if (!isLocked && row.Progress is not null)
                                             {
                                                 <span class="badge bg-warning text-dark mt-1">
-                                                    Stage @row.Progress.CurrentStage / @TotalStages
+                                                    Stage @row.Progress.CurrentStage / @(row.Dungeon?.Stages?.Count > 0 ? row.Dungeon.Stages.Count : 11)
                                                 </span>
                                             }
                                             else
@@ -75,13 +74,11 @@ else
                                             }
                                         </div>
 
-                                        <div class="d-flex gap-2">
-                                            <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")"
-                                                    disabled="@isLocked"
-                                                    @onclick="() => SelectDungeon(row.Dungeon!.Id)">
-                                                @(isSelected ? "Selected" : "Open")
-                                            </button>
-                                        </div>
+                                        <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")"
+                                                disabled="@isLocked"
+                                                @onclick="() => SelectDungeon(row.Dungeon!.Id)">
+                                            @(isSelected ? "Selected" : "Open")
+                                        </button>
                                     </div>
                                 </li>
                             }
@@ -102,6 +99,7 @@ else
                             <h3 class="m-0">@DungeonName(selectedDungeon)</h3>
                             <div class="text-muted small">
                                 Recommended level @selectedDungeon.MinLevel–@selectedDungeon.MaxLevel
+                                · @selectedDungeon.Element
                             </div>
                         }
                     </div>
@@ -133,15 +131,31 @@ else
                             <hr />
 
                             <h5>Current enemy</h5>
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="enemy-portrait"></div>
-                                <div style="min-width:0;">
-                                    <div class="text-truncate"><b>@currentEnemyName</b></div>
-                                    <div class="text-muted small">Stage @currentStageUi / @TotalStages</div>
-                                </div>
-                            </div>
 
-                            <div class="mt-3 d-flex gap-2">
+                            @if (currentEnemy is null)
+                            {
+                                <div class="text-muted">No enemy data for this stage.</div>
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    @if (!string.IsNullOrWhiteSpace(currentEnemy.ImagePath))
+                                    {
+                                        <img src="@currentEnemy.ImagePath"
+                                             style="width:64px;height:64px;object-fit:cover;border-radius:10px;" />
+                                    }
+                                    else
+                                    {
+                                        <div style="width:64px;height:64px;border-radius:10px;background:rgba(255,255,255,0.06);flex-shrink:0;"></div>
+                                    }
+                                    <div style="min-width:0;">
+                                        <div class="fw-bold text-truncate">@MonsterName(currentEnemy)</div>
+                                        <div class="text-muted small">Stage @currentStageUi / @TotalStages · @currentEnemy.Element</div>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="d-flex gap-2">
                                 @if (selectedProgress?.IsCompleted == true)
                                 {
                                     <button class="btn btn-secondary" disabled>Completed</button>
@@ -158,7 +172,7 @@ else
                             @if (!string.IsNullOrWhiteSpace(DungeonDescription(selectedDungeon)))
                             {
                                 <hr />
-                                <div class="text-muted">@DungeonDescription(selectedDungeon)</div>
+                                <div class="text-muted small">@DungeonDescription(selectedDungeon)</div>
                             }
                         }
                     </div>
@@ -184,7 +198,7 @@ else
                     }
                     else if (dungeonAchievements.Count == 0)
                     {
-                        <div class="text-muted">No achievements for this dungeon.</div>
+                        <div class="text-muted">No achievements defined for this dungeon.</div>
                     }
                     else
                     {
@@ -198,22 +212,15 @@ else
                                     <div class="ach-meta text-muted small">@a.Description</div>
                                 }
 
-                                @if (!string.IsNullOrWhiteSpace(a.RewardText))
-                                {
-                                    <div class="ach-meta text-muted small"><b>Reward:</b> @a.RewardText</div>
-                                }
-
                                 @if (a.IsCompleted)
                                 {
                                     <span class="badge bg-success mt-2">Completed</span>
                                 }
-                                else if (a.IsLocked)
-                                {
-                                    <span class="badge bg-dark mt-2">Locked</span>
-                                }
                                 else
                                 {
-                                    <span class="badge bg-warning text-dark mt-2">In progress</span>
+                                    <span class="badge bg-warning text-dark mt-2">
+                                        @a.Current / @a.Required
+                                    </span>
                                 }
                             </div>
                         }
@@ -229,7 +236,7 @@ else
     private bool isLoading = true;
     private PlayerProfile? player;
 
-    private List<Dungeon> unlocked = new();
+    private List<Dungeon> _allDungeons = new();
     private List<PlayerDungeonProgress> progress = new();
 
     private Guid? selectedDungeonId;
@@ -237,7 +244,7 @@ else
     private PlayerDungeonProgress? selectedProgress;
 
     private int currentStageUi = 1;
-    private string currentEnemyName = "—";
+    private MonsterTemplate? currentEnemy;
 
     private int TotalStages => selectedDungeon?.Stages?.Count > 0 ? selectedDungeon.Stages.Count : 11;
 
@@ -252,27 +259,17 @@ else
         public string Subtitle { get; set; } = "";
     }
 
-    // ===== Achievements VM =====
     private List<AchievementVm> dungeonAchievements = new();
 
     private sealed record AchievementVm(
         string Title,
         string? Description,
-        string? RewardText,
         bool IsCompleted,
-        bool IsLocked
+        int Current,
+        int Required
     );
 
-    // ===== Localization cache (fast lookup) =====
     private readonly Dictionary<(string, Guid, string), LocalizedText> _locByKey = new();
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && selectedDungeonId.HasValue)
-        {
-            await SelectDungeon(selectedDungeonId.Value);
-        }
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -293,41 +290,40 @@ else
                 .Where(p => p.PlayerId == player.Id)
                 .ToListAsync();
 
-            var allDungeons = await db.Dungeons
+            _allDungeons = await db.Dungeons
+                .Include(d => d.Stages)
                 .OrderBy(d => d.UnlockOrder)
                 .ToListAsync();
 
             var maxCompleted = progress
                 .Where(p => p.IsCompleted)
-                .Join(allDungeons, p => p.DungeonId, d => d.Id, (p, d) => d.UnlockOrder)
+                .Join(_allDungeons, p => p.DungeonId, d => d.Id, (p, d) => d.UnlockOrder)
                 .DefaultIfEmpty(0)
                 .Max();
 
             var maxUnlockedOrder = maxCompleted + 1;
 
-            unlocked = allDungeons
+            var unlocked = _allDungeons
                 .Where(d => d.UnlockOrder <= maxUnlockedOrder)
                 .OrderBy(d => d.UnlockOrder)
                 .ToList();
 
             var last5 = unlocked.TakeLast(5).ToList();
 
-            var nextLocked = allDungeons
+            var nextLocked = _allDungeons
                 .Where(d => d.UnlockOrder > maxUnlockedOrder)
                 .OrderBy(d => d.UnlockOrder)
                 .Take(2)
                 .ToList();
 
-            // preload dungeon localizations for left list
-            var leftDungeonIds = last5.Concat(nextLocked).Select(x => x.Id).Distinct().ToList();
-            await LoadLocalizationsAsync(db, nameof(Dungeon), leftDungeonIds);
+            var leftIds = last5.Concat(nextLocked).Select(x => x.Id).Distinct().ToList();
+            await LoadLocalizationsAsync(db, nameof(Dungeon), leftIds);
 
             leftList = new();
 
             foreach (var d in last5)
             {
                 var pr = progress.FirstOrDefault(p => p.DungeonId == d.Id);
-
                 leftList.Add(new LeftDungeonRow
                 {
                     Dungeon = d,
@@ -351,7 +347,8 @@ else
             }
 
             var first = last5.FirstOrDefault();
-            selectedDungeonId = first?.Id;
+            if (first is not null)
+                await SelectDungeonWithDb(db, first.Id);
         }
         finally
         {
@@ -362,246 +359,157 @@ else
     private async Task SelectDungeon(Guid id)
     {
         selectedDungeonId = id;
-
         await using var db = await DbFactory.CreateDbContextAsync();
+        await SelectDungeonWithDb(db, id);
+    }
+
+    private async Task SelectDungeonWithDb(MercenariesAndBeastsDbContext db, Guid id)
+    {
+        selectedDungeonId = id;
 
         selectedDungeon = await db.Dungeons
             .Include(d => d.Stages)
                 .ThenInclude(s => s.MonsterTemplate)
+            .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (selectedDungeon is null)
         {
             dungeonAchievements = new();
+            StateHasChanged();
             return;
         }
-
-        selectedProgress = progress.FirstOrDefault(p => p.DungeonId == id)
-            ?? await db.PlayerDungeonProgresses.FirstOrDefaultAsync(p => p.PlayerId == player!.Id && p.DungeonId == id);
-
-        currentStageUi = selectedProgress?.CurrentStage ?? 1;
 
         var monsterIds = selectedDungeon.Stages?
             .Select(s => s.MonsterTemplateId)
             .Distinct()
-            .ToList() ?? new List<Guid>();
+            .ToList() ?? new();
 
         await LoadLocalizationsAsync(db, nameof(MonsterTemplate), monsterIds);
 
-        currentEnemyName = ResolveCurrentEnemyName(selectedDungeon, currentStageUi);
+        var pr = await GetOrCreateProgressAsync(db, player!.Id, id, selectedDungeon.Stages?.Count ?? 11);
+        selectedProgress = pr;
+        currentStageUi = Math.Max(1, pr.CurrentStage);
 
-        // ===== Achievements for selected dungeon =====
-        var totalStages = selectedDungeon.Stages?.Count > 0 ? selectedDungeon.Stages.Count : 11;
-
-            var pr = await GetOrCreateProgressWithAchievementsAsync(db, player!.Id, id, totalStages);
-
-            selectedProgress = pr;
-            currentStageUi = pr.CurrentStage;
-
-            dungeonAchievements = BuildDungeonAchievementVms(pr.Achievements!);
+        currentEnemy = PickEnemy(selectedDungeon, currentStageUi);
+        dungeonAchievements = BuildAchievementVms(pr.Achievements);
 
         StateHasChanged();
     }
-    private List<AchievementVm> BuildDungeonAchievementVms(
-    IEnumerable<PlayerDungeonAchievement> achievements)
-{
-    var defMap = AchievementPool.ToDictionary(x => x.Code);
 
-    return achievements.Select(a =>
+    private async Task<PlayerDungeonProgress> GetOrCreateProgressAsync(
+        MercenariesAndBeastsDbContext db,
+        Guid playerId,
+        Guid dungeonId,
+        int totalStages)
     {
-        defMap.TryGetValue(a.Code, out var def);
+        var pr = await db.PlayerDungeonProgresses
+            .Include(p => p.Achievements)
+                .ThenInclude(a => a.Achievement)
+            .FirstOrDefaultAsync(p => p.PlayerId == playerId && p.DungeonId == dungeonId);
 
-        var title = def?.Title ?? a.Code;
-        var desc = def?.Description ?? "";
-        var reward = $"Tier {a.DifficultyTier} reward";
+        if (pr is null)
+        {
+            pr = new PlayerDungeonProgress
+            {
+                Id = Guid.NewGuid(),
+                PlayerId = playerId,
+                DungeonId = dungeonId,
+                CurrentStage = 1,
+                MaxStageReached = 1,
+                IsCompleted = false,
+                WinStreak = 0,
+                LastUpdatedUtc = DateTime.UtcNow
+            };
+            db.PlayerDungeonProgresses.Add(pr);
+            await db.SaveChangesAsync();
+        }
 
-        return new AchievementVm(
-            Title: title,
-            Description: $"{desc} (Tier {a.DifficultyTier})",
-            RewardText: reward,
-            IsCompleted: a.IsCompleted,
-            IsLocked: false
-        );
-    }).ToList();
-}
+        // Seed achievements from DB definitions if none yet
+        if (pr.Achievements.Count == 0)
+        {
+            var defs = await db.DungeonAchievements
+                .Where(d => d.DungeonId == dungeonId)
+                .OrderBy(d => d.Index)
+                .Take(5)
+                .ToListAsync();
 
-    private string ResolveCurrentEnemyName(Dungeon d, int stageNumber)
+            if (defs.Count > 0)
+            {
+                var rng = new Random(pr.Id.GetHashCode());
+                foreach (var def in defs)
+                {
+                    var tier = rng.Next(1, 6);
+                    pr.Achievements.Add(new PlayerDungeonAchievement
+                    {
+                        Id = Guid.NewGuid(),
+                        ProgressId = pr.Id,
+                        PlayerId = playerId,
+                        AchievementId = def.Id,
+                        Code = def.Code,
+                        DifficultyTier = tier,
+                        Required = 1 + tier,
+                        Current = 0,
+                        IsCompleted = false
+                    });
+                }
+                await db.SaveChangesAsync();
+            }
+        }
+
+        return pr;
+    }
+
+    private static MonsterTemplate? PickEnemy(Dungeon d, int stage)
     {
         if (d.Stages is null || d.Stages.Count == 0)
-            return $"Beast of Stage {stageNumber}";
+            return null;
 
-        var idx = Math.Clamp(stageNumber, 1, d.Stages.Count);
+        var clamp = Math.Clamp(stage, 1, d.Stages.Count);
 
-        var stage = d.Stages
-            .OrderBy(s => s.StageIndex)
-            .ElementAt(idx - 1);
-
-        var mt = stage.MonsterTemplate;
-        if (mt is null)
-            return $"Beast of Stage {idx}";
-
-        return MonsterName(mt);
+        // exact match first, then nearest lower, then first
+        return d.Stages.OrderBy(s => s.StageIndex).ElementAtOrDefault(clamp - 1)?.MonsterTemplate
+            ?? d.Stages.Where(s => s.StageIndex <= stage)
+                       .OrderByDescending(s => s.StageIndex)
+                       .FirstOrDefault()?.MonsterTemplate
+            ?? d.Stages.OrderBy(s => s.StageIndex).FirstOrDefault()?.MonsterTemplate;
     }
 
-    // ===========================
-    // Achievements loader (ADAPT TO YOUR MODEL)
-    // ===========================
-    private async Task<PlayerDungeonProgress> GetOrCreateProgressWithAchievementsAsync(
-    MercenariesAndBeastsDbContext db,
-    Guid playerId,
-    Guid dungeonId,
-    int totalStages)
-{
-    var pr = await db.PlayerDungeonProgresses
-        .Include(p => p.Achievements)
-        .FirstOrDefaultAsync(p => p.PlayerId == playerId && p.DungeonId == dungeonId);
-
-    if (pr is null)
+    private List<AchievementVm> BuildAchievementVms(IEnumerable<PlayerDungeonAchievement> achievements)
     {
-        pr = new PlayerDungeonProgress
-        {
-            Id = Guid.NewGuid(),
-            PlayerId = playerId,
-            DungeonId = dungeonId,
-            CurrentStage = 1,
-            MaxStageReached = 1,
-            IsCompleted = false,
-            WinStreak = 0,
-            LastUpdatedUtc = DateTime.UtcNow
-        };
-
-        db.PlayerDungeonProgresses.Add(pr);
-        await db.SaveChangesAsync();
+        return achievements.Select(a => new AchievementVm(
+            Title: a.Achievement?.NameEn is { Length: > 0 } n ? n : a.Code,
+            Description: a.Achievement?.DescriptionEn is { Length: > 0 } d
+                ? $"{d} (Tier {a.DifficultyTier})"
+                : $"Tier {a.DifficultyTier}",
+            IsCompleted: a.IsCompleted,
+            Current: a.Current,
+            Required: a.Required
+        )).ToList();
     }
 
-    // Pokud nemá 5 achievementů → vytvoř 5 z 22
-    if (pr.Achievements.Count != 5)
+    // ===== Localization helpers =====
+
+    private async Task LoadLocalizationsAsync(MercenariesAndBeastsDbContext db, string entityType, List<Guid> ids)
     {
-        if (pr.Achievements.Count > 0)
-            db.RemoveRange(pr.Achievements);
-
-        var selected = GenerateFiveAchievements(pr.Id, totalStages);
-
-        foreach (var a in selected)
-            pr.Achievements.Add(a);
-
-        await db.SaveChangesAsync();
-    }
-
-    return pr;
-}
-private List<PlayerDungeonAchievement> GenerateFiveAchievements(
-    Guid progressId,
-    int totalStages)
-{
-    var rng = new Random(progressId.GetHashCode());
-
-    var picked = AchievementPool
-        .OrderBy(_ => rng.Next())
-        .Take(5)
-        .ToList();
-
-    var list = new List<PlayerDungeonAchievement>();
-
-    foreach (var t in picked)
-    {
-        var tier = rng.Next(1, 6); // náročnost 1–5
-        var required = t.RequiredByTier(tier);
-
-        list.Add(new PlayerDungeonAchievement
-        {
-            Id = Guid.NewGuid(),
-            ProgressId = progressId,
-            Code = t.Code,
-            Required = required,
-            Current = 0,
-            IsCompleted = false,
-            DifficultyTier = tier
-        });
-    }
-
-    return list;
-}
-private sealed record AchTemplate(
-    string Code,
-    string Title,
-    string Description,
-    Func<int, int> RequiredByTier
-);
-
-private static readonly List<AchTemplate> AchievementPool = new()
-{
-    new("Boss", "Defeat Boss", "Defeat the final boss.", tier => 1),
-    new("WinStreak", "Win Streak", "Win fights in a row.", tier => 2 + tier),
-    new("Stages", "Clear Stages", "Clear stages in dungeon.", tier => 5 + tier),
-    // ... doplň do 22
-};
-private async Task<PlayerDungeonAchievements> GetOrCreateDungeonAchievementsAsync(
-    MercenariesAndBeastsDbContext db,
-    Guid playerId,
-    Guid dungeonId,
-    int totalStagesFallback)
-{
-    var a = await db.Set<PlayerDungeonAchievements>()
-        .FirstOrDefaultAsync(x => x.PlayerId == playerId && x.DungeonId == dungeonId);
-
-    if (a is not null)
-    {
-        // když se ti v DB změnil počet stage (nebo dungeon má jinak), srovnej
-        if (a.TotalStages <= 0) a.TotalStages = totalStagesFallback;
-        return a;
-    }
-
-    a = new PlayerDungeonAchievements
-    {
-        Id = Guid.NewGuid(),
-        PlayerId = playerId,
-        DungeonId = dungeonId,
-        TotalStages = totalStagesFallback,
-        StagesCleared = 0,
-        BossDefeated = false,
-        BestWinStreak = 0,
-        RequiredWinStreak = 3
-    };
-
-    db.Add(a);
-    await db.SaveChangesAsync();
-    return a;
-}
-
-    // ===========================
-    // Localization (fast cache)
-    // ===========================
-    private async Task LoadLocalizationsAsync(MercenariesAndBeastsDbContext db, string entityType, List<Guid> entityIds)
-    {
-        if (entityIds.Count == 0) return;
-
+        if (ids.Count == 0) return;
         var locs = await db.LocalizedTexts
-            .Where(x => x.EntityType == entityType && entityIds.Contains(x.EntityId))
+            .Where(x => x.EntityType == entityType && ids.Contains(x.EntityId))
             .ToListAsync();
-
         foreach (var l in locs)
             _locByKey[(l.EntityType, l.EntityId, l.Culture)] = l;
     }
 
-    private string DungeonName(Dungeon d) => Localize(nameof(Dungeon), d.Id, field: "Name", fallback: d.NameEn);
-    private string DungeonDescription(Dungeon d) => Localize(nameof(Dungeon), d.Id, field: "Description", fallback: d.DescriptionEn ?? "");
-    private string MonsterName(MonsterTemplate m) => Localize(nameof(MonsterTemplate), m.Id, field: "Name", fallback: m.NameEn);
+    private string DungeonName(Dungeon d)       => Localize(nameof(Dungeon),        d.Id,  "Name",        d.NameEn);
+    private string DungeonDescription(Dungeon d) => Localize(nameof(Dungeon),        d.Id,  "Description", d.DescriptionEn ?? "");
+    private string MonsterName(MonsterTemplate m) => Localize(nameof(MonsterTemplate), m.Id, "Name",        m.NameEn);
 
     private string Localize(string entityType, Guid entityId, string field, string fallback)
     {
         var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-
-        if (!_locByKey.TryGetValue((entityType, entityId, culture), out var loc) || loc is null)
+        if (!_locByKey.TryGetValue((entityType, entityId, culture), out var loc))
             return fallback;
-
-        string? text = field switch
-        {
-            "Name" => loc.Name,
-            "Description" => loc.Description,
-            _ => null
-        };
-
+        var text = field == "Name" ? loc.Name : field == "Description" ? loc.Description : null;
         return string.IsNullOrWhiteSpace(text) ? fallback : text!;
     }
 }
