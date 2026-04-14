@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <ProjectReference Include="..\SharedServices\SharedServices.csproj" />
+    <ProjectReference Include="..\SharedServices\MercenariesAndBeasts\MercenariesAndBeasts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
