@@ -287,7 +287,7 @@
     [Parameter, EditorRequired] public EventCallback<PlayerItem> OnInventoryDragStart { get; set; }
     [Parameter, EditorRequired] public EventCallback<PlayerItem> OnOpenItemModal { get; set; }
 
-    [Parameter, EditorRequired] public Func<BaseGuid, string> GetLocalizedName { get; set; } = _ => "";
+    [Parameter, EditorRequired] public Func<MabTemplate, string> GetLocalizedName { get; set; } = _ => "";
     [Parameter, EditorRequired] public Func<QualityTier, string> GetQualityHeaderClass { get; set; } = _ => "";
     [Parameter, EditorRequired] public Func<PlayerItem, string> GetBadgeTierText { get; set; } = _ => "-";
     [Parameter, EditorRequired] public Func<PlayerItem, int> GetWinsNow { get; set; } = _ => 0;
