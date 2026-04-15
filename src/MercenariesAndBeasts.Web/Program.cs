@@ -1,17 +1,16 @@
 using MercenariesAndBeasts.Domain.Interface;
 using MercenariesAndBeasts.Infrastructure;
 using MercenariesAndBeasts.Infrastructure.AI;
+using MercenariesAndBeasts.Infrastructure.Auth;
+using MercenariesAndBeasts.Infrastructure.Localization;
+using MercenariesAndBeasts.Infrastructure.AI.Translations;
 using MercenariesAndBeasts.Web.Components;
 using MercenariesAndBeasts.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using OpenAI;
-using System.Globalization;
-using Microsoft.AspNetCore.Authentication.Google;
 using MercenariesAndBeasts.Infrastructure.Players;
-using MercenariesAndBeasts.Domain.Localization;
 using MercenariesAndBeasts.Infrastructure.Fights;
 using Npgsql;
 using System.Net;
@@ -24,37 +23,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddRazorPages();
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-var supportedCultures = LocalizationConfig.SupportedLocales
-    .Distinct(StringComparer.OrdinalIgnoreCase)
-    .Select(code =>
-    {
-        try
-        {
-            return CultureInfo.GetCultureInfo(code);
-        }
-        catch (CultureNotFoundException)
-        {
-            return null;
-        }
-    })
-    .Where(c => c != null)
-    .Cast<CultureInfo>()
-    .ToArray();
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    options.DefaultRequestCulture = new RequestCulture("en");
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-
-    // pořadí providerů: query string -> cookie -> browser
-    options.RequestCultureProviders = new List<IRequestCultureProvider>
-    {
-        new QueryStringRequestCultureProvider(),
-        new CookieRequestCultureProvider(),
-        new AcceptLanguageHeaderRequestCultureProvider()
-    };
-});
+builder.Services.AddMabLocalization();
 //var cs = builder.Configuration.GetConnectionString("MacGameDatabase");
 
 
@@ -128,36 +97,7 @@ builder.Services.AddDbContextFactory<MercenariesAndBeastsDbContext>(options =>
 // Scoped DbContext pro Identity + běžné služby
 builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IDbContextFactory<MercenariesAndBeastsDbContext>>().CreateDbContext());
-builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
-    {
-        // minimální nastavení, později doladíš
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireDigit = false;
-        options.SignIn.RequireConfirmedAccount = false;
-    })
-    .AddEntityFrameworkStores<MercenariesAndBeastsDbContext>()
-    .AddDefaultTokenProviders()
-    .AddDefaultUI();
-
-builder.Services.AddAuthentication()
-    .AddGoogle(options =>
-    {
-        var clientId = builder.Configuration["Authentication:Google:ClientId"];
-        var clientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-
-        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
-            throw new InvalidOperationException("Missing Google OAuth config (Authentication:Google:ClientId/ClientSecret).");
-
-        options.ClientId = clientId;
-        options.ClientSecret = clientSecret;
-
-        // důležité pro Identity external login flow
-        options.SignInScheme = IdentityConstants.ExternalScheme;
-
-        // default callback je /signin-google (nech tak)
-        // options.CallbackPath = "/signin-google";
-    });
+builder.Services.AddMabAuth(builder.Configuration);
 
 builder.Services.AddSingleton<ErrorService>();
 builder.Services.AddTransient<HttpInterceptorHandler>();
@@ -169,13 +109,12 @@ builder.Services.AddSingleton<IErrorService, LogErrorService>();
 
 builder.Services.AddHttpClient("Backend")
     .AddHttpMessageHandler<HttpInterceptorHandler>();
+
 var openAiKey = builder.Configuration["OpenAI:ApiKey"];
 if (string.IsNullOrWhiteSpace(openAiKey))
-{
     throw new InvalidOperationException("OpenAI:ApiKey is not configured in appsettings or environment.");
-}
 
-// ChatGptAsker – jeden společný klient
+// ChatGptAsker – jeden společný klient; musí být před AddMabTranslations
 builder.Services.AddSingleton(sp =>
     new ChatGptAsker(
         apiKey: openAiKey,
@@ -184,23 +123,17 @@ builder.Services.AddSingleton(sp =>
         maxRetries: 5,
         baseDelayMs: 750));
 
+builder.Services.AddMabTranslations();
 builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
 builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<GameSeed>();
-builder.Services.AddAuthorization();
 builder.Services.AddScoped<PlayerOnboardingService>();
-builder.Services.AddCascadingAuthenticationState();
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-});
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
-var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
-app.UseRequestLocalization(locOptions.Value);
+app.UseRequestLocalization(
+    app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -221,13 +154,7 @@ app.UseAntiforgery();
 app.MapRazorPages(); // kvůli Identity UI
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
-app.MapPost("/logout", async (SignInManager<AppUser> signInManager) =>
-{
-    await signInManager.SignOutAsync();
-    return Results.Redirect("/");
-})
-.DisableAntiforgery();
+app.MapMabCultureEndpoint();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
