@@ -8,30 +8,28 @@
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
-<h1>@S["Dungeons"]</h1>
+<div class="dash-switcher mb-3">
+    <h4 class="m-0">@S["Dungeons"]</h4>
+</div>
 
-<div class="alert alert-dark mt-2">
-    <div>
-        <b>Localization coverage</b> (locales: @_localeCount)
-    </div>
-
-    <div class="mt-2">
-        <b>Dungeons:</b>
-        @_dungeonHaveRows / @_dungeonMaxRows rows
-        (@(_dungeonMaxRows == 0
-            ? "0"
-            : ((100.0 * _dungeonHaveRows / _dungeonMaxRows).ToString("0.0")))%)
-        — fully localized: @_dungeonFullyLocalized / @_dungeonTotal
-    </div>
-
-    <div class="mt-1">
-        <b>Beasts (MonsterTemplates):</b>
-        @_beastHaveRows / @_beastMaxRows rows
-        (@(_beastMaxRows == 0
-            ? "0"
-            : ((100.0 * _beastHaveRows / _beastMaxRows).ToString("0.0")))%)
-        — fully localized: @_beastFullyLocalized / @_beastTotal
-        — has ItemTemplate: @_beastWithItemTemplates / @_beastTotal
+<div class="card-like mb-3">
+    <div class="fw-bold mb-2">Localization coverage <span class="text-muted small fw-normal">(locales: @_localeCount)</span></div>
+    <div class="row g-2">
+        <div class="col-md-6">
+            <div class="text-muted small mb-1">Dungeons</div>
+            <div>@_dungeonHaveRows / @_dungeonMaxRows rows
+                (@(_dungeonMaxRows == 0 ? "0" : ((100.0 * _dungeonHaveRows / _dungeonMaxRows).ToString("0.0")))%)
+                — full: <span class="@(_dungeonFullyLocalized == _dungeonTotal ? "text-success" : "text-warning")">@_dungeonFullyLocalized / @_dungeonTotal</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="text-muted small mb-1">Beasts (MonsterTemplates)</div>
+            <div>@_beastHaveRows / @_beastMaxRows rows
+                (@(_beastMaxRows == 0 ? "0" : ((100.0 * _beastHaveRows / _beastMaxRows).ToString("0.0")))%)
+                — full: <span class="@(_beastFullyLocalized == _beastTotal ? "text-success" : "text-warning")">@_beastFullyLocalized / @_beastTotal</span>
+                — items: @_beastWithItemTemplates / @_beastTotal
+            </div>
+        </div>
     </div>
 </div>
 
@@ -39,7 +37,10 @@
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <div class="card-like d-flex align-items-center gap-2 text-muted mb-3">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading…</span>
+    </div>
 }
 else
 {

@@ -1,9 +1,25 @@
 @page "/test"
 @inject MercenariesAndBeasts.Infrastructure.MercenariesAndBeastsDbContext Db
 
-<h3>Locations</h3>
-
-@foreach (var l in Db.Locations)
-{
-    <p>@l.Code — @l.NameEn</p>
-}
+<div class="card-like">
+    <h4 class="mb-3">Locations (test)</h4>
+    <div class="dungeons-table-wrap">
+        <table class="table table-dark table-stages mb-0">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name (EN)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var l in Db.Locations)
+                {
+                    <tr>
+                        <td>@l.Code</td>
+                        <td>@l.NameEn</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -15,15 +15,18 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
-<h1>Locations</h1>
-
 @if (isLoading)
 {
-    <p>Loading…</p>
+    <div class="card-like d-flex align-items-center gap-2 text-muted">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading…</span>
+    </div>
 }
 else if (player is null)
 {
-    <p class="text-danger">No player profile found.</p>
+    <div class="card-like">
+        <div class="alert alert-danger mb-0">No player profile found.</div>
+    </div>
 }
 else
 {
@@ -142,20 +145,25 @@ else
                                 <div class="d-flex flex-column gap-2">
                                     @foreach (var e in encounters)
                                     {
-                                        <div class="p-3 border rounded d-flex justify-content-between align-items-center">
-                                            <div style="min-width:0;">
+                                        <div class="card-like d-flex justify-content-between align-items-center gap-3"
+                                             style="background:rgba(255,255,255,0.04);padding:.75rem 1rem;">
+                                            <div class="d-flex align-items-center gap-2" style="min-width:0;">
                                                 @if (!string.IsNullOrWhiteSpace(e.ImagePath))
                                                 {
                                                     <img src="@e.ImagePath"
-                                                         style="width:40px;height:40px;object-fit:cover;border-radius:6px;float:left;margin-right:10px;" />
+                                                         style="width:40px;height:40px;object-fit:cover;border-radius:8px;flex-shrink:0;" />
                                                 }
-                                                <div class="fw-bold text-truncate">@e.Name</div>
-                                                <div class="text-muted small">
-                                                    Lv @e.BaseLevel · @e.Element · Slot @e.SlotIndex
+                                                else
+                                                {
+                                                    <div style="width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,0.06);flex-shrink:0;"></div>
+                                                }
+                                                <div style="min-width:0;">
+                                                    <div class="fw-bold text-truncate">@e.Name</div>
+                                                    <div class="text-muted small">Lv @e.BaseLevel · @e.Element · Slot @e.SlotIndex</div>
                                                 </div>
                                             </div>
 
-                                            <a class="btn btn-primary btn-sm ms-2"
+                                            <a class="btn btn-primary btn-sm flex-shrink-0"
                                                href="@($"/expeditions/{selectedLocation.Id}/fight/{e.SlotIndex}")">
                                                 Fight
                                             </a>

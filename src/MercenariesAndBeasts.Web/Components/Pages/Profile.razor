@@ -14,20 +14,24 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
 
-<h1>Profile</h1>
-
 @if (_loading)
 {
-    <p>Loading…</p>
+    <div class="card-like d-flex align-items-center gap-2 text-muted">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading…</span>
+    </div>
 }
 else if (_player is null)
 {
-    <p class="text-danger">No player profile found.</p>
+    <div class="card-like">
+        <div class="alert alert-danger mb-0">No player profile found.</div>
+    </div>
 }
 else
 {
     <div class="card-like">
-        <h3 class="mb-2">Account</h3>
+        <h4 class="mb-2">Profile</h4>
+        <hr />
         <div class="text-muted small mb-3">
             User: <b>@_userName</b>
         </div>

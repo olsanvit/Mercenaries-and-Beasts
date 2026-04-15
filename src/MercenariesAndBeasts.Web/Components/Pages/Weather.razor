@@ -3,38 +3,44 @@
 
 <PageTitle>Weather</PageTitle>
 
-<h1>Weather</h1>
+<div class="card-like">
+    <h4 class="mb-1">Weather</h4>
+    <p class="text-muted small mb-3">Forecast for the next 5 days.</p>
 
-<p>This component demonstrates showing data.</p>
-
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    @if (forecasts == null)
+    {
+        <div class="d-flex align-items-center gap-2 text-muted py-2">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading…</span>
+        </div>
+    }
+    else
+    {
+        <div class="dungeons-table-wrap">
+            <table class="table table-dark table-stages mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Temp. (°C)</th>
+                        <th>Temp. (°F)</th>
+                        <th>Summary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var forecast in forecasts)
+                    {
+                        <tr>
+                            <td>@forecast.Date.ToShortDateString()</td>
+                            <td>@forecast.TemperatureC</td>
+                            <td>@forecast.TemperatureF</td>
+                            <td>@forecast.Summary</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
 
 @code {
     private WeatherForecast[]? forecasts;

@@ -21,15 +21,18 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
-<h1>Dungeon Fight</h1>
-
 @if (isLoading)
 {
-    <p>Loading…</p>
+    <div class="card-like d-flex align-items-center gap-2 text-muted">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading…</span>
+    </div>
 }
 else if (player is null || dungeon is null)
 {
-    <p class="text-danger">Missing player or dungeon.</p>
+    <div class="card-like">
+        <div class="alert alert-danger mb-0">Missing player or dungeon.</div>
+    </div>
 }
 else
 {
@@ -37,10 +40,9 @@ else
         <div class="d-flex justify-content-between align-items-start gap-3">
             <div>
                 <h3 class="m-0">@DngName(dungeon)</h3>
-                <div class="text-muted">Stage @currentStage / 11</div>
-                <div class="text-muted">
-                    Enemy:
-                    <b>@(enemy is null ? "—" : MonsterName(enemy))</b>
+                <div class="text-muted small">Stage @currentStage / 11</div>
+                <div class="text-muted small">
+                    Enemy: <b class="text-light">@(enemy is null ? "—" : MonsterName(enemy))</b>
                 </div>
             </div>
 
@@ -57,14 +59,16 @@ else
         @if (hasResolved)
         {
             <hr />
-            <h4 class="m-0">Result: @(didWin ? "Victory" : "Defeat")</h4>
-            <div class="text-muted mt-1">@resultText</div>
+            <h4 class="m-0 @(didWin ? "text-success" : "text-danger")">
+                @(didWin ? "⚔️ Victory" : "💀 Defeat")
+            </h4>
+            <div class="text-muted small mt-1">@resultText</div>
 
             @if (fightLog.Count > 0)
             {
                 <hr />
-                <h5>Fight log</h5>
-                <ul class="mb-0">
+                <div class="fw-bold mb-2">Fight log</div>
+                <ul class="mb-0 text-muted small">
                     @foreach (var line in fightLog)
                     {
                         <li>@line</li>
@@ -73,7 +77,7 @@ else
             }
 
             <div class="mt-3">
-                <div><b>New stage:</b> @newStage / 11</div>
+                <div class="text-muted small"><b class="text-light">New stage:</b> @newStage / 11</div>
                 @if (progress?.IsCompleted == true)
                 {
                     <span class="badge bg-success mt-2">Dungeon Completed</span>

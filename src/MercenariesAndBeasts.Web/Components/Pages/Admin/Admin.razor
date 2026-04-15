@@ -6,90 +6,92 @@
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
-<h1>Admin</h1>
+<div class="dash-switcher mb-3">
+    <h4 class="m-0">Admin</h4>
+</div>
 
-<div class="card p-3 mb-3">
-    <h4 class="m-0">Game Seed</h4>
-    <div class="text-muted small">
-        Run full game seed (locations, dungeons, items, AI generation).
-    </div>
-
-    <div class="mt-3 d-flex gap-2">
-        <button class="btn btn-danger"
-                disabled="@isSeeding"
-                @onclick="() => RunSeedAsync(true)">
-            Run FULL Seed (MakeAll = true)
-        </button>
-
-        <button class="btn btn-secondary"
-                disabled="@isSeeding"
-                @onclick="() => RunSeedAsync(false)">
-            Run Minimal Seed
-        </button>
+<div class="card-like mb-3">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+        <div>
+            <div class="fw-bold">Game Seed</div>
+            <div class="text-muted small">Run full game seed (locations, dungeons, items, AI generation).</div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-danger"
+                    disabled="@isSeeding"
+                    @onclick="() => RunSeedAsync(true)">
+                Run FULL Seed
+            </button>
+            <button class="btn btn-outline-secondary"
+                    disabled="@isSeeding"
+                    @onclick="() => RunSeedAsync(false)">
+                Run Minimal Seed
+            </button>
+        </div>
     </div>
 
     @if (isSeeding)
     {
-        <div class="text-warning mt-2">
-            Seeding in progress…
+        <div class="d-flex align-items-center gap-2 text-warning">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Seeding in progress…</span>
         </div>
     }
-
     @if (!string.IsNullOrWhiteSpace(seedResult))
     {
-        <div class="alert alert-info mt-3">
-            @seedResult
-        </div>
+        <div class="alert alert-info mt-2 mb-0">@seedResult</div>
     }
 </div>
 
 @if (countsLoaded)
 {
-    <div class="card p-3 mb-3">
-        <h4 class="m-0">Database counts</h4>
-
-        <table class="table table-sm table-dark mt-2 mb-0">
-            <tbody>
-                <tr><td>Dungeons</td><td class="text-end">@dungeonCount</td></tr>
-                <tr><td>Monster templates</td><td class="text-end">@monsterCount</td></tr>
-                <tr><td>Locations</td><td class="text-end">@locationCount</td></tr>
-                <tr><td>Orders (Mercenaries)</td><td class="text-end">@orderCount</td></tr>
-                <tr><td>Item templates</td><td class="text-end">@itemCount</td></tr>
-                <tr><td>Item upgrade resources</td><td class="text-end">@resourceCount</td></tr>
-            </tbody>
-        </table>
+    <div class="card-like mb-3">
+        <div class="fw-bold mb-2">Database counts</div>
+        <div class="dungeons-table-wrap">
+            <table class="table table-dark table-stages mb-0">
+                <tbody>
+                    <tr><td>Dungeons</td><td class="text-end">@dungeonCount</td></tr>
+                    <tr><td>Monster templates</td><td class="text-end">@monsterCount</td></tr>
+                    <tr><td>Locations</td><td class="text-end">@locationCount</td></tr>
+                    <tr><td>Orders (Mercenaries)</td><td class="text-end">@orderCount</td></tr>
+                    <tr><td>Item templates</td><td class="text-end">@itemCount</td></tr>
+                    <tr><td>Item upgrade resources</td><td class="text-end">@resourceCount</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 }
 
 @if (locStats.Count > 0)
 {
-    <div class="card p-3">
-        <h4 class="m-0">Localization coverage</h4>
-        <div class="text-muted small">
-            Required locales per entity: @requiredLocaleCount
+    <div class="card-like">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-bold">Localization coverage</div>
+            <div class="text-muted small">Required locales: @requiredLocaleCount</div>
         </div>
-
-        <table class="table table-sm table-dark mt-3 mb-0">
-            <thead>
-                <tr>
-                    <th>Entity</th>
-                    <th class="text-end">Total</th>
-                    <th class="text-end">Any localized</th>
-                    <th class="text-end">Fully localized</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var r in locStats)
-                {
+        <div class="dungeons-table-wrap">
+            <table class="table table-dark table-stages mb-0">
+                <thead>
                     <tr>
-                        <td>@r.Entity</td>
-                        <td class="text-end">@r.Total</td>
-                        <td class="text-end">@r.AnyLocalized</td>
-                        <td class="text-end">@r.FullyLocalized</td>
+                        <th>Entity</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Any</th>
+                        <th class="text-end">Full</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var r in locStats)
+                    {
+                        <tr>
+                            <td>@r.Entity</td>
+                            <td class="text-end">@r.Total</td>
+                            <td class="text-end">@r.AnyLocalized</td>
+                            <td class="text-end @(r.FullyLocalized == r.Total ? "text-success" : "")">@r.FullyLocalized</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 }
 

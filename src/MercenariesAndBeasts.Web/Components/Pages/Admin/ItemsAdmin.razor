@@ -8,29 +8,36 @@
 @using MercenariesAndBeasts.Domain.Localization
 @using MercenariesAndBeasts.Domain.Combat
 
-<h1>Item Templates (Admin)</h1>
+<div class="dash-switcher mb-3">
+    <h4 class="m-0">Item Templates</h4>
+</div>
 
-<div class="alert alert-dark mt-2">
-    <div><b>Localization coverage</b> (locales: @_localeCount)</div>
-
-    <div class="mt-2">
-        <b>ItemTemplates:</b>
-        @_itemHaveRows / @_itemMaxRows rows
-        (@(_itemMaxRows == 0 ? "0" : ((100.0 * _itemHaveRows / _itemMaxRows).ToString("0.0")))%)
-        — fully localized: @_itemFullyLocalized / @_itemTotal
-    </div>
-
-    <div>
-        <b>ItemUpgradeResources:</b>
-        @_resHaveRows / @_resMaxRows rows
-        (@(_resMaxRows == 0 ? "0" : ((100.0 * _resHaveRows / _resMaxRows).ToString("0.0")))%)
-        — fully localized: @_resFullyLocalized / @_resTotal
+<div class="card-like mb-3">
+    <div class="fw-bold mb-2">Localization coverage <span class="text-muted small fw-normal">(locales: @_localeCount)</span></div>
+    <div class="row g-2">
+        <div class="col-md-6">
+            <div class="text-muted small mb-1">ItemTemplates</div>
+            <div>@_itemHaveRows / @_itemMaxRows rows
+                (@(_itemMaxRows == 0 ? "0" : ((100.0 * _itemHaveRows / _itemMaxRows).ToString("0.0")))%)
+                — full: <span class="@(_itemFullyLocalized == _itemTotal ? "text-success" : "text-warning")">@_itemFullyLocalized / @_itemTotal</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="text-muted small mb-1">ItemUpgradeResources</div>
+            <div>@_resHaveRows / @_resMaxRows rows
+                (@(_resMaxRows == 0 ? "0" : ((100.0 * _resHaveRows / _resMaxRows).ToString("0.0")))%)
+                — full: <span class="@(_resFullyLocalized == _resTotal ? "text-success" : "text-warning")">@_resFullyLocalized / @_resTotal</span>
+            </div>
+        </div>
     </div>
 </div>
 
 @if (_isLoading)
 {
-    <p>Loading...</p>
+    <div class="card-like d-flex align-items-center gap-2 text-muted">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading…</span>
+    </div>
 }
 else
 {

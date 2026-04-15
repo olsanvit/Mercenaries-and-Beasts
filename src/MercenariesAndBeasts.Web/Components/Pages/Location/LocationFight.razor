@@ -18,20 +18,25 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
-<h1>Expedition Fight</h1>
-
 @if (isLoading)
 {
-    <p>Loading…</p>
+    <div class="card-like d-flex align-items-center gap-2 text-muted">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading…</span>
+    </div>
 }
 else if (player is null || location is null)
 {
-    <p class="text-danger">Missing player or location.</p>
+    <div class="card-like">
+        <div class="alert alert-danger mb-0">Missing player or location.</div>
+    </div>
 }
 else if (enemy is null)
 {
-    <p class="text-danger">Order not found for slot @SlotIndex.</p>
-    <a class="btn btn-outline-secondary" href="/expeditions">Back</a>
+    <div class="card-like">
+        <div class="alert alert-danger mb-2">Order not found for slot @SlotIndex.</div>
+        <a class="btn btn-outline-secondary" href="/expeditions">Back</a>
+    </div>
 }
 else
 {
@@ -46,13 +51,13 @@ else
 
         <hr />
 
-        <h5>Enemy Order</h5>
-        <div class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
+        <div class="fw-bold mb-2">Enemy Order</div>
+        <div class="card-like mb-3" style="background:rgba(255,255,255,0.04);">
             <div class="d-flex align-items-center gap-3">
                 @if (!string.IsNullOrWhiteSpace(enemy.ImagePath))
                 {
                     <img src="@enemy.ImagePath"
-                         style="width:56px;height:56px;object-fit:cover;border-radius:8px;" />
+                         style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;" />
                 }
                 else
                 {
@@ -76,12 +81,14 @@ else
         @if (hasResolved)
         {
             <hr />
-            <h4>Result: @(didWin ? "Victory" : "Defeat")</h4>
-            <div class="text-muted">@resultText</div>
+            <h4 class="m-0 @(didWin ? "text-success" : "text-danger")">
+                @(didWin ? "⚔️ Victory" : "💀 Defeat")
+            </h4>
+            <div class="text-muted small mt-1">@resultText</div>
 
             <hr />
-            <h5>Loot</h5>
-            <ul class="mb-0">
+            <div class="fw-bold mb-2">Loot</div>
+            <ul class="mb-0 text-muted small">
                 @foreach (var l in lootLines)
                 {
                     <li>@l</li>
