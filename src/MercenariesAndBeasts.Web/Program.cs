@@ -23,9 +23,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddRazorPages();
-builder.Services.AddMabLocalization();
-//var cs = builder.Configuration.GetConnectionString("MacGameDatabase");
-
+builder.Services.AddMabLocalization<MercenariesAndBeastsDbContext>();
 
 var csRaw = builder.Configuration.GetConnectionString("QNAPGameDatabase");
 if (string.IsNullOrWhiteSpace(csRaw))
@@ -88,16 +86,11 @@ static string PreferIPv4Host(string cs)
 
     return b.ToString();
 }
-// Factory (singleton-safe)
-builder.Services.AddDbContextFactory<MercenariesAndBeastsDbContext>(options =>
-{
-    options.UseNpgsql(cs);
-});
 
-// Scoped DbContext pro Identity + běžné služby
-builder.Services.AddScoped(sp =>
-    sp.GetRequiredService<IDbContextFactory<MercenariesAndBeastsDbContext>>().CreateDbContext());
-builder.Services.AddMabAuth(builder.Configuration);
+// DbContextFactory + scoped DbContext using IPv4-resolved connection string
+builder.Services.AddMabDbContext<MercenariesAndBeastsDbContext>(cs);
+
+builder.Services.AddMabAuth<MercenariesAndBeastsDbContext>(builder.Configuration);
 
 builder.Services.AddSingleton<ErrorService>();
 builder.Services.AddTransient<HttpInterceptorHandler>();
@@ -123,7 +116,14 @@ builder.Services.AddSingleton(sp =>
         maxRetries: 5,
         baseDelayMs: 750));
 
-builder.Services.AddMabTranslations();
+builder.Services.AddMabTranslations<MercenariesAndBeastsDbContext>(registry =>
+{
+    registry.Add("Dungeon",           db => db.Dungeons.Select(x          => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
+    registry.Add("Location",          db => db.Locations.Select(x         => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
+    registry.Add("MonsterTemplate",   db => db.MonsterTemplates.Select(x   => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
+    registry.Add("MercenaryTemplate", db => db.MercenaryTemplates.Select(x => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
+    registry.Add("ItemTemplate",      db => db.ItemTemplates.Select(x      => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
+});
 builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
 builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();
 builder.Services.AddScoped<ToastService>();
@@ -155,6 +155,7 @@ app.MapRazorPages(); // kvůli Identity UI
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 app.MapMabCultureEndpoint();
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -164,22 +165,8 @@ using (var scope = app.Services.CreateScope())
     var seed = services.GetRequiredService<GameSeed>();
 
     await db.Database.MigrateAsync();
-    await seed.SeedIdentityAsync(userManager, roleManager); // tohle může zůstat static
-    await seed.SeedAsync(false);                                     // instance metoda
+    await seed.SeedIdentityAsync(userManager, roleManager);
+    await seed.SeedAsync(false);
 }
-app.MapGet("/set-culture", (string culture, string returnUrl, HttpContext httpContext) =>
-{
-    var requestCulture = new RequestCulture(culture);
 
-    httpContext.Response.Cookies.Append(
-        CookieRequestCultureProvider.DefaultCookieName,
-        CookieRequestCultureProvider.MakeCookieValue(requestCulture),
-        new CookieOptions
-        {
-            Expires = DateTimeOffset.UtcNow.AddYears(1),
-            IsEssential = true
-        });
-
-    return Results.Redirect(returnUrl);
-});
 app.Run();
