@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MercenariesAndBeasts.Infrastructure.Players;
 using MercenariesAndBeasts.Infrastructure.Fights;
+using SharedServices.Services.Common;
 using Npgsql;
 using System.Net;
 using System.Net.Sockets;
@@ -99,6 +100,8 @@ builder.Services.AddScoped<PlayerLootService>();
 builder.Services.AddScoped<IFightService, FightService>();
 builder.Services.AddScoped<IStatAggregator, StatAggregator>();
 builder.Services.AddSingleton<IErrorService, LogErrorService>();
+builder.Services.AddScoped<IUserService<AppUser>, AspNetUserService<AppUser>>();
+builder.Services.AddScoped<IAuditService, DbAuditService>();
 
 builder.Services.AddHttpClient("Backend")
     .AddHttpMessageHandler<HttpInterceptorHandler>();

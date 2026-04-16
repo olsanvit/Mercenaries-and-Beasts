@@ -1,32 +1,172 @@
 @page "/shop"
 @attribute [Authorize]
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using MercenariesAndBeasts.Domain.Players
+
+@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
+@inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="dash-switcher mb-3">
     <h4 class="m-0">Shop</h4>
 </div>
 
-<div class="row g-4">
-    <div class="col-md-6">
-        <div class="card-like">
-            <h5 class="mb-1">💰 Soft Currency</h5>
-            <p class="text-muted small mb-3">Used for upgrades, crafting and rerolls.</p>
-
-            <div class="d-grid gap-2">
-                <button class="btn btn-primary">Buy 1 000 Soft – €1.99</button>
-                <button class="btn btn-primary">Buy 5 000 Soft – €7.99</button>
+@if (_loading)
+{
+    <div class="card-like d-flex align-items-center gap-2 text-muted">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading…</span>
+    </div>
+}
+else
+{
+    <!-- Wallet -->
+    <div class="card-like mb-3">
+        <div class="fw-bold mb-2">Your Wallet</div>
+        <div class="d-flex gap-4">
+            <div>
+                <span class="text-muted small">💰 Soft</span>
+                <div class="fw-bold fs-5">@(_player?.SoftCurrency.ToString("N0") ?? "—")</div>
+            </div>
+            <div>
+                <span class="text-muted small">💎 Premium</span>
+                <div class="fw-bold fs-5">@(_player?.PremiumCurrency.ToString("N0") ?? "—")</div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card-like">
-            <h5 class="mb-1">💎 Premium Currency</h5>
-            <p class="text-muted small mb-3">Used for premium packs and special offers.</p>
+    <div class="row g-4">
+        <!-- Soft Currency packs -->
+        <div class="col-md-6">
+            <div class="card-like">
+                <h5 class="mb-1">💰 Soft Currency</h5>
+                <p class="text-muted small mb-3">Used for upgrades, crafting and rerolls.</p>
 
-            <div class="d-grid gap-2">
-                <button class="btn btn-warning">Buy 100 Premium – €4.99</button>
-                <button class="btn btn-warning">Buy 300 Premium – €12.99</button>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary"
+                            disabled="@_purchasing"
+                            @onclick='() => PurchaseAsync("soft", 1_000, "€1.99")'>
+                        Buy 1 000 Soft – €1.99
+                    </button>
+                    <button class="btn btn-primary"
+                            disabled="@_purchasing"
+                            @onclick='() => PurchaseAsync("soft", 5_000, "€7.99")'>
+                        Buy 5 000 Soft – €7.99
+                    </button>
+                    <button class="btn btn-outline-primary"
+                            disabled="@_purchasing"
+                            @onclick='() => PurchaseAsync("soft", 20_000, "€24.99")'>
+                        Buy 20 000 Soft – €24.99
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Currency packs -->
+        <div class="col-md-6">
+            <div class="card-like">
+                <h5 class="mb-1">💎 Premium Currency</h5>
+                <p class="text-muted small mb-3">Used for premium packs and special offers.</p>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-warning"
+                            disabled="@_purchasing"
+                            @onclick='() => PurchaseAsync("premium", 100, "€4.99")'>
+                        Buy 100 Premium – €4.99
+                    </button>
+                    <button class="btn btn-warning"
+                            disabled="@_purchasing"
+                            @onclick='() => PurchaseAsync("premium", 300, "€12.99")'>
+                        Buy 300 Premium – €12.99
+                    </button>
+                    <button class="btn btn-outline-warning"
+                            disabled="@_purchasing"
+                            @onclick='() => PurchaseAsync("premium", 1_000, "€34.99")'>
+                        Buy 1 000 Premium – €34.99
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    @if (!string.IsNullOrWhiteSpace(_message))
+    {
+        <div class="mt-3 alert @(_isError ? "alert-danger" : "alert-success")">@_message</div>
+    }
+}
+
+@code {
+    private bool _loading = true;
+    private bool _purchasing = false;
+    private bool _isError = false;
+    private string? _message;
+
+    private PlayerProfile? _player;
+    private string? _userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(auth.User);
+            if (user is null) return;
+
+            _userId = user.Id;
+
+            await using var db = await DbFactory.CreateDbContextAsync();
+            _player = await db.Players.FirstOrDefaultAsync(p => p.UserId == user.Id);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task PurchaseAsync(string type, long amount, string price)
+    {
+        if (_purchasing || _player is null || _userId is null) return;
+
+        _purchasing = true;
+        _message = null;
+        StateHasChanged();
+
+        try
+        {
+            // TODO: integrate with real payment gateway
+            // For now: simulate a dev grant (dev-only flow)
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var player = await db.Players.FirstOrDefaultAsync(p => p.UserId == _userId);
+            if (player is null)
+            {
+                _isError = true;
+                _message = "Player profile not found.";
+                return;
+            }
+
+            if (type == "soft")
+                player.SoftCurrency += amount;
+            else
+                player.PremiumCurrency += (int)amount;
+
+            await db.SaveChangesAsync();
+
+            // Refresh local state
+            _player = player;
+            _isError = false;
+            _message = $"✅ Purchase simulated: +{amount:N0} {(type == "soft" ? "💰 Soft" : "💎 Premium")} ({price})";
+        }
+        catch (Exception ex)
+        {
+            _isError = true;
+            _message = $"Purchase failed: {ex.Message}";
+        }
+        finally
+        {
+            _purchasing = false;
+            StateHasChanged();
+        }
+    }
+}
