@@ -7,42 +7,56 @@
 <section class="dash-top">
     <div class="card-like inv-wrap">
         <div class="inv-head">
-            <div class="topbar">
-                <div class="topbar-left">
-                    <h6 class="m-0">Beasts</h6>
+            @{
+                var _activeB  = ActiveBeastSlot?.Beast;
+                var _activeBT = _activeB?.Template;
+            }
+            <div class="unit-row">
+                <!-- thumbnail aktivního slotu -->
+                <div class="unit-thumb"
+                     @ondragover:preventDefault
+                     @ondrop="() => { if (ActiveBeastSlot is not null) OnDropToBeastSlot.InvokeAsync(ActiveBeastSlot); }">
+                    @if (!string.IsNullOrWhiteSpace(_activeBT?.ImagePath))
+                    {
+                        <img src="@_activeBT.ImagePath" class="unit-thumb-img" />
+                    }
+                    else
+                    {
+                        <div class="unit-thumb-img unit-thumb-empty"></div>
+                    }
                 </div>
 
-                <div class="topbar-right">
-                    <div class="slotbar-scroll">
-                        <div class="slotbar">
-                            @foreach (var s in BeastSlots.OrderBy(x => x.SlotIndex))
-                            {
-                                var isActive = s.SlotIndex == ActiveBeastSlotIndex;
-
-                                <button class="btn @(isActive ? "btn-primary" : "btn-outline-secondary")"
-                                        @onclick="() => OnSelectBeastSlot.InvokeAsync(s.SlotIndex)"
-                                        @ondragover:preventDefault
-                                        @ondrop="() => OnDropToBeastSlot.InvokeAsync(s)">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold">@s.SlotIndex</span>
-
-                                        @if (s.BeastInstanceId is null)
-                                        {
-                                            <span class="badge bg-secondary">Empty</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="slot-name">
-                                                @(s.Beast?.Template is not null
-                                                    ? GetLocalizedName(s.Beast.Template)
-                                                    : "...")
-                                            </span>
-                                        }
-                                    </div>
-                                </button>
-                            }
-                        </div>
+                <!-- scrollovatelné chipy slotů -->
+                <div class="unit-chips-scroll">
+                    <div class="unit-chips">
+                        @foreach (var s in BeastSlots.OrderBy(x => x.SlotIndex))
+                        {
+                            var isActive = s.SlotIndex == ActiveBeastSlotIndex;
+                            <div class="unit-chip @(isActive ? "active" : "")"
+                                 @onclick="() => OnSelectBeastSlot.InvokeAsync(s.SlotIndex)"
+                                 @ondragover:preventDefault
+                                 @ondrop="() => OnDropToBeastSlot.InvokeAsync(s)">
+                                <span class="unit-chip-idx">@s.SlotIndex</span>
+                                @if (s.BeastInstanceId is null)
+                                {
+                                    <span class="unit-chip-name text-secondary">Empty</span>
+                                }
+                                else
+                                {
+                                    <span class="unit-chip-name">
+                                        @(s.Beast?.Template is not null ? GetLocalizedName(s.Beast.Template) : "...")
+                                    </span>
+                                }
+                            </div>
+                        }
                     </div>
+                    @if (_activeBT is not null)
+                    {
+                        <div class="unit-subtitle">
+                            <span class="fw-semibold">@GetLocalizedName(_activeBT)</span>
+                            <span class="text-secondary ms-2">Lv @_activeB!.Level · @_activeBT.Element</span>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -57,26 +71,6 @@
         {
             var b = ActiveBeastSlot.Beast;
             var t = b?.Template;
-
-            <div class="d-flex gap-3">
-                @if (!string.IsNullOrWhiteSpace(t?.ImagePath))
-                {
-                    <img src="@t.ImagePath" style="width:72px;height:72px;object-fit:cover;border-radius:14px;" />
-                }
-                else
-                {
-                    <div style="width:72px;height:72px;border-radius:14px;background:rgba(255,255,255,0.06);"></div>
-                }
-
-                <div style="min-width:0;">
-                    <div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                        @(t is not null ? GetLocalizedName(t) : "...")
-                    </div>
-                    <div class="text-secondary">
-                        Lv @b?.Level · @t?.Element
-                    </div>
-                </div>
-            </div>
 
             <div class="inv-scroll">
                 <div class="row g-3">

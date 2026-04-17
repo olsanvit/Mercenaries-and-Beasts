@@ -7,37 +7,54 @@
 <section class="dash-top">
     <div class="card-like inv-wrap">
         <div class="inv-head">
-            <div class="topbar">
-                <div class="topbar-left">
-                    <h6 class="m-0">Orders</h6>
+            @{
+                var _activeM  = ActiveMercSlot?.Mercenary;
+                var _activeMT = _activeM?.Template;
+            }
+            <div class="unit-row">
+                <!-- thumbnail aktivního slotu -->
+                <div class="unit-thumb"
+                     @ondragover:preventDefault
+                     @ondrop="() => { if (ActiveMercSlot is not null) OnDropToMercSlot.InvokeAsync(ActiveMercSlot); }">
+                    @if (!string.IsNullOrWhiteSpace(_activeMT?.ImagePath))
+                    {
+                        <img src="@_activeMT.ImagePath" class="unit-thumb-img" />
+                    }
+                    else
+                    {
+                        <div class="unit-thumb-img unit-thumb-empty"></div>
+                    }
                 </div>
 
-                <div class="topbar-right">
-                    <div class="slotbar-scroll">
-                        <div class="slotbar">
-                            @foreach (var s in MercSlots.OrderBy(x => x.SlotIndex))
-                            {
-                                var isActive = s.SlotIndex == ActiveMercSlotIndex;
-
-                                <button class="btn @(isActive ? "btn-primary" : "btn-outline-secondary")"
-                                        @onclick="() => OnSelectMercSlot.InvokeAsync(s.SlotIndex)"
-                                        @ondragover:preventDefault
-                                        @ondrop="() => OnDropToMercSlot.InvokeAsync(s)">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold">@s.SlotIndex</span>
-                                        @if (s.MercenaryInstanceId is null)
-                                        {
-                                            <span class="badge bg-secondary">Empty</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="slot-name">@GetLocalizedName(s.Mercenary!.Template)</span>
-                                        }
-                                    </div>
-                                </button>
-                            }
-                        </div>
+                <!-- scrollovatelné chipy slotů -->
+                <div class="unit-chips-scroll">
+                    <div class="unit-chips">
+                        @foreach (var s in MercSlots.OrderBy(x => x.SlotIndex))
+                        {
+                            var isActive = s.SlotIndex == ActiveMercSlotIndex;
+                            <div class="unit-chip @(isActive ? "active" : "")"
+                                 @onclick="() => OnSelectMercSlot.InvokeAsync(s.SlotIndex)"
+                                 @ondragover:preventDefault
+                                 @ondrop="() => OnDropToMercSlot.InvokeAsync(s)">
+                                <span class="unit-chip-idx">@s.SlotIndex</span>
+                                @if (s.MercenaryInstanceId is null)
+                                {
+                                    <span class="unit-chip-name text-secondary">Empty</span>
+                                }
+                                else
+                                {
+                                    <span class="unit-chip-name">@GetLocalizedName(s.Mercenary!.Template)</span>
+                                }
+                            </div>
+                        }
                     </div>
+                    @if (_activeMT is not null)
+                    {
+                        <div class="unit-subtitle">
+                            <span class="fw-semibold">@GetLocalizedName(_activeMT)</span>
+                            <span class="text-secondary ms-2">Lv @_activeM!.Level · @_activeMT.Element</span>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -61,26 +78,6 @@
             }
             else
             {
-                <div class="d-flex gap-3">
-                    @if (!string.IsNullOrWhiteSpace(t.ImagePath))
-                    {
-                        <img src="@t.ImagePath" style="width:72px;height:72px;object-fit:cover;border-radius:14px;" />
-                    }
-                    else
-                    {
-                        <div style="width:72px;height:72px;border-radius:14px;background:rgba(255,255,255,0.06);"></div>
-                    }
-
-                    <div style="min-width:0;">
-                        <div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                            @GetLocalizedName(ActiveMercSlot.Mercenary!.Template)
-                        </div>
-                        <div class="text-secondary">
-                            Lv @m!.Level · @t.Element
-                        </div>
-                    </div>
-                </div>
-
                 <div class="inv-scroll">
                     <div class="row g-3">
                         <div class="col-12">
