@@ -93,6 +93,10 @@ builder.Services.AddMabDbContext<MercenariesAndBeastsDbContext>(cs);
 
 builder.Services.AddMabAuth<MercenariesAndBeastsDbContext>(builder.Configuration);
 
+// Identity UI vyžaduje IEmailSender pro ExternalLogin flow — no-op implementace
+builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender,
+    NoOpEmailSender>();
+
 builder.Services.AddSingleton<ErrorService>();
 builder.Services.AddTransient<HttpInterceptorHandler>();
 builder.Services.AddScoped<AdminUserService>();
@@ -173,3 +177,13 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+/// <summary>
+/// No-op IEmailSender — Identity UI vyžaduje tuto službu pro ExternalLogin flow,
+/// ale e-maily v tomto projektu (zatím) neposíláme.
+/// </summary>
+file sealed class NoOpEmailSender : Microsoft.AspNetCore.Identity.UI.Services.IEmailSender
+{
+    public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        => Task.CompletedTask;
+}
