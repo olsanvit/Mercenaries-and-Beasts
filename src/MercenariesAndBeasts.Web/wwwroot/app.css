@@ -528,23 +528,33 @@ table.table tbody tr:hover {
 }
 .inv-scroll{ overflow-x: visible; }
 
-.inv-tab{
-    flex: 0 0 auto !important;  /* nesmí se smrsknout */
+.inv-tab {
+    flex: 0 0 auto !important;
     display: inline-flex;
-    flex-direction: column;
-    padding: 8px 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
     border-radius: 999px;
-    border: 1px solid rgba(148,163,184,0.25);
+    border: 1px solid rgba(148,163,184,0.2);
     background: rgba(15,18,30,0.55);
-    color: rgba(229,231,235,0.75);
+    color: rgba(229,231,235,0.7);
     cursor: pointer;
-  white-space: nowrap;           /* klíčové */
+    white-space: nowrap;
+    font-size: 0.8rem;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.inv-tab:hover {
+    border-color: rgba(148,163,184,0.4);
+    color: #e5e7eb;
 }
 
 .inv-tab.active {
-    border-color: rgba(192,132,252,0.55);
+    border-color: rgba(192,132,252,0.6);
     color: #e5e7eb;
-    box-shadow: 0 0 14px rgba(192,132,252,0.18);
+    background: rgba(192,132,252,0.1);
+    box-shadow: 0 0 10px rgba(192,132,252,0.15);
 }
 
 .inv-grid {
@@ -671,10 +681,17 @@ table.table tbody tr:hover {
     white-space: nowrap;
 }
 
-.inv-tab { cursor:pointer; padding:10px 14px; border-radius:999px; border:1px solid rgba(148,163,184,.25); background:rgba(15,23,42,.55); }
-.inv-tab.active { box-shadow:0 0 18px rgba(79,209,197,.35); border-color:rgba(79,209,197,.55); }
-.inv-tab-title { font-weight:600; line-height:1.05; }
-.inv-tab-sub { font-size:.78rem; opacity:.75; margin-top:2px; }
+/* inv-tab overrides — viz hlavní definice výše */
+.inv-tab-title { font-weight: 600; font-size: 0.8rem; }
+.inv-tab-sub {
+    font-size: 0.7rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 999px;
+    padding: 1px 6px;
+    opacity: 0.85;
+    min-width: 18px;
+    text-align: center;
+}
 
 .modal-backdrop-blazor{
   position:fixed; inset:0;
@@ -1179,17 +1196,17 @@ table.table-stages td:nth-child(7) { min-width: 170px; } /* Preview */
     -webkit-overflow-scrolling: touch;
 }
 
-.inv-tabs{
-    display: inline-flex;     /* důležité */
-    flex-wrap: nowrap;        /* žádný wrap */
-    gap: 8px;
-    margin-top: 10px;
-    width: max-content;       /* roztáhne podle obsahu */
+.inv-tabs {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin-top: 8px;
+    width: max-content;
 }
 
-.inv-tab{
-    flex: 0 0 auto;           /* nesmí se smrsknout ani zalomit */
-    white-space: nowrap;      /* label na jednom řádku */
+.inv-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 .inv-scroll{
   flex: 1 1 auto;     /* tady se scrolluje */
@@ -1300,24 +1317,27 @@ table.table-stages td:nth-child(7) { min-width: 170px; } /* Preview */
   overflow: hidden;
 }
 
-/* Inventory header + tabs: bez horizontálního scrollu, radši wrap */
+/* Inventory tabs: jeden scrollovatelný řádek */
 .inv-tabs-wrap,
-.inv-tabs-scroll{
-  overflow: hidden !important;
+.inv-tabs-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148,163,184,.2) transparent;
 }
 
-.inv-tabs{
+.inv-tabs {
   display: flex !important;
-  flex-wrap: wrap !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  flex-wrap: nowrap !important;
+  gap: 6px;
+  padding-bottom: 4px;
+  width: max-content;
 }
 
-.inv-tab{
-  flex: 1 0 92px;
-  min-width: 92px;
-  max-width: 180px;
-  white-space: normal !important; /* dovol zalomení */
+.inv-tab {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
 }
 
 /* Slotbar: bez horizontálního scrollu, ať se zalamuje */
