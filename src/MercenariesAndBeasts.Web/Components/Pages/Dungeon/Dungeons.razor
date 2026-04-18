@@ -8,7 +8,7 @@
 @using MercenariesAndBeasts.Domain.Players
 @using MercenariesAndBeasts.Domain.Progress
 
-@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
+@inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -366,7 +366,7 @@ else
         await SelectDungeonWithDb(db, id);
     }
 
-    private async Task SelectDungeonWithDb(MercenariesAndBeastsDbContext db, Guid id)
+    private async Task SelectDungeonWithDb(AppDbContextMercenariesAndBeasts db, Guid id)
     {
         selectedDungeonId = id;
 
@@ -401,7 +401,7 @@ else
     }
 
     private async Task<PlayerDungeonProgress> GetOrCreateProgressAsync(
-        MercenariesAndBeastsDbContext db,
+        AppDbContextMercenariesAndBeasts db,
         Guid playerId,
         Guid dungeonId,
         int totalStages)
@@ -493,7 +493,7 @@ else
 
     // ===== Localization helpers =====
 
-    private async Task LoadLocalizationsAsync(MercenariesAndBeastsDbContext db, string entityType, List<Guid> ids)
+    private async Task LoadLocalizationsAsync(AppDbContextMercenariesAndBeasts db, string entityType, List<Guid> ids)
     {
         if (ids.Count == 0) return;
         var locs = await db.LocalizedTexts

@@ -24,7 +24,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddRazorPages();
-builder.Services.AddMabLocalization<MercenariesAndBeastsDbContext>();
+builder.Services.AddMabLocalization<AppDbContextMercenariesAndBeasts>();
 
 var csRaw = builder.Configuration.GetConnectionString("QNAPGameDatabase");
 if (string.IsNullOrWhiteSpace(csRaw))
@@ -89,9 +89,9 @@ static string PreferIPv4Host(string cs)
 }
 
 // DbContextFactory + scoped DbContext using IPv4-resolved connection string
-builder.Services.AddMabDbContext<MercenariesAndBeastsDbContext>(cs);
+builder.Services.AddMabDbContext<AppDbContextMercenariesAndBeasts>(cs);
 
-builder.Services.AddMabAuth<MercenariesAndBeastsDbContext>(builder.Configuration);
+builder.Services.AddMabAuth<AppDbContextMercenariesAndBeasts>(builder.Configuration);
 
 // Identity UI vyžaduje IEmailSender pro ExternalLogin flow — no-op implementace
 builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender,
@@ -123,7 +123,7 @@ builder.Services.AddSingleton(sp =>
         maxRetries: 5,
         baseDelayMs: 750));
 
-builder.Services.AddMabTranslations<MercenariesAndBeastsDbContext>(registry =>
+builder.Services.AddMabTranslations<AppDbContextMercenariesAndBeasts>(registry =>
 {
     registry.Add("Dungeon",           db => db.Dungeons.Select(x          => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
     registry.Add("Location",          db => db.Locations.Select(x         => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
@@ -166,7 +166,7 @@ app.MapMabCultureEndpoint();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var db = services.GetRequiredService<MercenariesAndBeastsDbContext>();
+    var db = services.GetRequiredService<AppDbContextMercenariesAndBeasts>();
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var seed = services.GetRequiredService<GameSeed>();

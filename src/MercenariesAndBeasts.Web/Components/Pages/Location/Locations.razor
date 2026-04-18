@@ -8,7 +8,7 @@
 @using MercenariesAndBeasts.Domain.Players
 @using MercenariesAndBeasts.Domain.Progress
 
-@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
+@inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -380,7 +380,7 @@ else
         await SelectLocationWithDb(db, id);
     }
 
-    private async Task SelectLocationWithDb(MercenariesAndBeastsDbContext db, Guid id)
+    private async Task SelectLocationWithDb(AppDbContextMercenariesAndBeasts db, Guid id)
     {
         selectedLocationId = id;
 
@@ -420,7 +420,7 @@ else
     }
 
     private async Task<PlayerExpeditionProgress> GetOrCreateProgressAsync(
-        MercenariesAndBeastsDbContext db,
+        AppDbContextMercenariesAndBeasts db,
         Guid playerId,
         Guid locationId)
     {
@@ -481,7 +481,7 @@ else
         return pr;
     }
 
-    private async Task EnsureEncountersAsync(MercenariesAndBeastsDbContext db, PlayerExpeditionProgress pr)
+    private async Task EnsureEncountersAsync(AppDbContextMercenariesAndBeasts db, PlayerExpeditionProgress pr)
     {
         if (pr.EncounterOrder1TemplateId.HasValue &&
             pr.EncounterOrder2TemplateId.HasValue &&
@@ -538,7 +538,7 @@ else
 
     // ===== Localization helpers =====
 
-    private async Task LoadLocalizationsAsync(MercenariesAndBeastsDbContext db, string entityType, List<Guid> ids)
+    private async Task LoadLocalizationsAsync(AppDbContextMercenariesAndBeasts db, string entityType, List<Guid> ids)
     {
         if (ids.Count == 0) return;
         var locs = await db.LocalizedTexts

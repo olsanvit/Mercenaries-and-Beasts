@@ -11,7 +11,7 @@
 @using MercenariesAndBeasts.Domain.User
 @using MercenariesAndBeasts.Infrastructure.Fights
 
-@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
+@inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -265,7 +265,7 @@ else
     }
 
     private static async Task ApplyLootAsync(
-        MercenariesAndBeastsDbContext db,
+        AppDbContextMercenariesAndBeasts db,
         string userId,
         List<LootItem> lootItems)
     {
@@ -310,7 +310,7 @@ else
         return Localize(_orderLocs, nameof(MercenaryTemplate), enemy.Id, "Name", enemy.NameEn);
     }
 
-    private async Task LoadLocationLocalizationsAsync(MercenariesAndBeastsDbContext db, List<Guid> ids)
+    private async Task LoadLocationLocalizationsAsync(AppDbContextMercenariesAndBeasts db, List<Guid> ids)
     {
         if (ids.Count == 0) { _locLocs = new(); return; }
         _locLocs = await db.LocalizedTexts
@@ -318,7 +318,7 @@ else
             .ToListAsync();
     }
 
-    private async Task LoadOrderLocalizationsAsync(MercenariesAndBeastsDbContext db, List<Guid> ids)
+    private async Task LoadOrderLocalizationsAsync(AppDbContextMercenariesAndBeasts db, List<Guid> ids)
     {
         if (ids.Count == 0) { _orderLocs = new(); return; }
         _orderLocs = await db.LocalizedTexts

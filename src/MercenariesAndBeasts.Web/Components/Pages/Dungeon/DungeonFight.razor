@@ -12,7 +12,7 @@
 @using MercenariesAndBeasts.Domain.Enums
 @using MercenariesAndBeasts.Domain.User
 
-@inject IDbContextFactory<MercenariesAndBeastsDbContext> DbFactory
+@inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
@@ -361,7 +361,7 @@ else
     // ===========================
 
     private static async Task ApplyLootAsync(
-        MercenariesAndBeastsDbContext db,
+        AppDbContextMercenariesAndBeasts db,
         string userId,
         List<LootItem> lootItems)
     {
@@ -404,7 +404,7 @@ else
     // ===========================
     // Localization helpers
     // ===========================
-    private async Task LoadDungeonLocalizationsAsync(MercenariesAndBeastsDbContext db, List<Guid> dungeonIds)
+    private async Task LoadDungeonLocalizationsAsync(AppDbContextMercenariesAndBeasts db, List<Guid> dungeonIds)
     {
         if (dungeonIds.Count == 0) { _dngLocs = new(); return; }
 
@@ -413,7 +413,7 @@ else
             .ToListAsync();
     }
 
-    private async Task LoadMonsterLocalizationsAsync(MercenariesAndBeastsDbContext db, List<Guid> monsterIds)
+    private async Task LoadMonsterLocalizationsAsync(AppDbContextMercenariesAndBeasts db, List<Guid> monsterIds)
     {
         if (monsterIds.Count == 0) { _monsterLocs = new(); return; }
 
