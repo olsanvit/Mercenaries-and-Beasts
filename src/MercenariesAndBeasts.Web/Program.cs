@@ -113,7 +113,7 @@ builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
     NoOpEmailSender>();
 
 builder.Services.AddScoped<AlertService>();
-builder.Services.AddSingleton<ThemeService>();
+builder.Services.AddSingleton<ThemeService>(_ => new ThemeService(builder.Configuration));
 builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredSessionStorage();

@@ -1,12 +1,14 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@inject SharedServices.Services.ThemeService ThemeService
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="@ThemeService.BsThemeAttr">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <ResourcePreloader />
-    <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
+    <link rel="stylesheet" href="@ThemeService.CurrentThemeUrl" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["MercenariesAndBeasts.Web.styles.css"]" />
     <link rel="stylesheet" href="@Assets["_content/SharedServices/SharedServices.bundle.scp.css"]" />
