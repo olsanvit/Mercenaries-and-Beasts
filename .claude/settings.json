@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(dotnet build)",
+      "Bash(dotnet ef migrations script *)",
+      "Bash(dotnet ef migrations list *)",
+      "Bash(dotnet ef migrations list)",
+      "Bash(dotnet restore *)",
+      "Bash(dotnet restore)",
+      "Bash(git worktree list)",
+      "Bash(git worktree list *)",
+      "Bash(git ls-remote *)",
+      "Bash(tree *)",
+      "Bash(tree)"
+    ],
+    "deny": [],
+    "additionalDirectories": [
+      "/Users/rtvdata/Projects/UniSportManager",
+      "/Users/rtvdata/Projects/VINWMIVehicles",
+      "/Users/rtvdata/Projects/SharedServices",
+      "/Users/rtvdata/Projects/SimulateCar",
+      "/Users/rtvdata/Projects/SimulateGames",
+      "/Users/rtvdata/Projects/SimulateReal"
+    ]
+  }
+}

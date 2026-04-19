@@ -5,6 +5,10 @@ using MercenariesAndBeasts.Infrastructure.Auth;
 using MercenariesAndBeasts.Infrastructure.Localization;
 using MercenariesAndBeasts.Infrastructure.AI.Translations;
 using MercenariesAndBeasts.Web.Components;
+using ApexCharts;
+using Blazored.LocalStorage;
+using Blazored.Modal;
+using Blazored.SessionStorage;
 using SharedServices.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -110,6 +114,10 @@ builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
 
 builder.Services.AddScoped<AlertService>();
 builder.Services.AddSingleton<ThemeService>();
+builder.Services.AddBlazoredModal();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddBlazoredSessionStorage();
+builder.Services.AddApexCharts();
 builder.Services.AddTransient<HttpInterceptorHandler>();
 builder.Services.AddScoped<AdminUserService>();
 builder.Services.AddScoped<PlayerLootService>();

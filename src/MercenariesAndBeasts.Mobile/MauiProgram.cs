@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using ApexCharts;
+using Blazored.LocalStorage;
+using Blazored.Modal;
+using Blazored.SessionStorage;
 using SharedServices;
 using SharedServices.Services;
 
@@ -48,7 +52,12 @@ public static class MauiProgram
 
         // Generic EF Core service + utility
         builder.Services.AddScoped<ToastService>();
+        builder.Services.AddScoped<AlertService>();
         builder.Services.AddSingleton<ThemeService>();
+        builder.Services.AddBlazoredModal();
+        builder.Services.AddBlazoredLocalStorage();
+        builder.Services.AddBlazoredSessionStorage();
+        builder.Services.AddApexCharts();
         builder.Services.AddScoped<EfCoreService<AppDbContextMercenariesAndBeasts>>();
 
         return builder.Build();
