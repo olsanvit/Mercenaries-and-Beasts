@@ -5,7 +5,7 @@ using MercenariesAndBeasts.Infrastructure.Auth;
 using MercenariesAndBeasts.Infrastructure.Localization;
 using MercenariesAndBeasts.Infrastructure.AI.Translations;
 using MercenariesAndBeasts.Web.Components;
-using MercenariesAndBeasts.Web.Services;
+using SharedServices.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -108,7 +108,8 @@ builder.Services.AddMabAuth<AppDbContextMercenariesAndBeasts>(builder.Configurat
 builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender,
     NoOpEmailSender>();
 
-builder.Services.AddSingleton<ErrorService>();
+builder.Services.AddScoped<AlertService>();
+builder.Services.AddSingleton<ThemeService>();
 builder.Services.AddTransient<HttpInterceptorHandler>();
 builder.Services.AddScoped<AdminUserService>();
 builder.Services.AddScoped<PlayerLootService>();

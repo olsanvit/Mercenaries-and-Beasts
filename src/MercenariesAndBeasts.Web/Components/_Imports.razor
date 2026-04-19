@@ -21,10 +21,11 @@
 @using MercenariesAndBeasts.Domain.Combat
 @using MercenariesAndBeasts.Domain.Enums
 @using MercenariesAndBeasts.Web.Components.Pages.Shared
-@using MercenariesAndBeasts.Web.Services
+@using SharedServices.Services
 @using MercenariesAndBeasts.Infrastructure.Components.Account
 @using MercenariesAndBeasts.Infrastructure.Components.Localization
 @using MercenariesAndBeasts.Infrastructure.Components.Admin
+@using SharedServices
 @using SharedServices.Components.UI
 @using MercenariesAndBeasts.Infrastructure.Localization
 
@@ -35,7 +36,7 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IStringLocalizer<SharedResources> S
 @inject IAiImageGenerator ImageAi
-@inject ErrorService Alerts
+@inject AlertService Alerts
 
 @inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 
