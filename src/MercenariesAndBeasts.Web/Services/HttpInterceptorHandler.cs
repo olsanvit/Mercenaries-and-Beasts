@@ -1,12 +1,12 @@
-using MercenariesAndBeasts.Web.Services;
+using SharedServices.Services;
 
 public class HttpInterceptorHandler : DelegatingHandler
 {
-    private readonly ErrorService _errors;
+    private readonly AlertService _alerts;
 
-    public HttpInterceptorHandler(ErrorService errors)
+    public HttpInterceptorHandler(AlertService alerts)
     {
-        _errors = errors;
+        _alerts = alerts;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -20,7 +20,7 @@ public class HttpInterceptorHandler : DelegatingHandler
             if (!response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync(cancellationToken);
-                _errors.RaiseError(
+                _alerts.RaiseError(
                     $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}",
                     content);
             }
@@ -29,7 +29,7 @@ public class HttpInterceptorHandler : DelegatingHandler
         }
         catch (Exception ex)
         {
-            _errors.RaiseError("Network error while calling API.", ex); // teď sedí na overload
+            _alerts.RaiseError("Network error while calling API.", ex);
             throw;
         }
     }

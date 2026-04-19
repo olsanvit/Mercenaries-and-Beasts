@@ -136,7 +136,7 @@ if (string.IsNullOrWhiteSpace(openAiKey))
 
 // ChatGptAsker – jeden společný klient; musí být před AddMabTranslations
 builder.Services.AddSingleton(sp =>
-    new ChatGptAsker(
+    new MercenariesAndBeasts.Infrastructure.AI.ChatGptAsker(
         apiKey: openAiKey,
         isSimple: true,
         maxParallelism: 5,
@@ -153,7 +153,6 @@ builder.Services.AddMabTranslations<AppDbContextMercenariesAndBeasts>(registry =
 });
 builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
 builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();
-builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<GameSeed>();
 builder.Services.AddScoped<PlayerOnboardingService>();
 builder.Services.AddHttpContextAccessor();
