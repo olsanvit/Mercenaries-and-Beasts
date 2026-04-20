@@ -112,6 +112,7 @@ builder.Services.AddMabAuth<AppDbContextMercenariesAndBeasts>(builder.Configurat
 builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender,
     NoOpEmailSender>();
 
+builder.Services.AddScoped<SharedServices.ToastService>();
 builder.Services.AddScoped<AlertService>();
 builder.Services.AddSingleton<ThemeService>(_ => new ThemeService(builder.Configuration));
 builder.Services.AddBlazoredModal();
