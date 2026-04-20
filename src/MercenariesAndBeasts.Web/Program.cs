@@ -17,6 +17,8 @@ using Microsoft.Extensions.Options;
 using MercenariesAndBeasts.Infrastructure.Players;
 using MercenariesAndBeasts.Infrastructure.Fights;
 using Serilog;
+using Serilog.Exceptions;
+using Serilog.Sinks.PostgreSQL.ColumnWriters;
 using SharedServices.Services.Common;
 using Npgsql;
 using System.Net;
@@ -24,13 +26,30 @@ using System.Net.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "Logs"));
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
     .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
-    .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
-    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30,
-                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+    .Enrich.WithMachineName()
+    .Enrich.WithProcessId()
+    .Enrich.WithThreadId()
+    .Enrich.FromLogContext()
+    .Enrich.WithExceptionDetails()
+    .WriteTo.Console(
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File(
+        "Logs/log-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        shared: true,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+    .WriteTo.PostgreSQL(
+        connectionString: builder.Configuration.GetConnectionString("QNAPGameDatabase") ?? "",
+        tableName: "Logs",
+        columnOptions: (IDictionary<string, ColumnWriterBase>?)null,
+        needAutoCreateTable: true,
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning)
     .CreateLogger();
 builder.Host.UseSerilog();
 
@@ -49,6 +68,11 @@ var cs = PreferIPv4Host(csRaw);
 
 Console.WriteLine("CS = " + Mask(cs));
 Console.WriteLine("DB Host resolved = " + DescribeHost(cs));
+
+// NpgsqlDataSource — EnableDynamicJson + retry
+var mabDsb = new NpgsqlDataSourceBuilder(cs);
+mabDsb.EnableDynamicJson();
+var mabDataSource = mabDsb.Build();
 
 static string Mask(string? s)
 {
@@ -103,8 +127,8 @@ static string PreferIPv4Host(string cs)
     return b.ToString();
 }
 
-// DbContextFactory + scoped DbContext using IPv4-resolved connection string
-builder.Services.AddMabDbContext<AppDbContextMercenariesAndBeasts>(cs);
+// DbContextFactory + scoped DbContext — NpgsqlDataSource (EnableDynamicJson, retry 5×/5s, timeout 120s)
+builder.Services.AddMabDbContext<AppDbContextMercenariesAndBeasts>(mabDataSource);
 
 builder.Services.AddMabAuth<AppDbContextMercenariesAndBeasts>(builder.Configuration);
 
@@ -158,6 +182,15 @@ builder.Services.AddScoped<GameSeed>();
 builder.Services.AddScoped<PlayerOnboardingService>();
 builder.Services.AddHttpContextAccessor();
 
+AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+    Log.Fatal(e.ExceptionObject as Exception, "UNHANDLED AppDomain exception");
+
+TaskScheduler.UnobservedTaskException += (sender, e) =>
+{
+    Log.Fatal(e.Exception, "UNOBSERVED task exception");
+    e.SetObserved();
+};
+
 var app = builder.Build();
 app.UseRequestLocalization(
     app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
@@ -196,7 +229,21 @@ using (var scope = app.Services.CreateScope())
     await seed.SeedAsync(false);
 }
 
-app.Run();
+app.Lifetime.ApplicationStopping.Register(() =>
+    Log.Warning("Application stopping — flushing logs..."));
+
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
 /// <summary>
 /// No-op IEmailSender — Identity UI vyžaduje tuto službu pro ExternalLogin flow,
