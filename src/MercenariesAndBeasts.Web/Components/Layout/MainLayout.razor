@@ -94,7 +94,6 @@ private string _userName = "Player";
 
     protected override async Task OnInitializedAsync()
     {
-        await using var Db = await DbFactory.CreateDbContextAsync();
         Toasts.OnToastsUpdated += StateHasChanged;
 
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -107,15 +106,15 @@ private string _userName = "Player";
         if (appUser is null)
             return;
 
-            _userId = _user.FindFirstValue(ClaimTypes.NameIdentifier);
+        _userId = _user.FindFirstValue(ClaimTypes.NameIdentifier);
         _userName = appUser.UserName ?? appUser.Email ?? "Player";
 
-            _profile = await Db.Players
-                .Include(p => p.MercenarySlots).ThenInclude(s => s.Mercenary).ThenInclude(m => m.Template)
-                .Include(p => p.BeastSlots).ThenInclude(s => s.Beast).ThenInclude(b => b.Template)
-                .Include(p => p.Inventory).ThenInclude(i => i.Template).ThenInclude(t => t.UpgradeResources)
-                .FirstOrDefaultAsync(p => p.UserId == _userId);
-
+        await using var Db = await DbFactory.CreateDbContextAsync();
+        _profile = await Db.Players
+            .Include(p => p.MercenarySlots).ThenInclude(s => s.Mercenary).ThenInclude(m => m.Template)
+            .Include(p => p.BeastSlots).ThenInclude(s => s.Beast).ThenInclude(b => b.Template)
+            .Include(p => p.Inventory).ThenInclude(i => i.Template).ThenInclude(t => t.UpgradeResources)
+            .FirstOrDefaultAsync(p => p.UserId == _userId);
     }
 
     public void Dispose()
