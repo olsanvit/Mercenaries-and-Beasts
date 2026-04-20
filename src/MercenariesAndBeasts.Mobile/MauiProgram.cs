@@ -5,6 +5,8 @@ using ApexCharts;
 using Blazored.LocalStorage;
 using Blazored.Modal;
 using Blazored.SessionStorage;
+using MercenariesAndBeasts.Mobile.Services;
+using Microsoft.Extensions.Caching.Memory;
 using SharedServices;
 using SharedServices.Services;
 
@@ -59,6 +61,17 @@ public static class MauiProgram
         builder.Services.AddBlazoredSessionStorage();
         builder.Services.AddApexCharts();
         builder.Services.AddScoped<EfCoreService<AppDbContextMercenariesAndBeasts>>();
+
+        // Nové sdílené služby
+        builder.Services.AddScoped<LoadingService>();
+        builder.Services.AddScoped<ConfirmService>();
+        builder.Services.AddScoped<UserPreferencesService>();
+        builder.Services.AddScoped<ClipboardService>();
+        builder.Services.AddTransient<Debouncer>();
+        builder.Services.AddSingleton<ConnectionStateService>();
+        builder.Services.AddMemoryCache();
+        builder.Services.AddSingleton<ConnectivityService>();
+        builder.Services.AddSingleton<SecureStorageService>();
 
         return builder.Build();
     }
