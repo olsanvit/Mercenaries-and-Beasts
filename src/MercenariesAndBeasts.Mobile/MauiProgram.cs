@@ -9,6 +9,7 @@ using MercenariesAndBeasts.Mobile.Services;
 using Microsoft.Extensions.Caching.Memory;
 using SharedServices;
 using SharedServices.Services;
+using MercenariesAndBeasts.Infrastructure;
 
 namespace MercenariesAndBeasts.Mobile;
 
