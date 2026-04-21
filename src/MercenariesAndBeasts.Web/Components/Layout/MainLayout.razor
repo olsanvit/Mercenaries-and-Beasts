@@ -70,6 +70,11 @@
             </AuthorizeView>
         </div>
 
+        @if (_profile is not null)
+        {
+            <ItemPointsNotificationBanner PlayerId="@_profile.Id" />
+        }
+
         <article class="content px-4">
             @Body
         </article>

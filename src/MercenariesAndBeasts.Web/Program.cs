@@ -146,6 +146,7 @@ builder.Services.AddApexCharts();
 builder.Services.AddTransient<HttpInterceptorHandler>();
 builder.Services.AddScoped<AdminUserService>();
 builder.Services.AddScoped<PlayerLootService>();
+builder.Services.AddScoped<FightHistoryService>();
 builder.Services.AddScoped<IFightService, FightService>();
 builder.Services.AddScoped<IStatAggregator, StatAggregator>();
 builder.Services.AddSingleton<IErrorService, LogErrorService>();
