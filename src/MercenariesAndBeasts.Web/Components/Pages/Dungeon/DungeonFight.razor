@@ -11,12 +11,14 @@
 @using MercenariesAndBeasts.Domain.Progress
 @using MercenariesAndBeasts.Domain.Enums
 @using MercenariesAndBeasts.Domain.User
+@using MercenariesAndBeasts.Infrastructure.Players
 
 @inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject IFightService FightService
+@inject FightHistoryService FightHistoryService
 
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -333,6 +335,13 @@ else
         pr.LastUpdatedUtc = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
+
+        // Record fight in history + award item points per equipped item on win
+        _ = await FightHistoryService.RecordDungeonFightAsync(
+            player.Id,
+            DungeonId,          // nearest available context reference (DungeonId, not stage row)
+            fightResult,
+            fightInput.Seed);
 
         // Apply loot items to player inventory
         if (didWin && _userId is not null && fightResult.LootItems?.Count > 0)

@@ -10,10 +10,12 @@
 @using MercenariesAndBeasts.Domain.Enums
 @using MercenariesAndBeasts.Domain.User
 @using MercenariesAndBeasts.Infrastructure.Fights
+@using MercenariesAndBeasts.Infrastructure.Players
 
 @inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject FightHistoryService FightHistoryService
 
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -237,6 +239,20 @@ else
 
         pr.LastUpdatedUtc = DateTime.UtcNow;
         await db.SaveChangesAsync();
+
+        // Record fight in history (synthetic FightResult from manual RNG fight)
+        var syntheticResult = new FightResult
+        {
+            DidWin = didWin,
+            Summary = resultText,
+            LogLines = new List<string>(),
+            LootItems = new List<LootItem>()
+        };
+        _ = await FightHistoryService.RecordExpeditionFightAsync(
+            player.Id,
+            LocationId,        // nearest context reference
+            syntheticResult,
+            seed);
 
         // Generate and apply upgrade resource loot on win
         if (didWin && _userId is not null)
