@@ -47,7 +47,7 @@ else
                         <ul class="list-group list-group-flush">
                             @foreach (var row in leftList)
                             {
-                                var isSelected = row.Location?.Id == selectedLocationId;
+                                var isSelected = row.Location?.Guid == selectedLocationId;
                                 var isLocked = row.IsLocked;
 
                                 <li class="list-group-item bg-transparent text-light"
@@ -79,7 +79,7 @@ else
 
                                         <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")"
                                                 disabled="@isLocked"
-                                                @onclick="() => SelectLocation(row.Location!.Id)">
+                                                @onclick="() => SelectLocation(row.Location!.Guid)">
                                             @(isSelected ? "Selected" : "Open")
                                         </button>
                                     </div>
@@ -164,7 +164,7 @@ else
                                             </div>
 
                                             <a class="btn btn-primary btn-sm flex-shrink-0"
-                                               href="@($"/expeditions/{selectedLocation.Id}/fight/{e.SlotIndex}")">
+                                               href="@($"/expeditions/{selectedLocation.Guid}/fight/{e.SlotIndex}")">
                                                 Fight
                                             </a>
                                         </div>
@@ -299,7 +299,7 @@ else
             if (player is null) return;
 
             progress = await db.PlayerExpeditionProgresses
-                .Where(p => p.PlayerId == player.Id)
+                .Where(p => p.PlayerId == player.Guid)
                 .ToListAsync();
 
             _allLocations = await db.Locations
@@ -310,11 +310,11 @@ else
                 .OrderBy(x => x.BaseLevel).ThenBy(x => x.Code)
                 .ToListAsync();
 
-            _orderById = _allOrders.ToDictionary(x => x.Id);
+            _orderById = _allOrders.ToDictionary(x => x.Guid);
 
             var maxCompleted = progress
                 .Where(p => p.IsCompleted)
-                .Join(_allLocations, p => p.LocationId, l => l.Id, (p, l) => l.UnlockOrder)
+                .Join(_allLocations, p => p.LocationId, l => l.Guid, (p, l) => l.UnlockOrder)
                 .DefaultIfEmpty(0)
                 .Max();
 
@@ -333,14 +333,14 @@ else
                 .Take(2)
                 .ToList();
 
-            var leftIds = last5.Concat(nextLocked).Select(x => x.Id).Distinct().ToList();
+            var leftIds = last5.Concat(nextLocked).Select(x => x.Guid).Distinct().ToList();
             await LoadLocalizationsAsync(db, nameof(Location), leftIds);
 
             leftList = new();
 
             foreach (var l in last5)
             {
-                var pr = progress.FirstOrDefault(p => p.LocationId == l.Id);
+                var pr = progress.FirstOrDefault(p => p.LocationId == l.Guid);
                 leftList.Add(new LeftLocationRow
                 {
                     Location = l,
@@ -365,7 +365,7 @@ else
 
             var first = last5.FirstOrDefault();
             if (first is not null)
-                await SelectLocationWithDb(db, first.Id);
+                await SelectLocationWithDb(db, first.Guid);
         }
         finally
         {
@@ -384,8 +384,8 @@ else
     {
         selectedLocationId = id;
 
-        selectedLocation = _allLocations.FirstOrDefault(l => l.Id == id)
-            ?? await db.Locations.FirstOrDefaultAsync(l => l.Id == id);
+        selectedLocation = _allLocations.FirstOrDefault(l => l.Guid == id)
+            ?? await db.Locations.FirstOrDefaultAsync(l => l.Guid == id);
 
         if (selectedLocation is null)
         {
@@ -397,7 +397,7 @@ else
 
         await LoadLocalizationsAsync(db, nameof(Location), new List<Guid> { id });
 
-        var pr = await GetOrCreateProgressAsync(db, player!.Id, id);
+        var pr = await GetOrCreateProgressAsync(db, player!.Guid, id);
         selectedProgress = pr;
 
         // Ensure 3 orders are rolled and persisted
@@ -433,8 +433,7 @@ else
         {
             pr = new PlayerExpeditionProgress
             {
-                Id = Guid.NewGuid(),
-                PlayerId = playerId,
+PlayerId = playerId,
                 LocationId = locationId,
                 IsCompleted = false,
                 LastUpdatedUtc = DateTime.UtcNow
@@ -456,17 +455,16 @@ else
             if (defs.Count > 0)
             {
                 var baseTier = Math.Clamp((selectedLocation!.MinLevel / 5) + 1, 1, 10);
-                var rng = new Random(pr.Id.GetHashCode());
+                var rng = new Random(pr.Guid.GetHashCode());
 
                 foreach (var def in defs)
                 {
                     var tier = Math.Clamp(baseTier + rng.Next(0, 3), 1, 10);
                     pr.Achievements.Add(new PlayerExpeditionAchievement
                     {
-                        Id = Guid.NewGuid(),
-                        ProgressId = pr.Id,
+ProgressId = pr.Guid,
                         PlayerId = playerId,
-                        AchievementId = def.Id,
+                        AchievementId = def.Guid,
                         Code = def.Code,
                         DifficultyTier = tier,
                         Required = 1 + tier,
@@ -491,14 +489,14 @@ else
         if (_allOrders.Count < 3)
             return; // not enough orders seeded yet
 
-        var seed = HashCode.Combine(player!.Id, pr.LocationId);
+        var seed = HashCode.Combine(player!.Guid, pr.LocationId);
         var rng = new Random(seed);
 
         var picks = _allOrders.OrderBy(_ => rng.Next()).Take(3).ToList();
 
-        pr.EncounterOrder1TemplateId ??= picks[0].Id;
-        pr.EncounterOrder2TemplateId ??= picks[1].Id;
-        pr.EncounterOrder3TemplateId ??= picks[2].Id;
+        pr.EncounterOrder1TemplateId ??= picks[0].Guid;
+        pr.EncounterOrder2TemplateId ??= picks[1].Guid;
+        pr.EncounterOrder3TemplateId ??= picks[2].Guid;
         pr.EncounterRolledUtc = DateTime.UtcNow;
         pr.LastUpdatedUtc = DateTime.UtcNow;
 
@@ -548,8 +546,8 @@ else
             _locByKey[(l.EntityType, l.EntityId, l.Culture)] = l;
     }
 
-    private string LocName(Location loc)   => Localize(nameof(Location),          loc.Id,        "Name",        loc.NameEn);
-    private string LocDesc(Location loc)   => Localize(nameof(Location),          loc.Id,        "Description", loc.DescriptionEn ?? "");
+    private string LocName(Location loc)   => Localize(nameof(Location),          loc.Guid,        "Name",        loc.NameEn);
+    private string LocDesc(Location loc)   => Localize(nameof(Location),          loc.Guid,        "Description", loc.DescriptionEn ?? "");
     private string OrderName(Guid id)
     {
         var fallback = _orderById.TryGetValue(id, out var mt) ? (mt.NameEn ?? "Unknown Order") : "Unknown Order";

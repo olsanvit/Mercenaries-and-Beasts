@@ -47,7 +47,7 @@ else
                         <ul class="list-group list-group-flush">
                             @foreach (var row in leftList)
                             {
-                                var isSelected = row.Dungeon?.Id == selectedDungeonId;
+                                var isSelected = row.Dungeon?.Guid == selectedDungeonId;
                                 var isLocked = row.IsLocked;
 
                                 <li class="list-group-item bg-transparent text-light"
@@ -79,7 +79,7 @@ else
 
                                         <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")"
                                                 disabled="@isLocked"
-                                                @onclick="() => SelectDungeon(row.Dungeon!.Id)">
+                                                @onclick="() => SelectDungeon(row.Dungeon!.Guid)">
                                             @(isSelected ? "Selected" : "Open")
                                         </button>
                                     </div>
@@ -166,7 +166,7 @@ else
                                 else
                                 {
                                     <a class="btn btn-primary"
-                                       href="@($"/dungeons/{selectedDungeon.Id}/fight")">
+                                       href="@($"/dungeons/{selectedDungeon.Guid}/fight")">
                                         Fight
                                     </a>
                                 }
@@ -290,7 +290,7 @@ else
             if (player is null) return;
 
             progress = await db.PlayerDungeonProgresses
-                .Where(p => p.PlayerId == player.Id)
+                .Where(p => p.PlayerId == player.Guid)
                 .ToListAsync();
 
             _allDungeons = await db.Dungeons
@@ -300,7 +300,7 @@ else
 
             var maxCompleted = progress
                 .Where(p => p.IsCompleted)
-                .Join(_allDungeons, p => p.DungeonId, d => d.Id, (p, d) => d.UnlockOrder)
+                .Join(_allDungeons, p => p.DungeonId, d => d.Guid, (p, d) => d.UnlockOrder)
                 .DefaultIfEmpty(0)
                 .Max();
 
@@ -319,14 +319,14 @@ else
                 .Take(2)
                 .ToList();
 
-            var leftIds = last5.Concat(nextLocked).Select(x => x.Id).Distinct().ToList();
+            var leftIds = last5.Concat(nextLocked).Select(x => x.Guid).Distinct().ToList();
             await LoadLocalizationsAsync(db, nameof(Dungeon), leftIds);
 
             leftList = new();
 
             foreach (var d in last5)
             {
-                var pr = progress.FirstOrDefault(p => p.DungeonId == d.Id);
+                var pr = progress.FirstOrDefault(p => p.DungeonId == d.Guid);
                 leftList.Add(new LeftDungeonRow
                 {
                     Dungeon = d,
@@ -351,7 +351,7 @@ else
 
             var first = last5.FirstOrDefault();
             if (first is not null)
-                await SelectDungeonWithDb(db, first.Id);
+                await SelectDungeonWithDb(db, first.Guid);
         }
         finally
         {
@@ -374,7 +374,7 @@ else
             .Include(d => d.Stages)
                 .ThenInclude(s => s.MonsterTemplate)
             .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Id == id);
+            .FirstOrDefaultAsync(d => d.Guid == id);
 
         if (selectedDungeon is null)
         {
@@ -390,7 +390,7 @@ else
 
         await LoadLocalizationsAsync(db, nameof(MonsterTemplate), monsterIds);
 
-        var pr = await GetOrCreateProgressAsync(db, player!.Id, id, selectedDungeon.Stages?.Count ?? 11);
+        var pr = await GetOrCreateProgressAsync(db, player!.Guid, id, selectedDungeon.Stages?.Count ?? 11);
         selectedProgress = pr;
         currentStageUi = Math.Max(1, pr.CurrentStage);
 
@@ -415,8 +415,7 @@ else
         {
             pr = new PlayerDungeonProgress
             {
-                Id = Guid.NewGuid(),
-                PlayerId = playerId,
+PlayerId = playerId,
                 DungeonId = dungeonId,
                 CurrentStage = 1,
                 MaxStageReached = 1,
@@ -439,16 +438,15 @@ else
 
             if (defs.Count > 0)
             {
-                var rng = new Random(pr.Id.GetHashCode());
+                var rng = new Random(pr.Guid.GetHashCode());
                 foreach (var def in defs)
                 {
                     var tier = rng.Next(1, 6);
                     pr.Achievements.Add(new PlayerDungeonAchievement
                     {
-                        Id = Guid.NewGuid(),
-                        ProgressId = pr.Id,
+ProgressId = pr.Guid,
                         PlayerId = playerId,
-                        AchievementId = def.Id,
+                        AchievementId = def.Guid,
                         Code = def.Code,
                         DifficultyTier = tier,
                         Required = 1 + tier,
@@ -503,9 +501,9 @@ else
             _locByKey[(l.EntityType, l.EntityId, l.Culture)] = l;
     }
 
-    private string DungeonName(Dungeon d)       => Localize(nameof(Dungeon),        d.Id,  "Name",        d.NameEn);
-    private string DungeonDescription(Dungeon d) => Localize(nameof(Dungeon),        d.Id,  "Description", d.DescriptionEn ?? "");
-    private string MonsterName(MonsterTemplate m) => Localize(nameof(MonsterTemplate), m.Id, "Name",        m.NameEn);
+    private string DungeonName(Dungeon d)       => Localize(nameof(Dungeon),        d.Guid,  "Name",        d.NameEn);
+    private string DungeonDescription(Dungeon d) => Localize(nameof(Dungeon),        d.Guid,  "Description", d.DescriptionEn ?? "");
+    private string MonsterName(MonsterTemplate m) => Localize(nameof(MonsterTemplate), m.Guid, "Name",        m.NameEn);
 
     private string Localize(string entityType, Guid entityId, string field, string fallback)
     {

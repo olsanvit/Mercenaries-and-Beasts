@@ -141,19 +141,18 @@ else
             player = await db.Players.FirstOrDefaultAsync(p => p.UserId == user.Id);
             if (player is null) return;
 
-            location = await db.Locations.FirstOrDefaultAsync(l => l.Id == LocationId);
+            location = await db.Locations.FirstOrDefaultAsync(l => l.Guid == LocationId);
             if (location is null) return;
 
             progress = await db.PlayerExpeditionProgresses
-                .FirstOrDefaultAsync(p => p.PlayerId == player.Id && p.LocationId == location.Id);
+                .FirstOrDefaultAsync(p => p.PlayerId == player.Guid && p.LocationId == location.Guid);
 
             if (progress is null)
             {
                 progress = new PlayerExpeditionProgress
                 {
-                    Id = Guid.NewGuid(),
-                    PlayerId = player.Id,
-                    LocationId = location.Id,
+PlayerId = player.Guid,
+                    LocationId = location.Guid,
                     IsCompleted = false,
                     LastUpdatedUtc = DateTime.UtcNow
                 };
@@ -174,13 +173,13 @@ else
             {
                 enemy = await db.MercenaryTemplates
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.Id == templateId.Value);
+                    .FirstOrDefaultAsync(x => x.Guid == templateId.Value);
             }
 
-            await LoadLocationLocalizationsAsync(db, new List<Guid> { location.Id });
+            await LoadLocationLocalizationsAsync(db, new List<Guid> { location.Guid });
 
             if (enemy is not null)
-                await LoadOrderLocalizationsAsync(db, new List<Guid> { enemy.Id });
+                await LoadOrderLocalizationsAsync(db, new List<Guid> { enemy.Guid });
         }
         finally
         {
@@ -199,7 +198,7 @@ else
         await using var db = await DbFactory.CreateDbContextAsync();
 
         var pr = await db.PlayerExpeditionProgresses
-            .FirstOrDefaultAsync(p => p.PlayerId == player.Id && p.LocationId == location.Id);
+            .FirstOrDefaultAsync(p => p.PlayerId == player.Guid && p.LocationId == location.Guid);
 
         if (pr is null)
         {
@@ -209,7 +208,7 @@ else
         }
 
         // Deterministic RNG seeded by player + location + slot + enemy
-        var seed = HashCode.Combine(player.Id, location.Id, SlotIndex, enemy.Id);
+        var seed = HashCode.Combine(player.Guid, location.Guid, SlotIndex, enemy.Guid);
         var rng = new Random(seed);
         didWin = rng.NextDouble() < 0.55;
 
@@ -218,11 +217,11 @@ else
             resultText = $"You defeated {EnemyName()}! The slot will be replaced.";
 
             // Replace this specific slot with a new random order
-            var pool = await db.MercenaryTemplates.Select(x => x.Id).ToListAsync();
+            var pool = await db.MercenaryTemplates.Select(x => x.Guid).ToListAsync();
             if (pool.Count > 1)
             {
-                var rerollRng = new Random(HashCode.Combine(player.Id, location.Id, SlotIndex, DateTime.UtcNow.Ticks));
-                var newId = pool.Where(id => id != enemy.Id).OrderBy(_ => rerollRng.Next()).First();
+                var rerollRng = new Random(HashCode.Combine(player.Guid, location.Guid, SlotIndex, DateTime.UtcNow.Ticks));
+                var newId = pool.Where(id => id != enemy.Guid).OrderBy(_ => rerollRng.Next()).First();
 
                 if (SlotIndex == 1) pr.EncounterOrder1TemplateId = newId;
                 else if (SlotIndex == 2) pr.EncounterOrder2TemplateId = newId;
@@ -249,7 +248,7 @@ else
             LootItems = new List<LootItem>()
         };
         _ = await FightHistoryService.RecordExpeditionFightAsync(
-            player.Id,
+            player.Guid,
             LocationId,        // nearest context reference
             syntheticResult,
             seed);
@@ -257,7 +256,7 @@ else
         // Generate and apply upgrade resource loot on win
         if (didWin && _userId is not null)
         {
-            var lootRng = new Random(HashCode.Combine(player.Id, location.Id, SlotIndex, enemy.Id) ^ 0x1337_BEEF);
+            var lootRng = new Random(HashCode.Combine(player.Guid, location.Guid, SlotIndex, enemy.Guid) ^ 0x1337_BEEF);
             var resourceTypes = (ItemUpgradeResourceType[])Enum.GetValues(typeof(ItemUpgradeResourceType));
             var count = lootRng.Next(1, 3); // 1 or 2 items
             var lootItems = new List<LootItem>(count);
@@ -305,8 +304,7 @@ else
             {
                 db.UserInventoryItems.Add(new UserInventoryItem
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
+UserId = userId,
                     ItemTemplateId = resource.ItemTemplateId,
                     Quantity = loot.Quantity
                 });
@@ -323,7 +321,7 @@ else
     private string EnemyName()
     {
         if (enemy is null) return "—";
-        return Localize(_orderLocs, nameof(MercenaryTemplate), enemy.Id, "Name", enemy.NameEn);
+        return Localize(_orderLocs, nameof(MercenaryTemplate), enemy.Guid, "Name", enemy.NameEn);
     }
 
     private async Task LoadLocationLocalizationsAsync(AppDbContextMercenariesAndBeasts db, List<Guid> ids)
@@ -343,7 +341,7 @@ else
     }
 
     private string LocName(Location l)
-        => Localize(_locLocs, nameof(Location), l.Id, "Name", l.NameEn);
+        => Localize(_locLocs, nameof(Location), l.Guid, "Name", l.NameEn);
 
     private static string Localize(List<LocalizedText> cache, string entityType, Guid entityId, string field, string fallback)
     {

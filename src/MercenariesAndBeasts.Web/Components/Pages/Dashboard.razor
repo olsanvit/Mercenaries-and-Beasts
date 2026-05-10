@@ -170,7 +170,7 @@ else
 
                         var nextIt = new PlayerItem
                         {
-                            Id = it.Id,
+                            Guid = it.Guid,
                             PlayerId = it.PlayerId,
                             TemplateId = it.TemplateId,
                             Template = it.Template,
@@ -375,19 +375,19 @@ else
             .ToList();
 
     private string GetBadgeTierText(PlayerItem it)
-        => _invVmsById.TryGetValue(it.Id, out var vm) ? vm.BadgeTier.ToString() : "-";
+        => _invVmsById.TryGetValue(it.Guid, out var vm) ? vm.BadgeTier.ToString() : "-";
 
     private int GetWinsNow(PlayerItem it)
-        => _invVmsById.TryGetValue(it.Id, out var vm) ? vm.WinsNow : 0;
+        => _invVmsById.TryGetValue(it.Guid, out var vm) ? vm.WinsNow : 0;
 
     private int GetWinsNeed(PlayerItem it)
-        => _invVmsById.TryGetValue(it.Id, out var vm) ? vm.WinsNeed : 0;
+        => _invVmsById.TryGetValue(it.Guid, out var vm) ? vm.WinsNeed : 0;
 
     private int GetWinsPct(PlayerItem it)
-        => _invVmsById.TryGetValue(it.Id, out var vm) ? vm.WinsPct : 0;
+        => _invVmsById.TryGetValue(it.Guid, out var vm) ? vm.WinsPct : 0;
 
     private IEnumerable<(string Name, long Have, long Need)> GetResourcesTuple(PlayerItem it)
-        => _invVmsById.TryGetValue(it.Id, out var vm)
+        => _invVmsById.TryGetValue(it.Guid, out var vm)
             ? vm.Resources.Select(r => (r.Name, r.Have, r.Need))
             : Enumerable.Empty<(string Name, long Have, long Need)>();
 
@@ -399,7 +399,7 @@ else
 
     private void OpenItemModalFromItem(PlayerItem item)
     {
-        if (_invVmsById.TryGetValue(item.Id, out var vm))
+        if (_invVmsById.TryGetValue(item.Guid, out var vm))
             OpenItemModal(vm);
     }
 
@@ -563,7 +563,7 @@ else
 
     private void DragItem(PlayerItem it)
     {
-        _draggedItemId = it.Id;
+        _draggedItemId = it.Guid;
         _draggedFromSlotId = null;
         _draggedFromBeastSlotId = null;
         Toasts.Info($"Dragging: {it.Template.NameEn}", "Drag");
@@ -610,12 +610,12 @@ else
 
             _piecesByTemplateId = await Db.Set<PlayerItemPieces>()
                 .AsNoTracking()
-                .Where(x => x.PlayerId == _profile.Id)
+                .Where(x => x.PlayerId == _profile.Guid)
                 .ToDictionaryAsync(x => x.TemplateId, x => x.Pieces);
 
             _mercSlots = await Db.PlayerMercenarySlots
                 .AsNoTracking()
-                .Where(s => s.PlayerProfileId == _profile.Id)
+                .Where(s => s.PlayerProfileId == _profile.Guid)
                 .Include(s => s.Mercenary)!.ThenInclude(m => m.Template)
                 .Include(s => s.Mercenary)!.ThenInclude(m => m.Equipment)
                     .ThenInclude(eq => eq.PlayerItem)!.ThenInclude(pi => pi.Template)
@@ -631,7 +631,7 @@ else
 
             _beastSlots = await Db.PlayerBeastSlots
                 .AsNoTracking()
-                .Where(s => s.PlayerProfileId == _profile.Id)
+                .Where(s => s.PlayerProfileId == _profile.Guid)
                 .Include(s => s.Beast)!.ThenInclude(b => b.Template)
                 .Include(s => s.Beast)!.ThenInclude(b => b.Equipment)
                     .ThenInclude(eq => eq.PlayerItem)!.ThenInclude(pi => pi.Template)
@@ -687,7 +687,7 @@ else
             });
         }
 
-        _invVmsById = _invVms.ToDictionary(x => x.Item.Id, x => x);
+        _invVmsById = _invVms.ToDictionary(x => x.Item.Guid, x => x);
     }
 
     private List<InvResVm> BuildResources(PlayerItem it)
@@ -696,7 +696,7 @@ else
         if (t?.UpgradeResources is null || t.UpgradeResources.Count == 0)
             return new();
 
-        var havePieces = _piecesByTemplateId.TryGetValue(t.Id, out var pcs) ? pcs : 0;
+        var havePieces = _piecesByTemplateId.TryGetValue(t.Guid, out var pcs) ? pcs : 0;
 
         long BaseCost(ItemUpgradeResourceType type)
             => t.UpgradeResources.FirstOrDefault(x => x.Type == type)?.DefaultAmount ?? 0;
@@ -856,7 +856,7 @@ else
             Toasts.Success("Upgraded", $"{vm.Item.Template.NameEn} ({r.Type})");
 
             await LoadAsync();
-            if (_invVmsById.TryGetValue(vm.Item.Id, out var newVm))
+            if (_invVmsById.TryGetValue(vm.Item.Guid, out var newVm))
                 _activeItemVm = newVm;
         }
         catch (Exception ex)
@@ -969,12 +969,12 @@ else
         {
             if (_draggedItemId.HasValue)
             {
-                await EquipMercenaryAsync(slot.Id, _draggedItemId.Value);
+                await EquipMercenaryAsync(slot.Guid, _draggedItemId.Value);
                 Toasts.Success("Order equipped.", "Dashboard");
             }
             else if (_draggedFromSlotId.HasValue)
             {
-                await MoveOrSwapMercSlotAsync(_draggedFromSlotId.Value, slot.Id);
+                await MoveOrSwapMercSlotAsync(_draggedFromSlotId.Value, slot.Guid);
                 Toasts.Success("Slot updated.", "Dashboard");
             }
 
@@ -1000,12 +1000,12 @@ else
 
             if (_draggedItemId.HasValue)
             {
-                await EquipBeastAsync(slot.Id, _draggedItemId.Value);
+                await EquipBeastAsync(slot.Guid, _draggedItemId.Value);
                 Toasts.Success("Beast equipped.", "Dashboard");
             }
             else if (_draggedFromBeastSlotId.HasValue)
             {
-                await MoveOrSwapBeastSlotAsync(_draggedFromBeastSlotId.Value, slot.Id);
+                await MoveOrSwapBeastSlotAsync(_draggedFromBeastSlotId.Value, slot.Guid);
                 Toasts.Success("Beast slot updated.", "Dashboard");
             }
 
@@ -1029,14 +1029,14 @@ else
         await using var Db = await DbFactory.CreateDbContextAsync();
 
         var targetSlot = await Db.PlayerBeastSlots
-            .FirstOrDefaultAsync(s => s.Id == targetSlotId && s.PlayerProfileId == _profile.Id);
+            .FirstOrDefaultAsync(s => s.Guid == targetSlotId && s.PlayerProfileId == _profile.Guid);
 
         if (targetSlot is null)
             throw new InvalidOperationException("Target beast slot not found.");
 
         var item = await Db.PlayerItems
             .Include(i => i.Template)
-            .FirstOrDefaultAsync(i => i.Id == playerItemId && i.PlayerId == _profile.Id);
+            .FirstOrDefaultAsync(i => i.Guid == playerItemId && i.PlayerId == _profile.Guid);
 
         if (item?.Template is null)
             throw new InvalidOperationException("Item not found in inventory.");
@@ -1051,20 +1051,19 @@ else
         {
             var beast = new PlayerMonster
             {
-                Id = Guid.NewGuid(),
-                PlayerId = _profile.Id,
+PlayerId = _profile.Guid,
                 TemplateId = item.Template.MonsterTemplateId.Value,
                 Level = item.Level
             };
 
             beast.Equipment = new List<BeastEquipmentSlot>();
             Db.PlayerMonsters.Add(beast);
-            item.LinkedMonsterInstanceId = beast.Id;
+            item.LinkedMonsterInstanceId = beast.Guid;
         }
         else
         {
             var beast = await Db.PlayerMonsters
-                .FirstOrDefaultAsync(b => b.Id == item.LinkedMonsterInstanceId && b.PlayerId == _profile.Id);
+                .FirstOrDefaultAsync(b => b.Guid == item.LinkedMonsterInstanceId && b.PlayerId == _profile.Guid);
 
             if (beast is null)
                 throw new InvalidOperationException("Linked beast instance not found.");
@@ -1075,7 +1074,7 @@ else
         var incomingInstanceId = item.LinkedMonsterInstanceId!.Value;
 
         var allSlots = await Db.PlayerBeastSlots
-            .Where(s => s.PlayerProfileId == _profile.Id)
+            .Where(s => s.PlayerProfileId == _profile.Guid)
             .ToListAsync();
 
         var fromSlot = allSlots.FirstOrDefault(s => s.BeastInstanceId == incomingInstanceId);
@@ -1089,7 +1088,7 @@ else
         var targetOldInstanceId = targetSlot.BeastInstanceId;
         targetSlot.BeastInstanceId = incomingInstanceId;
 
-        if (fromSlot is not null && fromSlot.Id != targetSlot.Id)
+        if (fromSlot is not null && fromSlot.Guid != targetSlot.Guid)
             fromSlot.BeastInstanceId = targetOldInstanceId;
 
         await Db.SaveChangesAsync();
@@ -1102,14 +1101,14 @@ else
         await using var Db = await DbFactory.CreateDbContextAsync();
 
         var targetSlot = await Db.PlayerMercenarySlots
-            .FirstOrDefaultAsync(s => s.Id == targetSlotId && s.PlayerProfileId == _profile.Id);
+            .FirstOrDefaultAsync(s => s.Guid == targetSlotId && s.PlayerProfileId == _profile.Guid);
 
         if (targetSlot is null)
             throw new InvalidOperationException("Target mercenary slot not found.");
 
         var item = await Db.PlayerItems
             .Include(i => i.Template)
-            .FirstOrDefaultAsync(i => i.Id == playerItemId && i.PlayerId == _profile.Id);
+            .FirstOrDefaultAsync(i => i.Guid == playerItemId && i.PlayerId == _profile.Guid);
 
         if (item?.Template is null)
             throw new InvalidOperationException("Item not found in inventory.");
@@ -1124,8 +1123,7 @@ else
         {
             var merc = new PlayerMercenary
             {
-                Id = Guid.NewGuid(),
-                PlayerId = _profile.Id,
+PlayerId = _profile.Guid,
                 TemplateId = item.Template.MercenaryTemplateId.Value,
                 Level = item.Level
             };
@@ -1133,12 +1131,12 @@ else
             merc.Equipment = new List<MercenaryEquipmentSlot>();
             Db.PlayerMercenaries.Add(merc);
 
-            item.LinkedMercenaryInstanceId = merc.Id;
+            item.LinkedMercenaryInstanceId = merc.Guid;
         }
         else
         {
             var merc = await Db.PlayerMercenaries
-                .FirstOrDefaultAsync(m => m.Id == item.LinkedMercenaryInstanceId && m.PlayerId == _profile.Id);
+                .FirstOrDefaultAsync(m => m.Guid == item.LinkedMercenaryInstanceId && m.PlayerId == _profile.Guid);
 
             if (merc is null)
                 throw new InvalidOperationException("Linked mercenary instance not found.");
@@ -1149,7 +1147,7 @@ else
         var incomingInstanceId = item.LinkedMercenaryInstanceId!.Value;
 
         var allSlots = await Db.PlayerMercenarySlots
-            .Where(s => s.PlayerProfileId == _profile.Id)
+            .Where(s => s.PlayerProfileId == _profile.Guid)
             .ToListAsync();
 
         var fromSlot = allSlots.FirstOrDefault(s => s.MercenaryInstanceId == incomingInstanceId);
@@ -1163,7 +1161,7 @@ else
         var targetOldInstanceId = targetSlot.MercenaryInstanceId;
         targetSlot.MercenaryInstanceId = incomingInstanceId;
 
-        if (fromSlot is not null && fromSlot.Id != targetSlot.Id)
+        if (fromSlot is not null && fromSlot.Guid != targetSlot.Guid)
             fromSlot.MercenaryInstanceId = targetOldInstanceId;
 
         await Db.SaveChangesAsync();
@@ -1177,11 +1175,11 @@ else
         await using var Db = await DbFactory.CreateDbContextAsync();
 
         var slots = await Db.PlayerBeastSlots
-            .Where(s => s.PlayerProfileId == _profile.Id && (s.Id == fromSlotId || s.Id == toSlotId))
+            .Where(s => s.PlayerProfileId == _profile.Guid && (s.Guid == fromSlotId || s.Guid == toSlotId))
             .ToListAsync();
 
-        var from = slots.FirstOrDefault(s => s.Id == fromSlotId);
-        var to = slots.FirstOrDefault(s => s.Id == toSlotId);
+        var from = slots.FirstOrDefault(s => s.Guid == fromSlotId);
+        var to = slots.FirstOrDefault(s => s.Guid == toSlotId);
 
         if (from is null || to is null)
             throw new InvalidOperationException("Beast slot not found (not yours or missing).");
@@ -1202,11 +1200,11 @@ else
         await using var Db = await DbFactory.CreateDbContextAsync();
 
         var slots = await Db.PlayerMercenarySlots
-            .Where(s => s.PlayerProfileId == _profile.Id && (s.Id == fromSlotId || s.Id == toSlotId))
+            .Where(s => s.PlayerProfileId == _profile.Guid && (s.Guid == fromSlotId || s.Guid == toSlotId))
             .ToListAsync();
 
-        var from = slots.FirstOrDefault(s => s.Id == fromSlotId);
-        var to = slots.FirstOrDefault(s => s.Id == toSlotId);
+        var from = slots.FirstOrDefault(s => s.Guid == fromSlotId);
+        var to = slots.FirstOrDefault(s => s.Guid == toSlotId);
 
         if (from is null || to is null)
             throw new InvalidOperationException("Mercenary slot not found (not yours or missing).");

@@ -113,8 +113,8 @@ else
                             <td>
                                 @(loc.Stages?.Count ?? 0)
                                 <button class="btn btn-sm btn-outline-info ms-1"
-                                        @onclick="() => ToggleLocationStages(loc.Id)">
-                                    @(expandedLocationIds.Contains(loc.Id) ? "Hide" : "Show")
+                                        @onclick="() => ToggleLocationStages(loc.Guid)">
+                                    @(expandedLocationIds.Contains(loc.Guid) ? "Hide" : "Show")
                                 </button>
                             </td>
 
@@ -138,9 +138,9 @@ else
                                 }
 
                                 <button class="btn btn-sm btn-outline-info ms-1"
-                                        disabled="@IsGeneratingImageFor(loc.Id)"
+                                        disabled="@IsGeneratingImageFor(loc.Guid)"
                                         @onclick="() => GenerateImageForLocation(loc)">
-                                    @if (IsGeneratingImageFor(loc.Id))
+                                    @if (IsGeneratingImageFor(loc.Guid))
                                     {
                                         <span>Generating…</span>
                                     }
@@ -157,13 +157,13 @@ else
                                     Edit
                                 </button>
                                 <button class="btn btn-sm btn-danger ms-1"
-                                        @onclick="() => DeleteLocation(loc.Id)">
+                                        @onclick="() => DeleteLocation(loc.Guid)">
                                     Delete
                                 </button>
                             </td>
                         </tr>
 
-                        @if (expandedLocationIds.Contains(loc.Id))
+                        @if (expandedLocationIds.Contains(loc.Guid))
 {
    <tr class="table-secondary location-detail-row">
     <td colspan="9" style="max-width:0;">
@@ -222,7 +222,7 @@ else
 @if (editModel is not null)
 {
     <hr />
-    <h3>@(editModel.Id == Guid.Empty ? "Create Location" : "Edit Location")</h3>
+    <h3>@(editModel.Guid == Guid.Empty ? "Create Location" : "Edit Location")</h3>
 
     <EditForm Model="@editModel" OnValidSubmit="Save">
         <DataAnnotationsValidator />
@@ -337,7 +337,7 @@ else
     {
         var locales = LocalizationConfig.SupportedLocales;
 
-        var locationIds = locations.Select(l => l.Id).ToList();
+        var locationIds = locations.Select(l => l.Guid).ToList();
 
         var orderIds = locations
             .SelectMany(l => l.Stages ?? new List<ExpeditionStage>())
@@ -409,7 +409,7 @@ else
     private void EditLocation(Location loc)
         => editModel = new Location
         {
-            Id = loc.Id,
+            Guid = loc.Guid,
             Code = loc.Code,
             NameEn = loc.NameEn,
             MinLevel = loc.MinLevel,
@@ -425,14 +425,14 @@ else
         if (editModel is null) return;
 
         await using var Db = await DbFactory.CreateDbContextAsync();
-        if (editModel.Id == Guid.Empty)
+        if (editModel.Guid == Guid.Empty)
         {
-            editModel.Id = Guid.NewGuid();
+            editModel.Guid = Guid.NewGuid();
             Db.Locations.Add(editModel);
         }
         else
         {
-            var existing = await Db.Locations.FirstOrDefaultAsync(x => x.Id == editModel.Id);
+            var existing = await Db.Locations.FirstOrDefaultAsync(x => x.Guid == editModel.Guid);
             if (existing is null)
                 return;
 
@@ -507,7 +507,7 @@ else
 
     private async Task GenerateImageForLocation(Location loc)
     {
-        imageGeneratingLocationId = loc.Id;
+        imageGeneratingLocationId = loc.Guid;
         StateHasChanged();
 
         await using var Db = await DbFactory.CreateDbContextAsync();

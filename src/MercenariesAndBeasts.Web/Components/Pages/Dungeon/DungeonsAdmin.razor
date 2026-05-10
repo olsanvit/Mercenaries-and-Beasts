@@ -100,8 +100,8 @@ else
                             <td>
                                 @(d.Stages?.Count ?? 0)
                                 <button class="btn btn-sm btn-outline-info ms-2"
-                                        @onclick="() => ToggleDungeonStages(d.Id)">
-                                    @(expandedDungeonIds.Contains(d.Id) ? "Hide" : "Show")
+                                        @onclick="() => ToggleDungeonStages(d.Guid)">
+                                    @(expandedDungeonIds.Contains(d.Guid) ? "Hide" : "Show")
                                 </button>
                             </td>
 
@@ -125,7 +125,7 @@ else
                             </td>
                         </tr>
 
-                        @if (expandedDungeonIds.Contains(d.Id))
+                        @if (expandedDungeonIds.Contains(d.Guid))
 {
     <tr class="table-secondary dungeon-detail-row">
         <td colspan="7" style="max-width:0;">
@@ -139,22 +139,22 @@ else
             }
             else
             {
-                <div class="accordion" id="acc-@d.Id">
+                <div class="accordion" id="acc-@d.Guid">
                     <div class="accordion-item bg-dark text-light">
-                        <h2 class="accordion-header" id="heading-@d.Id">
+                        <h2 class="accordion-header" id="heading-@d.Guid">
                             <button class="accordion-button collapsed"
                                     type="button"
                                     data-bs-toggle="collapse"
-                                    data-bs-target="#collapse-@d.Id"
+                                    data-bs-target="#collapse-@d.Guid"
                                     aria-expanded="false"
-                                    aria-controls="collapse-@d.Id">
+                                    aria-controls="collapse-@d.Guid">
                                 Stages &amp; monsters
                             </button>
                         </h2>
 
-                        <div id="collapse-@d.Id"
+                        <div id="collapse-@d.Guid"
                              class="accordion-collapse collapse show"
-                             aria-labelledby="heading-@d.Id">
+                             aria-labelledby="heading-@d.Guid">
                             <div class="accordion-body">
 
                                 <!-- ✅ scroll wrapper for INNER stats table -->
@@ -288,7 +288,7 @@ else
     {
         _localeCount = LocalizationConfig.SupportedLocales.Length;
 
-        var dungeonIds = dungeons.Select(x => x.Id).ToList();
+        var dungeonIds = dungeons.Select(x => x.Guid).ToList();
 
         var monsterIds = dungeons
             .SelectMany(d => d.Stages ?? new List<DungeonStage>())
@@ -474,7 +474,7 @@ else
             }
 
             // reload tracked entity and update
-            var dbDungeon = await db.Dungeons.FirstAsync(x => x.Id == d.Id);
+            var dbDungeon = await db.Dungeons.FirstAsync(x => x.Guid == d.Guid);
             dbDungeon.ImagePath = path;
 
             await db.SaveChangesAsync();

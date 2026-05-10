@@ -17,7 +17,7 @@ public sealed class StatAggregator : IStatAggregator
     /// Sestaví kompletní <see cref="UnitSnapshot"/> pro žoldáka hráče včetně
     /// základních statů šablony, level scalingu a bonusů z vybaveného gear.
     /// </summary>
-    /// <param name="playerMercenaryId">ID instance žoldáka hráče (<c>PlayerMercenary.Id</c>).</param>
+    /// <param name="playerMercenaryId">ID instance žoldáka hráče (<c>PlayerMercenary.Guid</c>).</param>
     /// <param name="ct">Cancellation token.</param>
     public async Task<UnitSnapshot> BuildMercenaryAsync(Guid playerMercenaryId, CancellationToken ct = default)
     {
@@ -26,7 +26,7 @@ public sealed class StatAggregator : IStatAggregator
             .Include(m => m.Equipment)
                 .ThenInclude(es => es.PlayerItem)
                     .ThenInclude(pi => pi!.Template)
-            .FirstAsync(m => m.Id == playerMercenaryId, ct);
+            .FirstAsync(m => m.Guid == playerMercenaryId, ct);
 
         // 1) base (template)
         var stats = merc.Template.BaseStats.Clone();
@@ -54,7 +54,7 @@ public sealed class StatAggregator : IStatAggregator
             stats.AddInPlace(itemStats);
 
             equipped.Add(new EquippedItemSnapshot(
-                pi.Id,
+                pi.Guid,
                 tpl.Code,
                 tpl.NameEn,
                 tpl.MercenarySlot.Value,
@@ -66,7 +66,7 @@ public sealed class StatAggregator : IStatAggregator
         NormalizeAndClamp(stats);
 
         return new UnitSnapshot(
-            merc.Id,
+            merc.Guid,
             merc.Template.NameEn,
             merc.Level,
             IsMercenary: true,
@@ -79,7 +79,7 @@ public sealed class StatAggregator : IStatAggregator
     /// Sestaví kompletní <see cref="UnitSnapshot"/> pro příšeru hráče včetně
     /// základních statů šablony, level scalingu a bonusů z vybaveného gear.
     /// </summary>
-    /// <param name="playerMonsterId">ID instance příšery hráče (<c>PlayerMonster.Id</c>).</param>
+    /// <param name="playerMonsterId">ID instance příšery hráče (<c>PlayerMonster.Guid</c>).</param>
     /// <param name="ct">Cancellation token.</param>
     public async Task<UnitSnapshot> BuildBeastAsync(Guid playerMonsterId, CancellationToken ct = default)
     {
@@ -88,7 +88,7 @@ public sealed class StatAggregator : IStatAggregator
             .Include(b => b.Equipment)
                 .ThenInclude(es => es.PlayerItem)
                     .ThenInclude(pi => pi!.Template)
-            .FirstAsync(b => b.Id == playerMonsterId, ct);
+            .FirstAsync(b => b.Guid == playerMonsterId, ct);
 
         var stats = beast.Template.BaseStats.Clone();
 
@@ -112,7 +112,7 @@ public sealed class StatAggregator : IStatAggregator
             stats.AddInPlace(itemStats);
 
             equipped.Add(new EquippedItemSnapshot(
-                pi.Id,
+                pi.Guid,
                 tpl.Code,
                 tpl.NameEn,
                 tpl.MonsterSlot.Value,
@@ -124,7 +124,7 @@ public sealed class StatAggregator : IStatAggregator
         NormalizeAndClamp(stats);
 
         return new UnitSnapshot(
-            beast.Id,
+            beast.Guid,
             beast.Template.NameEn,
             beast.Level,
             IsMercenary: false,

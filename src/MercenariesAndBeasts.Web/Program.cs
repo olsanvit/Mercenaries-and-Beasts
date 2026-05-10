@@ -171,11 +171,11 @@ builder.Services.AddSingleton(sp =>
 
 builder.Services.AddMabTranslations<AppDbContextMercenariesAndBeasts>(registry =>
 {
-    registry.Add("Dungeon",           db => db.Dungeons.Select(x          => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
-    registry.Add("Location",          db => db.Locations.Select(x         => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
-    registry.Add("MonsterTemplate",   db => db.MonsterTemplates.Select(x   => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
-    registry.Add("MercenaryTemplate", db => db.MercenaryTemplates.Select(x => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
-    registry.Add("ItemTemplate",      db => db.ItemTemplates.Select(x      => new ValueTuple<Guid, string, string?>(x.Id, x.NameEn, x.DescriptionEn)));
+    registry.Add("Dungeon",           db => db.Dungeons.Select(x          => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+    registry.Add("Location",          db => db.Locations.Select(x         => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+    registry.Add("MonsterTemplate",   db => db.MonsterTemplates.Select(x   => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+    registry.Add("MercenaryTemplate", db => db.MercenaryTemplates.Select(x => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+    registry.Add("ItemTemplate",      db => db.ItemTemplates.Select(x      => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
 });
 builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
 builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();

@@ -89,7 +89,7 @@ else
     @if (_edit is not null)
     {
         <div class="card-like mb-3">
-            <h3 class="m-0">@(_edit.Id == Guid.Empty ? "Create ItemTemplate" : "Edit ItemTemplate")</h3>
+            <h3 class="m-0">@(_edit.Guid == Guid.Empty ? "Create ItemTemplate" : "Edit ItemTemplate")</h3>
             <div class="text-secondary mb-3">Code musí být unikátní.</div>
 
             <EditForm Model="_edit" OnValidSubmit="SaveAsync">
@@ -155,9 +155,9 @@ else
                 <div class="d-flex gap-2 mt-3">
                     <button type="submit" class="btn btn-success">Save</button>
                     <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
-                    @if (_edit.Id != Guid.Empty)
+                    @if (_edit.Guid != Guid.Empty)
                     {
-                        <button type="button" class="btn btn-danger ms-auto" @onclick="() => DeleteAsync(_edit.Id)">Delete</button>
+                        <button type="button" class="btn btn-danger ms-auto" @onclick="() => DeleteAsync(_edit.Guid)">Delete</button>
                     }
                 </div>
             </EditForm>
@@ -181,7 +181,7 @@ else
                 @foreach (var it in Filtered())
                 {
                     var slot = GetSlot(it);
-                    var locCnt = _itemLocaleCountById.TryGetValue(it.Id, out var c) ? c : 0;
+                    var locCnt = _itemLocaleCountById.TryGetValue(it.Guid, out var c) ? c : 0;
 
                     <tr>
                         <td title="@it.Code">@it.Code</td>
@@ -196,7 +196,7 @@ else
                                 <span class="ms-1">✓</span>
                             }
                         </td>
-                        <td class="text-end" title="@it.Id">
+                        <td class="text-end" title="@it.Guid">
                             <button class="btn btn-sm btn-secondary" @onclick="() => Edit(it)">Edit</button>
                         </td>
                     </tr>
@@ -225,7 +225,7 @@ else
                 <tbody>
                     @foreach (var r in _resources.OrderBy(x => x.Type).ThenBy(x => x.Code))
                     {
-                        var cnt = _resLocaleCountById.TryGetValue(r.Id, out var c) ? c : 0;
+                        var cnt = _resLocaleCountById.TryGetValue(r.Guid, out var c) ? c : 0;
                         <tr>
                             <td title="@r.Code">@r.Code</td>
                             <td title="@r.NameEn" class="ellipsis">@r.NameEn</td>
@@ -339,7 +339,7 @@ else
         }
         else
         {
-            var itemIds = _items.Select(x => x.Id).ToList();
+            var itemIds = _items.Select(x => x.Guid).ToList();
 
             var itemCounts = await Db.LocalizedTexts
                 .Where(x => x.EntityType == nameof(ItemTemplate)
@@ -368,7 +368,7 @@ else
         }
         else
         {
-            var resIds = _resources.Select(x => x.Id).ToList();
+            var resIds = _resources.Select(x => x.Guid).ToList();
 
             var resCounts = await Db.LocalizedTexts
                 .Where(x => x.EntityType == nameof(ItemUpgradeResource)
@@ -419,7 +419,7 @@ else
     {
         _edit = new ItemTemplate
         {
-            Id = Guid.Empty,
+            Guid = Guid.Empty,
             Code = "",
             NameEn = "",
             OwnerKind = ItemOwnerKind.None,
@@ -435,7 +435,7 @@ else
     {
         _edit = new ItemTemplate
         {
-            Id = it.Id,
+            Guid = it.Guid,
             Code = it.Code,
             NameEn = it.NameEn,
             OwnerKind = it.OwnerKind,
@@ -501,14 +501,14 @@ else
 
             _edit.Validate();
 
-            if (_edit.Id == Guid.Empty)
+            if (_edit.Guid == Guid.Empty)
             {
-                _edit.Id = Guid.NewGuid();
+                _edit.Guid = Guid.NewGuid();
                 Db.ItemTemplates.Add(_edit);
             }
             else
             {
-                var existing = await Db.ItemTemplates.FirstOrDefaultAsync(x => x.Id == _edit.Id);
+                var existing = await Db.ItemTemplates.FirstOrDefaultAsync(x => x.Guid == _edit.Guid);
                 if (existing is null)
                 {
                     Toasts.Error("ItemTemplate not found", "Items");
@@ -546,7 +546,7 @@ else
         {
             await using var Db = await DbFactory.CreateDbContextAsync();
 
-            var existing = await Db.ItemTemplates.FirstOrDefaultAsync(x => x.Id == id);
+            var existing = await Db.ItemTemplates.FirstOrDefaultAsync(x => x.Guid == id);
             if (existing is null) return;
 
             Db.ItemTemplates.Remove(existing);

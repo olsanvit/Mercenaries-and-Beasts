@@ -142,20 +142,19 @@ else
             dungeon = await db.Dungeons
                 .Include(d => d.Stages)
                     .ThenInclude(s => s.MonsterTemplate)
-                .FirstOrDefaultAsync(d => d.Id == DungeonId);
+                .FirstOrDefaultAsync(d => d.Guid == DungeonId);
 
             if (dungeon is null) return;
 
             progress = await db.PlayerDungeonProgresses
-                .FirstOrDefaultAsync(p => p.PlayerId == player.Id && p.DungeonId == dungeon.Id);
+                .FirstOrDefaultAsync(p => p.PlayerId == player.Guid && p.DungeonId == dungeon.Guid);
 
             if (progress is null)
             {
                 progress = new PlayerDungeonProgress
                 {
-                    Id = Guid.NewGuid(),
-                    PlayerId = player.Id,
-                    DungeonId = dungeon.Id,
+PlayerId = player.Guid,
+                    DungeonId = dungeon.Guid,
                     MaxStageReached = 0,
                     IsCompleted = false,
                     LastUpdatedUtc = DateTime.UtcNow
@@ -173,12 +172,12 @@ else
 
             currentStage = Math.Clamp(currentStage, 1, Math.Max(1, maxStageDefined));
 
-            await LoadDungeonLocalizationsAsync(db, new List<Guid> { dungeon.Id });
+            await LoadDungeonLocalizationsAsync(db, new List<Guid> { dungeon.Guid });
 
             enemy = PickDungeonEnemy(dungeon, currentStage);
 
             if (enemy is not null)
-                await LoadMonsterLocalizationsAsync(db, new List<Guid> { enemy.Id });
+                await LoadMonsterLocalizationsAsync(db, new List<Guid> { enemy.Guid });
         }
         finally
         {
@@ -222,7 +221,7 @@ else
 
         // reload progress tracked in THIS db
         var pr = await db.PlayerDungeonProgresses
-            .FirstOrDefaultAsync(p => p.PlayerId == player.Id && p.DungeonId == dungeon.Id);
+            .FirstOrDefaultAsync(p => p.PlayerId == player.Guid && p.DungeonId == dungeon.Guid);
 
         if (pr is null)
         {
@@ -242,14 +241,14 @@ else
         var playerUnits = new List<FightUnitInput>();
 
         var mercSlots = await db.PlayerMercenarySlots
-            .Where(s => s.PlayerProfileId == player.Id && s.MercenaryInstanceId != null)
+            .Where(s => s.PlayerProfileId == player.Guid && s.MercenaryInstanceId != null)
             .Include(s => s.Mercenary)
                 .ThenInclude(m => m!.Template)
             .OrderBy(s => s.SlotIndex)
             .ToListAsync();
 
         var beastSlots = await db.PlayerBeastSlots
-            .Where(s => s.PlayerProfileId == player.Id && s.BeastInstanceId != null)
+            .Where(s => s.PlayerProfileId == player.Guid && s.BeastInstanceId != null)
             .Include(s => s.Beast)
                 .ThenInclude(b => b!.Template)
             .OrderBy(s => s.SlotIndex)
@@ -262,7 +261,7 @@ else
             var stats = m.Template.BaseStats.Clone();
             ApplyLevelScaling(stats, m.Level);
             stats.AddInPlace(m.BonusStats);
-            playerUnits.Add(new FightUnitInput(m.Id, m.Template.NameEn, stats));
+            playerUnits.Add(new FightUnitInput(m.Guid, m.Template.NameEn, stats));
         }
 
         foreach (var slot in beastSlots)
@@ -272,7 +271,7 @@ else
             var stats = b.Template.BaseStats.Clone();
             ApplyLevelScaling(stats, b.Level);
             stats.AddInPlace(b.BonusStats);
-            playerUnits.Add(new FightUnitInput(b.Id, b.Template.NameEn, stats));
+            playerUnits.Add(new FightUnitInput(b.Guid, b.Template.NameEn, stats));
         }
 
         if (playerUnits.Count == 0)
@@ -284,12 +283,12 @@ else
 
         var fightInput = new FightRequest
         {
-            PlayerId = player.Id,
-            DungeonId = dungeon.Id,
+            PlayerId = player.Guid,
+            DungeonId = dungeon.Guid,
             Stage = currentStage,
-            Seed = HashCode.Combine(player.Id, dungeon.Id, currentStage, enemy.Id),
+            Seed = HashCode.Combine(player.Guid, dungeon.Guid, currentStage, enemy.Guid),
             PlayerUnits = playerUnits,
-            Enemy = new FightUnitInput(enemy.Id, enemy.NameEn ?? "Enemy", enemyStats)
+            Enemy = new FightUnitInput(enemy.Guid, enemy.NameEn ?? "Enemy", enemyStats)
         };
 
         // ===========================
@@ -338,7 +337,7 @@ else
 
         // Record fight in history + award item points per equipped item on win
         _ = await FightHistoryService.RecordDungeonFightAsync(
-            player.Id,
+            player.Guid,
             DungeonId,          // nearest available context reference (DungeonId, not stage row)
             fightResult,
             fightInput.Seed);
@@ -395,8 +394,7 @@ else
             {
                 db.UserInventoryItems.Add(new UserInventoryItem
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
+UserId = userId,
                     ItemTemplateId = resource.ItemTemplateId,
                     Quantity = loot.Quantity
                 });
@@ -432,10 +430,10 @@ else
     }
 
     private string DngName(Dungeon d)
-        => Localize(_dngLocs, nameof(Dungeon), d.Id, "Name", d.NameEn);
+        => Localize(_dngLocs, nameof(Dungeon), d.Guid, "Name", d.NameEn);
 
     private string MonsterName(MonsterTemplate m)
-        => Localize(_monsterLocs, nameof(MonsterTemplate), m.Id, "Name", m.NameEn);
+        => Localize(_monsterLocs, nameof(MonsterTemplate), m.Guid, "Name", m.NameEn);
 
     private static string Localize(
         List<LocalizedText> cache,
