@@ -3,6 +3,7 @@
 @using Microsoft.EntityFrameworkCore
 @using MercenariesAndBeasts.Infrastructure
 @using MercenariesAndBeasts.Domain.Localization
+@using MercenariesAndBeasts.Domain.Utils
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
@@ -95,6 +96,57 @@
     </div>
 }
 
+<div class="card-like mb-3">
+    <div class="fw-bold mb-2">
+        Draft záznamy čekající na aktivaci
+        <a href="/admin/activation" class="btn btn-sm btn-outline-primary ms-2">Otevřít správu aktivací</a>
+    </div>
+    @if (_draftMercenaries.Count > 0)
+    {
+        <div class="text-muted small mb-1">Žoldáci (@_draftMercenaries.Count)</div>
+        <div class="dungeons-table-wrap">
+            <table class="table table-dark table-stages mb-2">
+                <thead><tr><th>Code</th><th>Název</th><th>Level</th><th>Akce</th></tr></thead>
+                <tbody>
+                    @foreach (var m in _draftMercenaries.Take(10))
+                    {
+                        <tr>
+                            <td>@m.Code</td>
+                            <td>@m.NameEn</td>
+                            <td>@m.BaseLevel</td>
+                            <td><button class="btn btn-sm btn-success" @onclick="() => ActivateMercenaryAsync(m.Guid)">Aktivovat</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (_draftMonsters.Count > 0)
+    {
+        <div class="text-muted small mb-1 mt-2">Monstra (@_draftMonsters.Count)</div>
+        <div class="dungeons-table-wrap">
+            <table class="table table-dark table-stages mb-2">
+                <thead><tr><th>Code</th><th>Název</th><th>Level</th><th>Akce</th></tr></thead>
+                <tbody>
+                    @foreach (var m in _draftMonsters.Take(10))
+                    {
+                        <tr>
+                            <td>@m.Code</td>
+                            <td>@m.NameEn</td>
+                            <td>@m.BaseLevel</td>
+                            <td><button class="btn btn-sm btn-success" @onclick="() => ActivateMonsterAsync(m.Guid)">Aktivovat</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (_draftMercenaries.Count == 0 && _draftMonsters.Count == 0)
+    {
+        <p class="text-muted mb-0">Žádné drafty.</p>
+    }
+</div>
+
 <TranslationPanel />
 
 @code
@@ -102,6 +154,10 @@
 
     private bool isSeeding = false;
     private string? seedResult;
+
+    // drafts
+    private List<MercenaryTemplate> _draftMercenaries = new();
+    private List<MonsterTemplate> _draftMonsters = new();
 
     // counts
     private bool countsLoaded = false;
@@ -120,6 +176,35 @@
     protected override async Task OnInitializedAsync()
     {
         await ReloadStatsAsync();
+        await LoadDraftsAsync();
+    }
+
+    private async Task LoadDraftsAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _draftMercenaries = await db.MercenaryTemplates.Where(m => !m.IsActive).Take(20).ToListAsync();
+        _draftMonsters    = await db.MonsterTemplates.Where(m => !m.IsActive).Take(20).ToListAsync();
+    }
+
+    private Task ActivateMercenaryAsync(Guid guid) => ActivateAsync("Mercenary", guid);
+    private Task ActivateMonsterAsync(Guid guid)   => ActivateAsync("Monster",   guid);
+
+    private async Task ActivateAsync(string type, Guid guid)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        if (type == "Mercenary")
+        {
+            var m = await db.MercenaryTemplates.FindAsync(guid);
+            if (m != null) { m.IsActive = true; await db.SaveChangesAsync(); }
+            _draftMercenaries.RemoveAll(x => x.Guid == guid);
+        }
+        else if (type == "Monster")
+        {
+            var m = await db.MonsterTemplates.FindAsync(guid);
+            if (m != null) { m.IsActive = true; await db.SaveChangesAsync(); }
+            _draftMonsters.RemoveAll(x => x.Guid == guid);
+        }
+        StateHasChanged();
     }
 
     private async Task RunSeedAsync(bool makeAll)

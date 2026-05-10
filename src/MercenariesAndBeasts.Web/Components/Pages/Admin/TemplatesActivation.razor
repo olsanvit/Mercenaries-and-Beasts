@@ -1,0 +1,190 @@
+@page "/admin/activation"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin")]
+@using MercenariesAndBeasts.Domain.Utils
+@using MercenariesAndBeasts.Domain.Items
+
+<PageTitle>Aktivace šablon — Admin</PageTitle>
+
+<div class="dash-switcher mb-3">
+    <h4 class="m-0">Aktivace šablon</h4>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <a href="/admin" class="btn btn-sm btn-outline-secondary">← Zpět na Admin</a>
+    <button class="btn btn-warning" @onclick="ActivateAllAsync" disabled="@_busy">
+        @(_busy ? "Pracuji…" : "Aktivovat vše (drafty)")
+    </button>
+</div>
+
+<div class="card-like mb-3">
+    <ul class="nav nav-tabs mb-3">
+        @foreach (var tab in _tabs)
+        {
+            <li class="nav-item">
+                <button class="nav-link @(tab == _activeTab ? "active" : "")" @onclick="() => ChangeTabAsync(tab)">
+                    @tab
+                </button>
+            </li>
+        }
+    </ul>
+
+    <div class="mb-2">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="showAll" @bind="_showAll" @bind:after="LoadAsync" />
+            <label class="form-check-label" for="showAll">Zobrazit i aktivní</label>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="d-flex align-items-center gap-2 text-warning">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Načítám…</span>
+        </div>
+    }
+    else
+    {
+        <div class="dungeons-table-wrap">
+            <table class="table table-dark table-stages table-hover mb-0">
+                <thead>
+                    <tr><th>Code</th><th>Název</th><th>Level</th><th>Stav</th><th>Akce</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in _rows)
+                    {
+                        <tr class="@(row.IsActive ? "" : "table-warning")">
+                            <td>@row.Code</td>
+                            <td>@row.NameEn</td>
+                            <td>@row.BaseLevel</td>
+                            <td>@(row.IsActive ? "Aktivní" : "Draft")</td>
+                            <td>
+                                @if (!row.IsActive)
+                                {
+                                    <button class="btn btn-sm btn-success" @onclick="() => ActivateOneAsync(row)">Aktivovat</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => DeactivateOneAsync(row)">Deaktivovat</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (_rows.Count == 0)
+                    {
+                        <tr><td colspan="5" class="text-muted text-center">Žádné záznamy.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0">@_rows.Count záznamů</p>
+    }
+</div>
+
+@code {
+    private readonly string[] _tabs = ["Žoldáci", "Monstra", "Dungeony", "Lokace", "Předměty"];
+    private string _activeTab = "Žoldáci";
+    private bool _loading = true;
+    private bool _busy;
+    private bool _showAll;
+    private List<MabTemplate> _rows = new();
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task ChangeTabAsync(string tab)
+    {
+        _activeTab = tab;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        StateHasChanged();
+        _rows = await GetRowsAsync();
+        _loading = false;
+    }
+
+    private async Task<List<MabTemplate>> GetRowsAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        return _activeTab switch
+        {
+            "Žoldáci"  => (await db.MercenaryTemplates
+                              .Where(x => _showAll || !x.IsActive).OrderBy(x => x.NameEn).ToListAsync())
+                              .Cast<MabTemplate>().ToList(),
+            "Monstra"  => (await db.MonsterTemplates
+                              .Where(x => _showAll || !x.IsActive).OrderBy(x => x.NameEn).ToListAsync())
+                              .Cast<MabTemplate>().ToList(),
+            "Dungeony" => (await db.Dungeons
+                              .Where(x => _showAll || !x.IsActive).OrderBy(x => x.NameEn).ToListAsync())
+                              .Cast<MabTemplate>().ToList(),
+            "Lokace"   => (await db.Locations
+                              .Where(x => _showAll || !x.IsActive).OrderBy(x => x.NameEn).ToListAsync())
+                              .Cast<MabTemplate>().ToList(),
+            "Předměty" => (await db.ItemTemplates
+                              .Where(x => _showAll || !x.IsActive).OrderBy(x => x.NameEn).ToListAsync())
+                              .Cast<MabTemplate>().ToList(),
+            _          => new List<MabTemplate>()
+        };
+    }
+
+    private async Task ActivateOneAsync(MabTemplate row)
+    {
+        await SetActiveInDbAsync(row.Guid, true);
+        row.IsActive = true;
+        StateHasChanged();
+    }
+
+    private async Task DeactivateOneAsync(MabTemplate row)
+    {
+        await SetActiveInDbAsync(row.Guid, false);
+        row.IsActive = false;
+        StateHasChanged();
+    }
+
+    private async Task ActivateAllAsync()
+    {
+        _busy = true;
+        StateHasChanged();
+        await using var db = await DbFactory.CreateDbContextAsync();
+        switch (_activeTab)
+        {
+            case "Žoldáci":  await db.MercenaryTemplates.Where(x => !x.IsActive).ExecuteUpdateAsync(s => s.SetProperty(x => x.IsActive, true)); break;
+            case "Monstra":  await db.MonsterTemplates.Where(x => !x.IsActive).ExecuteUpdateAsync(s => s.SetProperty(x => x.IsActive, true)); break;
+            case "Dungeony": await db.Dungeons.Where(x => !x.IsActive).ExecuteUpdateAsync(s => s.SetProperty(x => x.IsActive, true)); break;
+            case "Lokace":   await db.Locations.Where(x => !x.IsActive).ExecuteUpdateAsync(s => s.SetProperty(x => x.IsActive, true)); break;
+            case "Předměty": await db.ItemTemplates.Where(x => !x.IsActive).ExecuteUpdateAsync(s => s.SetProperty(x => x.IsActive, true)); break;
+        }
+        _rows = await GetRowsAsync();
+        _busy = false;
+    }
+
+    private async Task SetActiveInDbAsync(Guid guid, bool active)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        switch (_activeTab)
+        {
+            case "Žoldáci":
+                var merc = await db.MercenaryTemplates.FindAsync(guid);
+                if (merc != null) { merc.IsActive = active; await db.SaveChangesAsync(); }
+                break;
+            case "Monstra":
+                var mon = await db.MonsterTemplates.FindAsync(guid);
+                if (mon != null) { mon.IsActive = active; await db.SaveChangesAsync(); }
+                break;
+            case "Dungeony":
+                var dng = await db.Dungeons.FindAsync(guid);
+                if (dng != null) { dng.IsActive = active; await db.SaveChangesAsync(); }
+                break;
+            case "Lokace":
+                var loc = await db.Locations.FindAsync(guid);
+                if (loc != null) { loc.IsActive = active; await db.SaveChangesAsync(); }
+                break;
+            case "Předměty":
+                var itm = await db.ItemTemplates.FindAsync(guid);
+                if (itm != null) { itm.IsActive = active; await db.SaveChangesAsync(); }
+                break;
+        }
+    }
+}
