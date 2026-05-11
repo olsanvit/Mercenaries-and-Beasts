@@ -195,6 +195,11 @@ TaskScheduler.UnobservedTaskException += (sender, e) =>
 var app = builder.Build();
 app.UseRequestLocalization(
     app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
+
+var pathBase = builder.Configuration["PathBase"];
+if (!string.IsNullOrWhiteSpace(pathBase))
+    app.UsePathBase(pathBase);
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
