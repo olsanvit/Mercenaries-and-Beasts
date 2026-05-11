@@ -1,21 +1,5 @@
 services:
 
-  # ── Reverse proxy + SSL (Let's Encrypt) ──────────────────────────────────────
-  caddy:
-    image: caddy:2-alpine
-    container_name: caddy
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - appnet
-    restart: unless-stopped
-
   # ── Applications ─────────────────────────────────────────────────────────────
   # Publish složky jsou nahrány z Macu přes SCP, kontejner jen spustí DLL
   # Mac → scp publish/ → /share/Public/BlazorXxx/publish/ → docker volume mount
@@ -24,6 +8,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: vo2datamanager
     working_dir: /app
+    ports: ["5001:8080"]
     volumes:
       - /share/Public/BlazorVO2DataManager/publish:/app:ro
     command: dotnet VO2DataManager.Web.dll
@@ -40,6 +25,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: vinwmivehicles
     working_dir: /app
+    ports: ["5002:8080"]
     volumes:
       - /share/Public/BlazorVINWMI/publish:/app:ro
     command: dotnet VINWMIVehicles.Web.dll
@@ -56,6 +42,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: unisportmanager
     working_dir: /app
+    ports: ["5003:8080"]
     volumes:
       - /share/Public/BlazorSportManager/publish:/app:ro
     command: dotnet SportManager.Web.dll
@@ -72,6 +59,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: topelevenst
     working_dir: /app
+    ports: ["5004:8080"]
     volumes:
       - /share/Public/BlazorTopEleven/publish:/app:ro
     command: dotnet TopElevenStats.Web.dll
@@ -88,6 +76,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: simulatereal
     working_dir: /app
+    ports: ["5010:8080"]
     volumes:
       - /share/Public/BlazorSimulateReal1/publish:/app:ro
     command: dotnet SimulateReal.Web.dll
@@ -107,6 +96,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: simulategames
     working_dir: /app
+    ports: ["5011:8080"]
     volumes:
       - /share/Public/BlazorSimulateGames/publish:/app:ro
     command: dotnet SimulateGames.Web.dll
@@ -123,6 +113,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: simulatecar
     working_dir: /app
+    ports: ["5012:8080"]
     volumes:
       - /share/Public/BlazorSimulateCar/publish:/app:ro
     command: dotnet SimulateCar.Web.dll
@@ -139,6 +130,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: myzabbix
     working_dir: /app
+    ports: ["5013:8080"]
     volumes:
       - /share/Public/BlazorMyZabbix/publish:/app:ro
     command: dotnet MyZabbix.Web.dll
@@ -155,6 +147,7 @@ services:
     image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: mercenariesandbeasts
     working_dir: /app
+    ports: ["5020:8080"]
     volumes:
       - /share/Public/BlazorMercenariesAndBeasts/publish:/app:ro
     command: dotnet MercenariesAndBeasts.Web.dll
@@ -171,6 +164,3 @@ networks:
   appnet:
     external: true   # vytvořeno ručně: docker network create appnet
 
-volumes:
-  caddy_data:
-  caddy_config:
