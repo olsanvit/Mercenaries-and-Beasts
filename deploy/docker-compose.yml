@@ -16,11 +16,9 @@ services:
       - apps
     restart: unless-stopped
 
-  # ── Applications ─────────────────────────────────────────────────────────────
+  # ── Applications (obrazy buildované na Macu, pushované na ghcr.io) ──────────
   vo2datamanager:
-    build:
-      context: ${APPS_DIR}/VO2DataManager
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/vo2datamanager:latest
     container_name: vo2datamanager
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -30,9 +28,7 @@ services:
     restart: unless-stopped
 
   vinwmivehicles:
-    build:
-      context: ${APPS_DIR}/VINWMIVehicles
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/vinwmivehicles:latest
     container_name: vinwmivehicles
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -42,9 +38,7 @@ services:
     restart: unless-stopped
 
   unisportmanager:
-    build:
-      context: ${APPS_DIR}/UNISportManager
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/unisportmanager:latest
     container_name: unisportmanager
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -54,9 +48,7 @@ services:
     restart: unless-stopped
 
   topelevenst:
-    build:
-      context: ${APPS_DIR}/TopElevenStats
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/topelevenst:latest
     container_name: topelevenst
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -66,9 +58,7 @@ services:
     restart: unless-stopped
 
   simulatereal:
-    build:
-      context: ${APPS_DIR}/SimulateReal
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/simulatereal:latest
     container_name: simulatereal
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -78,9 +68,7 @@ services:
     restart: unless-stopped
 
   simulategames:
-    build:
-      context: ${APPS_DIR}/SimulateGames
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/simulategames:latest
     container_name: simulategames
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -90,9 +78,7 @@ services:
     restart: unless-stopped
 
   simulatecar:
-    build:
-      context: ${APPS_DIR}/SimulateCar
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/simulatecar:latest
     container_name: simulatecar
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -102,9 +88,7 @@ services:
     restart: unless-stopped
 
   myzabbix:
-    build:
-      context: ${APPS_DIR}/MyZabbix
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/myzabbix:latest
     container_name: myzabbix
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -114,9 +98,7 @@ services:
     restart: unless-stopped
 
   mercenariesandbeasts:
-    build:
-      context: ${APPS_DIR}/MercenariesAndBeasts/Mercenaries-and-Beasts
-      dockerfile: Dockerfile
+    image: ghcr.io/${GHCR_USER}/mercenariesandbeasts:latest
     container_name: mercenariesandbeasts
     environment:
       ASPNETCORE_ENVIRONMENT: Production
