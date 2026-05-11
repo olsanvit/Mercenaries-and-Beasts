@@ -13,103 +13,163 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
-  # ── Applications (obrazy buildované na Macu, pushované na ghcr.io) ──────────
+  # ── Applications ─────────────────────────────────────────────────────────────
+  # Publish složky jsou nahrány z Macu přes SCP, kontejner jen spustí DLL
+  # Mac → scp publish/ → /share/Public/BlazorXxx/publish/ → docker volume mount
+
   vo2datamanager:
-    image: ghcr.io/${GHCR_USER}/vo2datamanager:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: vo2datamanager
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorVO2DataManager/publish:/app:ro
+    command: dotnet VO2DataManager.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
   vinwmivehicles:
-    image: ghcr.io/${GHCR_USER}/vinwmivehicles:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: vinwmivehicles
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorVINWMI/publish:/app:ro
+    command: dotnet VINWMIVehicles.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
   unisportmanager:
-    image: ghcr.io/${GHCR_USER}/unisportmanager:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: unisportmanager
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorSportManager/publish:/app:ro
+    command: dotnet SportManager.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
   topelevenst:
-    image: ghcr.io/${GHCR_USER}/topelevenst:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: topelevenst
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorTopEleven/publish:/app:ro
+    command: dotnet TopElevenStats.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
   simulatereal:
-    image: ghcr.io/${GHCR_USER}/simulatereal:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: simulatereal
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorSimulateReal1/publish:/app:ro
+    command: dotnet SimulateReal.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
+      SELENIUM_REMOTE_URL: http://selenium-prod:4444
+      SELENIUM_BROWSER: chrome
+      SELENIUM_CMD_TIMEOUT_SECONDS: "60"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
   simulategames:
-    image: ghcr.io/${GHCR_USER}/simulategames:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: simulategames
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorSimulateGames/publish:/app:ro
+    command: dotnet SimulateGames.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
   simulatecar:
-    image: ghcr.io/${GHCR_USER}/simulatecar:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: simulatecar
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorSimulateCar/publish:/app:ro
+    command: dotnet SimulateCar.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
   myzabbix:
-    image: ghcr.io/${GHCR_USER}/myzabbix:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: myzabbix
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorMyZabbix/publish:/app:ro
+    command: dotnet MyZabbix.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
   mercenariesandbeasts:
-    image: ghcr.io/${GHCR_USER}/mercenariesandbeasts:latest
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
     container_name: mercenariesandbeasts
+    working_dir: /app
+    volumes:
+      - /share/Public/BlazorMercenariesAndBeasts/publish:/app:ro
+    command: dotnet MercenariesAndBeasts.Web.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
     networks:
-      - apps
+      - appnet
     restart: unless-stopped
 
 networks:
-  apps:
-    driver: bridge
+  appnet:
+    external: true   # vytvořeno ručně: docker network create appnet
 
 volumes:
   caddy_data:
