@@ -65,7 +65,7 @@ publish_one() {
   # dotnet publish uvnitř SDK kontejneru
   echo "  dotnet publish..."
   docker run --rm \
-    -v "$REPO_DIR":/src:ro \
+    -v "$REPO_DIR":/src \
     -v "$PUB_DIR":/out \
     "$SDK_IMAGE" \
     dotnet publish "/src/$CSPROJ" \
