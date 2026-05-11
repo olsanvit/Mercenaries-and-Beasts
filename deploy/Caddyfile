@@ -1,0 +1,38 @@
+# Caddyfile — automatický SSL přes Let's Encrypt
+# Každá doména dostane certifikát automaticky při prvním startu
+
+datamanager.vo2info.cz {
+    reverse_proxy vo2datamanager:8080
+}
+
+vinwmi.vo2info.cz {
+    reverse_proxy vinwmivehicles:8080
+}
+
+unisportmanager.vo2info.cz {
+    reverse_proxy unisportmanager:8080
+}
+
+testats.vo2info.cz {
+    reverse_proxy topelevenst:8080
+}
+
+simreal.vo2info.cz {
+    reverse_proxy simulatereal:8080
+}
+
+simgames.vo2info.cz {
+    reverse_proxy simulategames:8080
+}
+
+simcar.vo2info.cz {
+    reverse_proxy simulatecar:8080
+}
+
+zabbix.vo2info.cz {
+    reverse_proxy myzabbix:8080
+}
+
+ordersandbeasts.vo2info.cz {
+    reverse_proxy mercenariesandbeasts:8080
+}
