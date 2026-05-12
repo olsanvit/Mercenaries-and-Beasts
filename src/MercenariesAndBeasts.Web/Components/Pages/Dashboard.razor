@@ -586,7 +586,7 @@ else
             }
 
             _userId = _user.FindFirstValue(ClaimTypes.NameIdentifier);
-            _userEmail = _user.FindFirstValue(ClaimTypes.Email) ?? _user.Identity?.Name;
+            _userEmail = _user.FindFirstValue(ClaimTypes.Email) ?? _user.Identity?.Name ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(_userId))
             {
@@ -597,8 +597,8 @@ else
             await Onboarding.EnsurePlayerInitializedAsync(_userId);
 
             _profile = await Db.Players
-                .Include(p => p.MercenarySlots).ThenInclude(s => s.Mercenary).ThenInclude(m => m.Template)
-                .Include(p => p.BeastSlots).ThenInclude(s => s.Beast).ThenInclude(b => b.Template)
+                .Include(p => p.MercenarySlots).ThenInclude(s => s.Mercenary!).ThenInclude(m => m.Template!)
+                .Include(p => p.BeastSlots).ThenInclude(s => s.Beast!).ThenInclude(b => b.Template!)
                 .Include(p => p.Inventory).ThenInclude(i => i.Template).ThenInclude(t => t.UpgradeResources)
                 .FirstOrDefaultAsync(p => p.UserId == _userId);
 
@@ -616,9 +616,9 @@ else
             _mercSlots = await Db.PlayerMercenarySlots
                 .AsNoTracking()
                 .Where(s => s.PlayerProfileId == _profile.Guid)
-                .Include(s => s.Mercenary)!.ThenInclude(m => m.Template)
-                .Include(s => s.Mercenary)!.ThenInclude(m => m.Equipment)
-                    .ThenInclude(eq => eq.PlayerItem)!.ThenInclude(pi => pi.Template)
+                .Include(s => s.Mercenary!).ThenInclude(m => m.Template!)
+                .Include(s => s.Mercenary!).ThenInclude(m => m.Equipment!)
+                    .ThenInclude(eq => eq.PlayerItem!).ThenInclude(pi => pi.Template!)
                         .ThenInclude(t => t.UpgradeResources)
                 .OrderBy(s => s.SlotIndex)
                 .ToListAsync();
@@ -632,9 +632,9 @@ else
             _beastSlots = await Db.PlayerBeastSlots
                 .AsNoTracking()
                 .Where(s => s.PlayerProfileId == _profile.Guid)
-                .Include(s => s.Beast)!.ThenInclude(b => b.Template)
-                .Include(s => s.Beast)!.ThenInclude(b => b.Equipment)
-                    .ThenInclude(eq => eq.PlayerItem)!.ThenInclude(pi => pi.Template)
+                .Include(s => s.Beast!).ThenInclude(b => b.Template!)
+                .Include(s => s.Beast!).ThenInclude(b => b.Equipment!)
+                    .ThenInclude(eq => eq.PlayerItem!).ThenInclude(pi => pi.Template!)
                         .ThenInclude(t => t.UpgradeResources)
                 .OrderBy(s => s.SlotIndex)
                 .ToListAsync();

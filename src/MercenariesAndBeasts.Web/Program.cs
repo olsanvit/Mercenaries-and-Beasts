@@ -107,7 +107,7 @@ static string PreferIPv4Host(string cs)
     // zkus DNS -> vyber IPv4
     try
     {
-        var addrs = Dns.GetHostAddresses(b.Host);
+        var addrs = Dns.GetHostAddresses(b.Host!);
         var v4 = addrs.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
         if (v4 != null)
         {

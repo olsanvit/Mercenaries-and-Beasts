@@ -90,7 +90,7 @@
                                             <div class="panel-scroll">
                                                 <div class="detail-section-title">Equipment</div>
 
-                                                @if (m.Equipment is null || m.Equipment.Count == 0)
+                                                @if (m?.Equipment is null || m.Equipment.Count == 0)
                                                 {
                                                     <div class="text-secondary">No equipment slots.</div>
                                                 }

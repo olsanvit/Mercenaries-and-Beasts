@@ -98,7 +98,7 @@ private string _userName = "Player";
 
     private PlayerProfile? _profile;
     private string? _userId;
-    private ClaimsPrincipal? _user;
+    // _user removed: local var in OnInitializedAsync was shadowing this field (CS0169)
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,8 +119,8 @@ private string _userName = "Player";
 
         await using var Db = await DbFactory.CreateDbContextAsync();
         _profile = await Db.Players
-            .Include(p => p.MercenarySlots).ThenInclude(s => s.Mercenary).ThenInclude(m => m.Template)
-            .Include(p => p.BeastSlots).ThenInclude(s => s.Beast).ThenInclude(b => b.Template)
+            .Include(p => p.MercenarySlots).ThenInclude(s => s.Mercenary!).ThenInclude(m => m.Template!)
+            .Include(p => p.BeastSlots).ThenInclude(s => s.Beast!).ThenInclude(b => b.Template!)
             .Include(p => p.Inventory).ThenInclude(i => i.Template).ThenInclude(t => t.UpgradeResources)
             .FirstOrDefaultAsync(p => p.UserId == _userId);
     }

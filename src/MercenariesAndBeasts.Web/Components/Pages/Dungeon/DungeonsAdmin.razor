@@ -435,7 +435,7 @@ else
             if (current)
                 newDungeon.NameEn = manualDungeonName.Trim();
 
-            var dungeon = await DungeonAi.GenerateNextDungeonAsync(lastDungeon, newDungeon, current, "", CancellationToken.None);
+            var dungeon = await DungeonAi.GenerateNextDungeonAsync(lastDungeon!, newDungeon, current, "", CancellationToken.None);
             if (dungeon is null)
             {
                 Toasts.Error("AI generation failed", "No dungeon was generated.");

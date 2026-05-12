@@ -186,7 +186,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var s in loc.Stages.OrderBy(s => s.StageNumber))
+                        @foreach (var s in (loc.Stages ?? []).OrderBy(s => s.StageNumber))
                         {
                             var m = s.Enemy;
                             var hasItem = m is not null
@@ -486,7 +486,7 @@ else
                 MaxLevel = last?.MaxLevel ?? 5
             };
 
-            await DungeonAi.GenerateNextLocationAsync(last, loc, true, "", CancellationToken.None);
+            await DungeonAi.GenerateNextLocationAsync(last!, loc, true, "", CancellationToken.None);
 
             await LoadLocations();
             Toasts.Success("Location created", loc.NameEn);
