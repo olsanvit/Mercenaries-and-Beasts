@@ -226,7 +226,7 @@ else
 
                                     <button type="button"
                                             class="btn btn-sm btn-primary w-100 mt-2"
-                                            disabled="@(!r.CanUpgrade)"
+                                            disabled="@(!r.CanUpgrade || _itemUpgrading)"
                                             @onclick="async () => await UpgradeItemAsync(_activeItemVm, r)">
                                         Upgrade
                                     </button>
@@ -832,11 +832,51 @@ else
         };
     }
 
-    private Task UpgradeItemAsync(InvItemVm vm, InvResVm r)
+    private async Task UpgradeItemAsync(InvItemVm vm, InvResVm r)
     {
-        // TODO: Implementovat skutečný upgrade přes DbContext (odečíst suroviny, zvýšit úroveň itemu).
-        Toasts.Info("Upgrade není zatím implementován.", vm.Item.Template.NameEn);
-        return Task.CompletedTask;
+        if (_profile is null || _itemUpgrading) return;
+        if (!r.CanUpgrade) return;
+
+        _itemUpgrading = true;
+        StateHasChanged();
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            var pieces = await db.Set<PlayerItemPieces>()
+                .FirstOrDefaultAsync(x => x.PlayerId == _profile.Guid && x.TemplateId == vm.Item.Template.Guid);
+
+            if (pieces is null || pieces.Pieces < r.Need)
+            {
+                Toasts.Warning("Not enough pieces to upgrade.", vm.Item.Template.NameEn);
+                return;
+            }
+
+            var item = await db.PlayerItems
+                .FirstOrDefaultAsync(i => i.Guid == vm.Item.Guid && i.PlayerId == _profile.Guid);
+
+            if (item is null)
+            {
+                Toasts.Error("Item not found in database.", vm.Item.Template.NameEn);
+                return;
+            }
+
+            pieces.Pieces -= r.Need;
+            item.Level++;
+
+            await db.SaveChangesAsync();
+
+            Toasts.Success($"Upgraded to Lv {item.Level}!", vm.Item.Template.NameEn);
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Upgrade");
+        }
+        finally
+        {
+            _itemUpgrading = false;
+            await LoadAsync();
+        }
     }
 
     private ProfileSetupModel _setup = new();
