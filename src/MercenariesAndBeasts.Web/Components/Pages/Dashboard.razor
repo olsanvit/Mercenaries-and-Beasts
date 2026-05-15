@@ -623,12 +623,6 @@ else
                 .OrderBy(s => s.SlotIndex)
                 .ToListAsync();
 
-            Toasts.Info(
-                string.Join(" | ", _mercSlots.Select(s =>
-                    $"{s.SlotIndex}: fk={(s.MercenaryInstanceId.HasValue ? "Y" : "N")} nav={(s.Mercenary is null ? "NULL" : "OK")}")),
-                "Merc slots"
-            );
-
             _beastSlots = await Db.PlayerBeastSlots
                 .AsNoTracking()
                 .Where(s => s.PlayerProfileId == _profile.Guid)
@@ -638,12 +632,6 @@ else
                         .ThenInclude(t => t.UpgradeResources)
                 .OrderBy(s => s.SlotIndex)
                 .ToListAsync();
-
-            Toasts.Info(
-                string.Join(" | ", _beastSlots.Select(s =>
-                    $"{s.SlotIndex}: fk={(s.BeastInstanceId.HasValue ? "Y" : "N")} beast={(s.Beast is null ? "NULL" : "OK")} tpl={(s.Beast?.Template is null ? "NULL" : s.Beast.Template.NameEn)}")),
-                "Beast slots"
-            );
 
             _inventory = _profile.Inventory?.ToList() ?? new();
 
@@ -844,30 +832,11 @@ else
         };
     }
 
-    private async Task UpgradeItemAsync(InvItemVm vm, InvResVm r)
+    private Task UpgradeItemAsync(InvItemVm vm, InvResVm r)
     {
-        if (_profile is null) return;
-        if (_itemUpgrading) return;
-        if (!r.CanUpgrade) return;
-
-        _itemUpgrading = true;
-        try
-        {
-            Toasts.Success("Upgraded", $"{vm.Item.Template.NameEn} ({r.Type})");
-
-            await LoadAsync();
-            if (_invVmsById.TryGetValue(vm.Item.Guid, out var newVm))
-                _activeItemVm = newVm;
-        }
-        catch (Exception ex)
-        {
-            Toasts.Error("Upgrade failed", ex.Message);
-        }
-        finally
-        {
-            _itemUpgrading = false;
-            StateHasChanged();
-        }
+        // TODO: Implementovat skutečný upgrade přes DbContext (odečíst suroviny, zvýšit úroveň itemu).
+        Toasts.Info("Upgrade není zatím implementován.", vm.Item.Template.NameEn);
+        return Task.CompletedTask;
     }
 
     private ProfileSetupModel _setup = new();

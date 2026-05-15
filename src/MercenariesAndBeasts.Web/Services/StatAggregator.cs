@@ -26,7 +26,8 @@ public sealed class StatAggregator : IStatAggregator
             .Include(m => m.Equipment)
                 .ThenInclude(es => es.PlayerItem)
                     .ThenInclude(pi => pi!.Template)
-            .FirstAsync(m => m.Guid == playerMercenaryId, ct);
+            .FirstOrDefaultAsync(m => m.Guid == playerMercenaryId, ct)
+            ?? throw new KeyNotFoundException($"PlayerMercenary {playerMercenaryId} not found.");
 
         // 1) base (template)
         var stats = merc.Template.BaseStats.Clone();
@@ -88,7 +89,8 @@ public sealed class StatAggregator : IStatAggregator
             .Include(b => b.Equipment)
                 .ThenInclude(es => es.PlayerItem)
                     .ThenInclude(pi => pi!.Template)
-            .FirstAsync(b => b.Guid == playerMonsterId, ct);
+            .FirstOrDefaultAsync(b => b.Guid == playerMonsterId, ct)
+            ?? throw new KeyNotFoundException($"PlayerMonster {playerMonsterId} not found.");
 
         var stats = beast.Template.BaseStats.Clone();
 
