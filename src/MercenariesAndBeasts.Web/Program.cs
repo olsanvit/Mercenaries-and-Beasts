@@ -66,8 +66,8 @@ if (string.IsNullOrWhiteSpace(csRaw))
 
 var cs = PreferIPv4Host(csRaw);
 
-Console.WriteLine("CS = " + Mask(cs));
-Console.WriteLine("DB Host resolved = " + DescribeHost(cs));
+Log.Information("CS = {MaskedConnectionString}", Mask(cs));
+Log.Information("DB Host resolved = {DbHostInfo}", DescribeHost(cs));
 
 // NpgsqlDataSource — EnableDynamicJson + retry
 var mabDsb = new NpgsqlDataSourceBuilder(cs);
@@ -111,17 +111,17 @@ static string PreferIPv4Host(string cs)
         var v4 = addrs.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
         if (v4 != null)
         {
-            Console.WriteLine($"Host '{b.Host}' -> using IPv4 {v4}");
+            Log.Information("Host '{Host}' -> using IPv4 {IPv4}", b.Host, v4);
             b.Host = v4.ToString();
         }
         else
         {
-            Console.WriteLine($"Host '{b.Host}' -> no IPv4 found (only: {string.Join(", ", addrs.Select(a => a.ToString()))})");
+            Log.Warning("Host '{Host}' -> no IPv4 found (only: {Addresses})", b.Host, string.Join(", ", addrs.Select(a => a.ToString())));
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"DNS resolve failed for '{b.Host}': {ex.Message}");
+        Log.Warning(ex, "DNS resolve failed for '{Host}'", b.Host);
     }
 
     return b.ToString();
