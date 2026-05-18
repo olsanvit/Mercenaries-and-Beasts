@@ -1,0 +1,424 @@
+@page "/item-categories"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using MercenariesAndBeasts.Domain.Items
+
+<div class="dash-switcher mb-3">
+    <h4 class="m-0">Item Scaling Profiles</h4>
+</div>
+
+<div class="card-like mb-3">
+    <div class="text-muted small">
+        Scaling profiles define how item stats grow per level.
+        Each <strong>ItemTemplate</strong> can reference a profile via <em>ScalingId</em>.
+        The default profile (ID <code>11111111-1111-1111-1111-111111111111</code>) is used when no profile is assigned.
+        Use the <em>Label</em> field (stored as Emoji) to give profiles a readable name.
+    </div>
+</div>
+
+@if (_isLoading)
+{
+    <div class="card-like d-flex align-items-center gap-2 text-muted">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading…</span>
+    </div>
+}
+else
+{
+    <div class="card-like mb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-secondary">
+                Total: <b>@_profiles.Count</b>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary" @onclick="NewProfile">+ New</button>
+                <button class="btn btn-outline-secondary" @onclick="LoadAsync">Reload</button>
+            </div>
+        </div>
+    </div>
+
+    @if (_edit is not null)
+    {
+        <div class="card-like mb-3">
+            <h3 class="m-0">@(_isNew ? "Create Scaling Profile" : "Edit Scaling Profile")</h3>
+            <div class="text-secondary mb-3">All per-level values are fractional multipliers (e.g. 0.05 = +5% per level).</div>
+
+            <EditForm Model="_edit" OnValidSubmit="SaveAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row g-2 mb-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">Label (short name)</label>
+                        <InputText class="form-control" @bind-Value="_label" placeholder="e.g. Standard Gear, Heavy Armor…" />
+                        <div class="text-muted small mt-1">Stored in the Emoji field for identification.</div>
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+                <div class="fw-bold mb-2">Core Stats</div>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">HP / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.HpPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Attack / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.AttackPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Defense / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.DefensePerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Speed / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.SpeedPerLevel" />
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+                <div class="fw-bold mb-2">Crit / Penetration</div>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Crit Chance / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.CritChancePerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Crit Multiplier / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.CritMultiplierPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Armor Penetration / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.ArmorPenetrationPerLevel" />
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+                <div class="fw-bold mb-2">Hit / Avoid</div>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Accuracy / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.AccuracyPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Evasion / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.EvasionPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Block Chance / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.BlockChancePerLevel" />
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+                <div class="fw-bold mb-2">Damage Modifiers</div>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Damage Bonus / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.DamageBonusPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Damage Reduction / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.DamageReductionPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">True Damage Bonus / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.TrueDamageBonusPerLevel" />
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+                <div class="fw-bold mb-2">Sustain</div>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Life Steal / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.LifeStealPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">HP Regen / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.HpRegenPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Energy Regen / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.EnergyRegenPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Turn Meter Gain / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.TurnMeterGainPerLevel" />
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+                <div class="fw-bold mb-2">Status Effects</div>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Status Chance / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.StatusChancePerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Status Duration / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.StatusDurationPerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Status Resistance / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.StatusResistancePerLevel" />
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">DoT Damage / level</label>
+                        <InputNumber class="form-control" @bind-Value="_edit.DotDamagePerLevel" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+                    @if (!_isNew && _edit.Guid != ItemTemplate.StatScaling.DefaultId)
+                    {
+                        <button type="button" class="btn btn-danger ms-auto"
+                                @onclick="() => DeleteAsync(_edit.Guid)">Delete</button>
+                    }
+                    @if (!_isNew && _edit.Guid == ItemTemplate.StatScaling.DefaultId)
+                    {
+                        <span class="ms-auto text-muted small align-self-center">Default profile — cannot be deleted.</span>
+                    }
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <div class="dungeons-table-wrap">
+        <table class="table table-dark table-stages">
+            <thead>
+                <tr>
+                    <th>Label</th>
+                    <th>ATK/lv</th>
+                    <th>DEF/lv</th>
+                    <th>HP/lv</th>
+                    <th>SPD/lv</th>
+                    <th>Items using</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in _profiles)
+                {
+                    var usageCount = _usageCounts.TryGetValue(p.Guid, out var c) ? c : 0;
+                    var isDefault = p.Guid == ItemTemplate.StatScaling.DefaultId;
+                    var label = string.IsNullOrWhiteSpace(p.Emoji) ? p.Guid.ToString("D")[..8] + "…" : p.Emoji;
+
+                    <tr>
+                        <td>
+                            @label
+                            @if (isDefault)
+                            {
+                                <span class="badge bg-secondary ms-1">default</span>
+                            }
+                        </td>
+                        <td>@p.AttackPerLevel.ToString("0.###")</td>
+                        <td>@p.DefensePerLevel.ToString("0.###")</td>
+                        <td>@p.HpPerLevel.ToString("0.###")</td>
+                        <td>@p.SpeedPerLevel.ToString("0.###")</td>
+                        <td>@usageCount</td>
+                        <td class="text-end" title="@p.Guid">
+                            <button class="btn btn-sm btn-secondary" @onclick="() => EditProfile(p)">Edit</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private bool _isLoading = true;
+    private bool _isNew;
+
+    private List<ItemTemplate.StatScaling> _profiles = new();
+    private Dictionary<Guid, int> _usageCounts = new();
+
+    private ItemTemplate.StatScaling? _edit;
+    private string _label = "";
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+
+            _profiles = await Db.StatScalings
+                .OrderBy(x => x.Emoji)
+                .ToListAsync();
+
+            // count how many ItemTemplates reference each scaling profile
+            _usageCounts = await Db.ItemTemplates
+                .Where(x => x.ScalingId != null)
+                .GroupBy(x => x.ScalingId!.Value)
+                .Select(g => new { Id = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Id, x => x.Count);
+
+            Toasts.Success("Loaded", "Scaling Profiles");
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Scaling Profiles");
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void NewProfile()
+    {
+        var def = ItemTemplate.StatScaling.Default;
+        _edit = new ItemTemplate.StatScaling
+        {
+            Guid = Guid.Empty,
+            AttackPerLevel = def.AttackPerLevel,
+            DefensePerLevel = def.DefensePerLevel,
+            HpPerLevel = def.HpPerLevel,
+            SpeedPerLevel = def.SpeedPerLevel,
+            CritChancePerLevel = def.CritChancePerLevel,
+            CritMultiplierPerLevel = def.CritMultiplierPerLevel,
+            ArmorPenetrationPerLevel = def.ArmorPenetrationPerLevel,
+            AccuracyPerLevel = def.AccuracyPerLevel,
+            EvasionPerLevel = def.EvasionPerLevel,
+            BlockChancePerLevel = def.BlockChancePerLevel,
+            DamageBonusPerLevel = def.DamageBonusPerLevel,
+            DamageReductionPerLevel = def.DamageReductionPerLevel,
+            TrueDamageBonusPerLevel = def.TrueDamageBonusPerLevel,
+            TurnMeterGainPerLevel = def.TurnMeterGainPerLevel,
+            LifeStealPerLevel = def.LifeStealPerLevel,
+            HpRegenPerLevel = def.HpRegenPerLevel,
+            EnergyRegenPerLevel = def.EnergyRegenPerLevel,
+            StatusChancePerLevel = def.StatusChancePerLevel,
+            StatusDurationPerLevel = def.StatusDurationPerLevel,
+            StatusResistancePerLevel = def.StatusResistancePerLevel,
+            DotDamagePerLevel = def.DotDamagePerLevel,
+        };
+        _label = "";
+        _isNew = true;
+    }
+
+    private void EditProfile(ItemTemplate.StatScaling p)
+    {
+        _edit = new ItemTemplate.StatScaling
+        {
+            Guid = p.Guid,
+            AttackPerLevel = p.AttackPerLevel,
+            DefensePerLevel = p.DefensePerLevel,
+            HpPerLevel = p.HpPerLevel,
+            SpeedPerLevel = p.SpeedPerLevel,
+            CritChancePerLevel = p.CritChancePerLevel,
+            CritMultiplierPerLevel = p.CritMultiplierPerLevel,
+            ArmorPenetrationPerLevel = p.ArmorPenetrationPerLevel,
+            AccuracyPerLevel = p.AccuracyPerLevel,
+            EvasionPerLevel = p.EvasionPerLevel,
+            BlockChancePerLevel = p.BlockChancePerLevel,
+            DamageBonusPerLevel = p.DamageBonusPerLevel,
+            DamageReductionPerLevel = p.DamageReductionPerLevel,
+            TrueDamageBonusPerLevel = p.TrueDamageBonusPerLevel,
+            TurnMeterGainPerLevel = p.TurnMeterGainPerLevel,
+            LifeStealPerLevel = p.LifeStealPerLevel,
+            HpRegenPerLevel = p.HpRegenPerLevel,
+            EnergyRegenPerLevel = p.EnergyRegenPerLevel,
+            StatusChancePerLevel = p.StatusChancePerLevel,
+            StatusDurationPerLevel = p.StatusDurationPerLevel,
+            StatusResistancePerLevel = p.StatusResistancePerLevel,
+            DotDamagePerLevel = p.DotDamagePerLevel,
+        };
+        _label = p.Emoji ?? "";
+        _isNew = false;
+    }
+
+    private void CancelEdit() => _edit = null;
+
+    private async Task SaveAsync()
+    {
+        if (_edit is null) return;
+
+        try
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+
+            if (_isNew)
+            {
+                _edit.Guid = Guid.NewGuid();
+                _edit.Emoji = _label;
+                Db.StatScalings.Add(_edit);
+            }
+            else
+            {
+                var existing = await Db.StatScalings.FirstOrDefaultAsync(x => x.Guid == _edit.Guid);
+                if (existing is null)
+                {
+                    Toasts.Error("Scaling profile not found", "Scaling Profiles");
+                    return;
+                }
+
+                existing.Emoji = _label;
+                existing.AttackPerLevel = _edit.AttackPerLevel;
+                existing.DefensePerLevel = _edit.DefensePerLevel;
+                existing.HpPerLevel = _edit.HpPerLevel;
+                existing.SpeedPerLevel = _edit.SpeedPerLevel;
+                existing.CritChancePerLevel = _edit.CritChancePerLevel;
+                existing.CritMultiplierPerLevel = _edit.CritMultiplierPerLevel;
+                existing.ArmorPenetrationPerLevel = _edit.ArmorPenetrationPerLevel;
+                existing.AccuracyPerLevel = _edit.AccuracyPerLevel;
+                existing.EvasionPerLevel = _edit.EvasionPerLevel;
+                existing.BlockChancePerLevel = _edit.BlockChancePerLevel;
+                existing.DamageBonusPerLevel = _edit.DamageBonusPerLevel;
+                existing.DamageReductionPerLevel = _edit.DamageReductionPerLevel;
+                existing.TrueDamageBonusPerLevel = _edit.TrueDamageBonusPerLevel;
+                existing.TurnMeterGainPerLevel = _edit.TurnMeterGainPerLevel;
+                existing.LifeStealPerLevel = _edit.LifeStealPerLevel;
+                existing.HpRegenPerLevel = _edit.HpRegenPerLevel;
+                existing.EnergyRegenPerLevel = _edit.EnergyRegenPerLevel;
+                existing.StatusChancePerLevel = _edit.StatusChancePerLevel;
+                existing.StatusDurationPerLevel = _edit.StatusDurationPerLevel;
+                existing.StatusResistancePerLevel = _edit.StatusResistancePerLevel;
+                existing.DotDamagePerLevel = _edit.DotDamagePerLevel;
+                existing.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+
+            await Db.SaveChangesAsync();
+            Toasts.Success("Scaling profile saved", "Scaling Profiles");
+
+            _edit = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Scaling Profiles");
+        }
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        try
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+
+            var existing = await Db.StatScalings.FirstOrDefaultAsync(x => x.Guid == id);
+            if (existing is null) return;
+
+            Db.StatScalings.Remove(existing);
+            await Db.SaveChangesAsync();
+
+            Toasts.Success("Scaling profile deleted", "Scaling Profiles");
+            _edit = null;
+
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Scaling Profiles");
+        }
+    }
+}
