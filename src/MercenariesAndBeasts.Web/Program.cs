@@ -94,8 +94,12 @@ static string DescribeHost(string cs)
 }
 
 /// <summary>
-/// Pokud je Host hostname (ne IP), pokusí se ho přeložit a vynutit IPv4.
+/// Rewrites the connection string so that the database host is resolved to an IPv4 address.
+/// If the host is already a numeric IP it is returned unchanged; otherwise DNS is queried and
+/// the first IPv4 result replaces the hostname, preventing connection failures on dual-stack systems.
 /// </summary>
+/// <param name="cs">The original PostgreSQL connection string.</param>
+/// <returns>The connection string with the host replaced by an IPv4 address, or the original string if resolution fails.</returns>
 static string PreferIPv4Host(string cs)
 {
     var b = new NpgsqlConnectionStringBuilder(cs);
@@ -252,8 +256,9 @@ finally
 }
 
 /// <summary>
-/// No-op IEmailSender — Identity UI vyžaduje tuto službu pro ExternalLogin flow,
-/// ale e-maily v tomto projektu (zatím) neposíláme.
+/// A no-operation implementation of <see cref="Microsoft.AspNetCore.Identity.UI.Services.IEmailSender"/>
+/// required by ASP.NET Core Identity UI for the external-login flow.
+/// All send operations complete immediately without dispatching any email.
 /// </summary>
 file sealed class NoOpEmailSender : Microsoft.AspNetCore.Identity.UI.Services.IEmailSender
 {

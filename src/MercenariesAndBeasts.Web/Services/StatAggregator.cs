@@ -7,18 +7,30 @@ using MercenariesAndBeasts.Domain.Interface;
 using MercenariesAndBeasts.Domain.Utils; // Plus/AddInPlace
 using MercenariesAndBeasts.Infrastructure;
 
+/// <summary>
+/// Assembles fully-resolved <see cref="UnitSnapshot"/> objects for player-owned mercenaries and beasts.
+/// Combines base template stats, level scaling, and all currently equipped item bonuses into a single
+/// normalised stat block that is safe to pass directly to <see cref="CombatResolver"/>.
+/// </summary>
 public sealed class StatAggregator : IStatAggregator
 {
     private readonly AppDbContextMercenariesAndBeasts _db;
 
+    /// <summary>
+    /// Initialises a new instance of <see cref="StatAggregator"/> with the required database context.
+    /// </summary>
+    /// <param name="db">The EF Core database context used to load mercenary and beast data.</param>
     public StatAggregator(AppDbContextMercenariesAndBeasts db) => _db = db;
 
     /// <summary>
-    /// Sestaví kompletní <see cref="UnitSnapshot"/> pro žoldáka hráče včetně
-    /// základních statů šablony, level scalingu a bonusů z vybaveného gear.
+    /// Builds a complete <see cref="UnitSnapshot"/> for a player's mercenary, including template base
+    /// stats, level scaling, and bonuses from all equipped gear in mercenary slots.
+    /// Stats are clamped and normalised before the snapshot is returned.
     /// </summary>
-    /// <param name="playerMercenaryId">ID instance žoldáka hráče (<c>PlayerMercenary.Guid</c>).</param>
-    /// <param name="ct">Cancellation token.</param>
+    /// <param name="playerMercenaryId">The GUID of the player's mercenary instance (<c>PlayerMercenary.Guid</c>).</param>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <returns>A fully-resolved <see cref="UnitSnapshot"/> ready for use in combat.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown when no <c>PlayerMercenary</c> with the given ID exists in the database.</exception>
     public async Task<UnitSnapshot> BuildMercenaryAsync(Guid playerMercenaryId, CancellationToken ct = default)
     {
         var merc = await _db.PlayerMercenaries
@@ -77,11 +89,14 @@ public sealed class StatAggregator : IStatAggregator
     }
 
     /// <summary>
-    /// Sestaví kompletní <see cref="UnitSnapshot"/> pro příšeru hráče včetně
-    /// základních statů šablony, level scalingu a bonusů z vybaveného gear.
+    /// Builds a complete <see cref="UnitSnapshot"/> for a player's beast, including template base
+    /// stats, level scaling, and bonuses from all equipped gear in monster slots.
+    /// Stats are clamped and normalised before the snapshot is returned.
     /// </summary>
-    /// <param name="playerMonsterId">ID instance příšery hráče (<c>PlayerMonster.Guid</c>).</param>
-    /// <param name="ct">Cancellation token.</param>
+    /// <param name="playerMonsterId">The GUID of the player's beast instance (<c>PlayerMonster.Guid</c>).</param>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <returns>A fully-resolved <see cref="UnitSnapshot"/> ready for use in combat.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown when no <c>PlayerMonster</c> with the given ID exists in the database.</exception>
     public async Task<UnitSnapshot> BuildBeastAsync(Guid playerMonsterId, CancellationToken ct = default)
     {
         var beast = await _db.PlayerMonsters
@@ -153,8 +168,9 @@ public sealed class StatAggregator : IStatAggregator
     }
 
     /// <summary>
-    /// Zajistí, že všechny staty jsou v platném rozsahu (šance na 0–1, CritMultiplier ≥ 1, Accuracy ≥ 0.1).
-    /// Volat vždy po sestavení finálního StatBlock před použitím v boji.
+    /// Ensures all stat values in the block are within valid ranges: chance-type fields are clamped to 0–1,
+    /// <c>CriticalMultiplier</c> is at minimum 1.0, and <c>Accuracy</c> is at minimum 0.1.
+    /// Must be called after all stat contributions have been accumulated and before the stat block is used in combat.
     /// </summary>
     private static void NormalizeAndClamp(StatBlock s)
     {

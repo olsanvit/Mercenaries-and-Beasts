@@ -2,8 +2,23 @@ using System.Text;
 using MercenariesAndBeasts.Domain.Combat;
 using MercenariesAndBeasts.Domain.Interface;
 
+/// <summary>
+/// Executes turn-based combat simulations for both Expedition and Dungeon modes.
+/// Processes initiative, attacks, status effects, and loot rolls, returning a full
+/// <see cref="CombatResult"/> including a per-round combat log.
+/// </summary>
 public sealed class CombatResolver : ICombatResolver
 {
+    /// <summary>
+    /// Runs a complete combat simulation based on the supplied <paramref name="req"/>.
+    /// Combat proceeds round-by-round until the enemy is defeated, all player units
+    /// are dead, or the maximum round limit is reached.
+    /// </summary>
+    /// <param name="req">The combat request containing the player party, enemy, combat mode, stage, and RNG seed.</param>
+    /// <returns>
+    /// A <see cref="CombatResult"/> indicating whether the player won, the number of rounds played,
+    /// the full combat log, and any loot rolled on victory.
+    /// </returns>
     public CombatResult Resolve(CombatRequest req)
     {
         var rng = new Random(req.Seed);
