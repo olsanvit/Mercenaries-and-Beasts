@@ -424,41 +424,58 @@ else
     {
         if (editModel is null) return;
 
-        await using var Db = await DbFactory.CreateDbContextAsync();
-        if (editModel.Guid == Guid.Empty)
+        try
         {
-            editModel.Guid = Guid.NewGuid();
-            Db.Locations.Add(editModel);
+            await using var Db = await DbFactory.CreateDbContextAsync();
+            bool isNew = editModel.Guid == Guid.Empty;
+            if (isNew)
+            {
+                editModel.Guid = Guid.NewGuid();
+                Db.Locations.Add(editModel);
+            }
+            else
+            {
+                var existing = await Db.Locations.FirstOrDefaultAsync(x => x.Guid == editModel.Guid);
+                if (existing is null)
+                    return;
+
+                existing.Code = editModel.Code;
+                existing.NameEn = editModel.NameEn;
+                existing.MinLevel = editModel.MinLevel;
+                existing.MaxLevel = editModel.MaxLevel;
+                existing.UnlockOrder = editModel.UnlockOrder;
+            }
+
+            await Db.SaveChangesAsync();
+            Toasts.Success("Uloženo", isNew ? "Lokace byla úspěšně přidána." : "Lokace byla úspěšně upravena.");
+            editModel = null;
+            await LoadLocations();
         }
-        else
+        catch (Exception ex)
         {
-            var existing = await Db.Locations.FirstOrDefaultAsync(x => x.Guid == editModel.Guid);
-            if (existing is null)
-                return;
-
-            existing.Code = editModel.Code;
-            existing.NameEn = editModel.NameEn;
-            existing.MinLevel = editModel.MinLevel;
-            existing.MaxLevel = editModel.MaxLevel;
-            existing.UnlockOrder = editModel.UnlockOrder;
+            Toasts.Error("Chyba", $"Nepodařilo se uložit: {ex.Message}");
         }
-
-        await Db.SaveChangesAsync();
-        editModel = null;
-        await LoadLocations();
     }
 
     private void CancelEdit() => editModel = null;
 
     private async Task DeleteLocation(Guid id)
     {
-        await using var Db = await DbFactory.CreateDbContextAsync();
-        var loc = await Db.Locations.FindAsync(id);
-        if (loc is null) return;
+        try
+        {
+            await using var Db = await DbFactory.CreateDbContextAsync();
+            var loc = await Db.Locations.FindAsync(id);
+            if (loc is null) return;
 
-        Db.Locations.Remove(loc);
-        await Db.SaveChangesAsync();
-        await LoadLocations();
+            Db.Locations.Remove(loc);
+            await Db.SaveChangesAsync();
+            Toasts.Success("Smazáno", "Lokace byla úspěšně smazána.");
+            await LoadLocations();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error("Chyba", $"Nepodařilo se smazat: {ex.Message}");
+        }
     }
 
     private void ToggleLocationStages(Guid id)
@@ -518,6 +535,7 @@ else
             {
                 loc.ImagePath = path;
                 await Db.SaveChangesAsync();
+                Toasts.Success("Obrázek vygenerován", loc.NameEn);
             }
         }
         catch (Exception ex)
