@@ -3,164 +3,125 @@ services:
   # ── Applications ─────────────────────────────────────────────────────────────
   # Publish složky jsou nahrány z Macu přes SCP, kontejner jen spustí DLL
   # Mac → scp publish/ → /share/Public/BlazorXxx/publish/ → docker volume mount
+  #
+  # Security hardening (2026-05):
+  #   - porty svázány na 127.0.0.1 (přístupné jen přes Caddy)
+  #   - memory limit 256m + CPU 0.5 na každý kontejner
+  #   - security_opt: no-new-privileges
+  #   - cap_drop: ALL (žádné Linux capabilities)
+  #   - pids_limit: 200 (ochrana proti fork bomb)
+  #   - logging: json-file 10m × 3 soubory
+  #   - healthcheck: HTTP GET /
+
+  x-app-defaults: &app-defaults
+    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    working_dir: /app
+    environment: &app-env
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      TZ: Europe/Prague
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
+    networks:
+      - appnet
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 200
+    mem_limit: 256m
+    cpus: "0.50"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   vo2datamanager:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: vo2datamanager
-    working_dir: /app
-    ports: ["5001:8080"]
+    ports: ["127.0.0.1:5001:8080"]
     volumes:
       - /share/Public/BlazorVO2DataManager/publish:/app:ro
     command: dotnet VO2DataManager.Web.dll
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
 
   vinwmivehicles:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: vinwmivehicles
-    working_dir: /app
-    ports: ["5002:8080"]
+    ports: ["127.0.0.1:5002:8080"]
     volumes:
       - /share/Public/BlazorVINWMI/publish:/app:ro
     command: dotnet VINWMIVehicles.Web.dll
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
 
   unisportmanager:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: unisportmanager
-    working_dir: /app
-    ports: ["5003:8080"]
+    ports: ["127.0.0.1:5003:8080"]
     volumes:
       - /share/Public/BlazorSportManager/publish:/app:ro
     command: dotnet SportManager.Web.dll
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
 
   topelevenst:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: topelevenst
-    working_dir: /app
-    ports: ["5004:8080"]
+    ports: ["127.0.0.1:5004:8080"]
     volumes:
       - /share/Public/BlazorTopEleven/publish:/app:ro
     command: dotnet TopElevenStats.Web.dll
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
 
   simulatereal:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: simulatereal
-    working_dir: /app
-    ports: ["5010:8080"]
+    ports: ["127.0.0.1:5010:8080"]
     volumes:
       - /share/Public/BlazorSimulateReal1/publish:/app:ro
     command: dotnet SimulateReal.Web.dll
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
+      <<: *app-env
       SELENIUM_REMOTE_URL: http://selenium-prod:4444
       SELENIUM_BROWSER: chrome
       SELENIUM_CMD_TIMEOUT_SECONDS: "60"
-    networks:
-      - appnet
-    restart: unless-stopped
+    # Selenium potřebuje více paměti
+    mem_limit: 512m
 
   simulategames:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: simulategames
-    working_dir: /app
-    ports: ["5011:8080"]
+    ports: ["127.0.0.1:5011:8080"]
     volumes:
       - /share/Public/BlazorSimulateGames/publish:/app:ro
     command: dotnet SimulateGames.Web.dll
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
 
   simulatecar:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: simulatecar
-    working_dir: /app
-    ports: ["5012:8080"]
+    ports: ["127.0.0.1:5012:8080"]
     volumes:
       - /share/Public/BlazorSimulateCar/publish:/app:ro
     command: dotnet SimulateCar.Web.dll
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
 
   myzabbix:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: myzabbix
-    working_dir: /app
-    ports: ["5013:8080"]
+    ports: ["127.0.0.1:5013:8080"]
     volumes:
       - /share/Public/BlazorMyZabbix/publish:/app:ro
     command: dotnet MyZabbix.Web.dll
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
 
   mercenariesandbeasts:
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
+    <<: *app-defaults
     container_name: mercenariesandbeasts
-    working_dir: /app
-    ports: ["5020:8080"]
+    ports: ["127.0.0.1:5020:8080"]
     volumes:
       - /share/Public/BlazorMercenariesAndBeasts/publish:/app:ro
     command: dotnet MercenariesAndBeasts.Web.dll
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
 
 networks:
   appnet:
     external: true   # vytvořeno ručně: docker network create appnet
-
