@@ -1,47 +1,47 @@
+# Security hardening (2026-05):
+#   - porty svázány na 127.0.0.1 (přístupné jen přes Caddy)
+#   - memory limit 256m + CPU 0.5 na každý kontejner
+#   - security_opt: no-new-privileges
+#   - cap_drop: ALL (žádné Linux capabilities)
+#   - pids_limit: 200 (ochrana proti fork bomb)
+#   - logging: json-file 10m × 3 soubory
+#   - healthcheck: HTTP GET /
+
+x-app-defaults: &app-defaults
+  image: mcr.microsoft.com/dotnet/aspnet:10.0
+  working_dir: /app
+  environment: &app-env
+    ASPNETCORE_ENVIRONMENT: Production
+    ASPNETCORE_URLS: http://+:8080
+    TZ: Europe/Prague
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
+  networks:
+    - appnet
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  pids_limit: 200
+  mem_limit: 256m
+  cpus: "0.50"
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+  healthcheck:
+    test: ["CMD-SHELL", "curl -sf http://localhost:8080/ || exit 1"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 15s
+
 services:
 
   # ── Applications ─────────────────────────────────────────────────────────────
   # Publish složky jsou nahrány z Macu přes SCP, kontejner jen spustí DLL
   # Mac → scp publish/ → /share/Public/BlazorXxx/publish/ → docker volume mount
-  #
-  # Security hardening (2026-05):
-  #   - porty svázány na 127.0.0.1 (přístupné jen přes Caddy)
-  #   - memory limit 256m + CPU 0.5 na každý kontejner
-  #   - security_opt: no-new-privileges
-  #   - cap_drop: ALL (žádné Linux capabilities)
-  #   - pids_limit: 200 (ochrana proti fork bomb)
-  #   - logging: json-file 10m × 3 soubory
-  #   - healthcheck: HTTP GET /
-
-  x-app-defaults: &app-defaults
-    image: mcr.microsoft.com/dotnet/aspnet:10.0
-    working_dir: /app
-    environment: &app-env
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      TZ: Europe/Prague
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
-    networks:
-      - appnet
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    pids_limit: 200
-    mem_limit: 256m
-    cpus: "0.50"
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/ || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
 
   vo2datamanager:
     <<: *app-defaults
@@ -87,7 +87,6 @@ services:
       SELENIUM_REMOTE_URL: http://selenium-prod:4444
       SELENIUM_BROWSER: chrome
       SELENIUM_CMD_TIMEOUT_SECONDS: "60"
-    # Selenium potřebuje více paměti
     mem_limit: 512m
 
   simulategames:
