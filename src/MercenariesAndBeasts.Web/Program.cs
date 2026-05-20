@@ -186,6 +186,7 @@ builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();
 builder.Services.AddScoped<GameSeed>();
 builder.Services.AddScoped<PlayerOnboardingService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHealthChecks();
 
 AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
     Log.Fatal(e.ExceptionObject as Exception, "UNHANDLED AppDomain exception");
@@ -197,6 +198,7 @@ TaskScheduler.UnobservedTaskException += (sender, e) =>
 };
 
 var app = builder.Build();
+app.MapHealthChecks("/health");
 app.UseRequestLocalization(
     app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 

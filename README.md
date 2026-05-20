@@ -1,3 +1,4 @@
+[![CI](https://github.com/olsanvit/Mercenaries-and-Beasts/actions/workflows/ci.yml/badge.svg)](https://github.com/olsanvit/Mercenaries-and-Beasts/actions/workflows/ci.yml)
 # Mercenaries-and-Beasts
 
 Blazor Server aplikace — RPG/fantasy hra s inventory systémem, upgrady itemů a Google OAuth přihlašováním.
