@@ -27,14 +27,14 @@ public class StatBlockTests
     public void StatBlock_MaxHp_CannotBeNegative_WhenSetToValidValue()
     {
         var sb = new StatBlock { MaxHp = 100f };
-        sb.MaxHp.Should().BeGreaterOrEqualTo(0f);
+        sb.MaxHp.Should().BeGreaterThanOrEqualTo(0f);
     }
 
     [Fact]
     public void StatBlock_Attack_CannotBeNegative_WhenSetToValidValue()
     {
         var sb = new StatBlock { Attack = 50f };
-        sb.Attack.Should().BeGreaterOrEqualTo(0f);
+        sb.Attack.Should().BeGreaterThanOrEqualTo(0f);
     }
 
     [Fact]
