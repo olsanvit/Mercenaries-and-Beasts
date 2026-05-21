@@ -51,7 +51,7 @@
                     <tr><th>Code</th><th>Název</th><th>Level</th><th>Stav</th><th>Akce</th></tr>
                 </thead>
                 <tbody>
-                    @foreach (var row in _rows)
+                    @foreach (var row in _rows.Skip((_page - 1) * PageSize).Take(PageSize))
                     {
                         <tr class="@(row.IsActive ? "" : "table-warning")">
                             <td>@row.Code</td>
@@ -77,6 +77,8 @@
                 </tbody>
             </table>
         </div>
+        <Paginator TotalItems="_totalItems" PageSize="PageSize" CurrentPage="_page"
+                   OnPageChanged="async p => { _page = p; StateHasChanged(); }" />
         <p class="text-muted small mt-2 mb-0">@_rows.Count záznamů</p>
     }
 </div>
@@ -88,6 +90,10 @@
     private bool _busy;
     private bool _showAll;
     private List<MabTemplate> _rows = new();
+
+    private int _page = 1;
+    private const int PageSize = 20;
+    private int _totalItems;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -102,6 +108,8 @@
         _loading = true;
         StateHasChanged();
         _rows = await GetRowsAsync();
+        _totalItems = _rows.Count;
+        _page = 1;
         _loading = false;
     }
 

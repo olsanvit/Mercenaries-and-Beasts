@@ -225,7 +225,8 @@ else
     <h3>@(editModel.Guid == Guid.Empty ? "Create Location" : "Edit Location")</h3>
 
     <EditForm Model="@editModel" OnValidSubmit="Save">
-        <DataAnnotationsValidator />
+        <FluentValidationValidator />
+        <ValidationSummary />
 
         <div class="mb-2">
             <label>Code</label>

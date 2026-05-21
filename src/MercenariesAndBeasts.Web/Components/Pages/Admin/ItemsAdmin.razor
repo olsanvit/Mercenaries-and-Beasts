@@ -93,7 +93,7 @@ else
             <div class="text-secondary mb-3">Code musí být unikátní.</div>
 
             <EditForm Model="_edit" OnValidSubmit="SaveAsync">
-                <DataAnnotationsValidator />
+                <FluentValidationValidator />
                 <ValidationSummary />
 
                 <div class="row g-2">
@@ -178,7 +178,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var it in Filtered())
+                @foreach (var it in PagedFiltered())
                 {
                     var slot = GetSlot(it);
                     var locCnt = _itemLocaleCountById.TryGetValue(it.Guid, out var c) ? c : 0;
@@ -204,6 +204,9 @@ else
             </tbody>
         </table>
     </div>
+
+    <Paginator TotalItems="_totalItems" PageSize="PageSize" CurrentPage="_page"
+               OnPageChanged="async p => { _page = p; StateHasChanged(); }" />
 
     <div class="card-like mt-3">
         <h3 class="m-0">ItemUpgradeResources</h3>
@@ -255,6 +258,10 @@ else
     private string _search = "";
     private string _slotFilter = "";
     private string _ownerFilter = "";
+
+    private int _page = 1;
+    private const int PageSize = 20;
+    private int _totalItems;
 
     // editor
     private ItemTemplate? _edit;
@@ -413,6 +420,13 @@ else
         }
 
         return q;
+    }
+
+    private IEnumerable<ItemTemplate> PagedFiltered()
+    {
+        var filtered = Filtered().ToList();
+        _totalItems = filtered.Count;
+        return filtered.Skip((_page - 1) * PageSize).Take(PageSize);
     }
 
     private void NewItem()

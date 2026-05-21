@@ -1,3 +1,4 @@
+using FluentValidation;
 using MercenariesAndBeasts.Domain.Interface;
 using MercenariesAndBeasts.Infrastructure;
 using MercenariesAndBeasts.Infrastructure.AI;
@@ -188,6 +189,9 @@ builder.Services.AddScoped<PlayerOnboardingService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHealthChecks();
 
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<MercenariesAndBeasts.Web.Validators.StatScalingValidator>();
+
 AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
     Log.Fatal(e.ExceptionObject as Exception, "UNHANDLED AppDomain exception");
 
@@ -267,3 +271,5 @@ file sealed class NoOpEmailSender : Microsoft.AspNetCore.Identity.UI.Services.IE
     public Task SendEmailAsync(string email, string subject, string htmlMessage)
         => Task.CompletedTask;
 }
+
+public partial class Program { }
