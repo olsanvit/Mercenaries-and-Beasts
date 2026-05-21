@@ -22,10 +22,7 @@
 
 @if (isLoading)
 {
-    <div class="card-like d-flex align-items-center gap-2 text-muted">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        <span>Loading…</span>
-    </div>
+    <PageLoadingSpinner />
 }
 else if (player is null || location is null)
 {

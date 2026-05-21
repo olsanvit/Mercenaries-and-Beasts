@@ -34,10 +34,7 @@
 
 @if (_isLoading)
 {
-    <div class="card-like d-flex align-items-center gap-2 text-muted">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        <span>Loading…</span>
-    </div>
+    <PageLoadingSpinner />
 }
 else
 {
@@ -157,7 +154,7 @@ else
                     <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
                     @if (_edit.Guid != Guid.Empty)
                     {
-                        <button type="button" class="btn btn-danger ms-auto" @onclick="() => DeleteAsync(_edit.Guid)">Delete</button>
+                        <button type="button" class="btn btn-danger ms-auto" @onclick="() => ConfirmDelete(_edit.Guid)">Delete</button>
                     }
                 </div>
             </EditForm>
@@ -249,7 +246,12 @@ else
     </div>
 }
 
+<ConfirmDialog @ref="_confirmDialog" />
+
 @code {
+    private ConfirmDialog _confirmDialog = default!;
+    private Guid _pendingDeleteId;
+
     private bool _isLoading = true;
 
     private List<ItemTemplate> _items = new();
@@ -552,6 +554,16 @@ else
         {
             Toasts.Error(ex.Message, "Items");
         }
+    }
+
+    private async Task ConfirmDelete(Guid id)
+    {
+        _pendingDeleteId = id;
+        var confirmed = await _confirmDialog.ShowAsync(
+            "Smazat záznam",
+            "Opravdu chcete smazat tento ItemTemplate? Tato akce je nevratná.");
+        if (confirmed)
+            await DeleteAsync(_pendingDeleteId);
     }
 
     private async Task DeleteAsync(Guid id)

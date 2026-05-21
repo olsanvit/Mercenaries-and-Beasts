@@ -13,10 +13,7 @@
 <div class="card-like">
     @if (_loading)
     {
-        <div class="d-flex align-items-center gap-2 text-muted py-2">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span>Loading…</span>
-        </div>
+        <PageLoadingSpinner />
     }
     else
     {
