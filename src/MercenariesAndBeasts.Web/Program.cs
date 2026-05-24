@@ -11,6 +11,7 @@ using Blazored.LocalStorage;
 using Blazored.Modal;
 using Blazored.SessionStorage;
 using SharedServices.Services;
+using MercenariesAndBeasts.Web.Achievements;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -142,6 +143,13 @@ builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
     NoOpEmailSender>();
 
 builder.Services.AddScoped<SharedServices.ToastService>();
+builder.Services.AddScoped<AchievementService>(sp =>
+    new AchievementService(
+        sp.GetRequiredService<SharedServices.ToastService>(),
+        sp.GetRequiredService<IWebHostEnvironment>())
+    {
+        Definitions = MercenariesAchievements.All
+    });
 builder.Services.AddScoped<AlertService>();
 builder.Services.AddSingleton<ThemeService>(_ => new ThemeService(builder.Configuration));
 builder.Services.AddBlazoredModal();
