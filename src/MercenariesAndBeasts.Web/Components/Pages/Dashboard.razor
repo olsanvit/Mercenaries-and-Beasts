@@ -49,21 +49,15 @@ else if (_profile is null)
 else
 {
     <div class="dash-layout">
-        <div class="dash-switcher mb-3">
-            <ul class="nav nav-pills m-0">
-                <li class="nav-item">
-                    <button class="nav-link @(ActiveTab == Tab.Mercenaries ? "active" : "")"
-                            @onclick="() => ActiveTab = Tab.Mercenaries">
-                        Orders @_mercSlots.Count(s => s.MercenaryInstanceId != null)/5
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link @(ActiveTab == Tab.Beasts ? "active" : "")"
-                            @onclick="() => ActiveTab = Tab.Beasts">
-                        Beasts @_beastSlots.Count(s => s.BeastInstanceId != null)/5
-                    </button>
-                </li>
-            </ul>
+        <div class="d-flex gap-2 mb-3">
+            <button class="btn btn-sm @(ActiveTab == Tab.Mercenaries ? "btn-primary" : "btn-outline-secondary")"
+                    @onclick="() => ActiveTab = Tab.Mercenaries">
+                <i class="bi bi-people me-1"></i>Orders @_mercSlots.Count(s => s.MercenaryInstanceId != null)/5
+            </button>
+            <button class="btn btn-sm @(ActiveTab == Tab.Beasts ? "btn-primary" : "btn-outline-secondary")"
+                    @onclick="() => ActiveTab = Tab.Beasts">
+                <i class="bi bi-dragon me-1"></i>Beasts @_beastSlots.Count(s => s.BeastInstanceId != null)/5
+            </button>
         </div>
 
         @if (ActiveTab == Tab.Mercenaries)

@@ -187,7 +187,7 @@
                         var t = it.Template;
                         var canDrag = CanDragInventoryItem(it);
 
-                        <div class="inv-card card-like p-0 @(canDrag ? "" : "drag-disabled")"
+                        <div class="inv-card ui-panel p-0 @(canDrag ? "" : "drag-disabled")"
                              draggable="@canDrag"
                              @ondragstart="() => OnInventoryDragStart.InvokeAsync(it)">
                             <div class="inv-card-header px-3 py-2 border-bottom d-flex align-items-start justify-content-between @GetQualityHeaderClass(it.Quality)">

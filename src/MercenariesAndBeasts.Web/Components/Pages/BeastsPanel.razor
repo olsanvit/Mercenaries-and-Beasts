@@ -5,7 +5,7 @@
 @using static MercenariesAndBeasts.Domain.Items.ItemTemplate
 
 <section class="dash-top">
-    <div class="card-like inv-wrap">
+    <div class="ui-panel inv-wrap">
         <div class="inv-head">
             @{
                 var _activeB  = ActiveBeastSlot?.Beast;
@@ -63,7 +63,7 @@
 
         @if (ActiveBeastSlot?.BeastInstanceId is null)
         {
-            <div class="card-like">
+            <div class="ui-panel">
                 <div class="text-secondary">Empty slot.</div>
             </div>
         }
@@ -75,7 +75,7 @@
             <div class="inv-scroll">
                 <div class="row g-3">
                     <div class="col-12">
-                        <div class="card-like"
+                        <div class="ui-panel"
                              @ondragover:preventDefault
                              @ondrop="() => OnDropToBeastSlot.InvokeAsync(ActiveBeastSlot)">
                             <div class="slotbar-scroll slot-detail">
@@ -148,7 +148,7 @@
     </div>
 </section>
 <section class="dash-bottom">
-    <div class="card-like inv-wrap">
+    <div class="ui-panel inv-wrap">
         <div class="inv-head">
             <div class="d-flex justify-content-between align-items-center">
                 <h6 class="m-0">Inventory</h6>
@@ -185,7 +185,7 @@
                         var t = it.Template;
                         var canDrag = CanDragInventoryItem(it);
 
-                        <div class="inv-card card-like p-0 @(canDrag ? "" : "drag-disabled")"
+                        <div class="inv-card ui-panel p-0 @(canDrag ? "" : "drag-disabled")"
                              draggable="@canDrag"
                              @ondragstart="() => OnInventoryDragStart.InvokeAsync(it)">
                             <div class="inv-card-header px-3 py-2 border-bottom d-flex align-items-start justify-content-between @GetQualityHeaderClass(it.Quality)">
