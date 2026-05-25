@@ -15,14 +15,23 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
+<PageTitle>Dungeons — Mercenaries & Beasts</PageTitle>
+
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-layers"></i> Dungeons</h3>
+</div>
+
 @if (isLoading)
 {
     <PageLoadingSpinner />
 }
 else if (player is null)
 {
-    <div class="card-like">
-        <div class="alert alert-danger mb-0">No player profile found.</div>
+    <div class="ui-panel p-3">
+        <div class="d-flex align-items-center gap-2 text-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>No player profile found.</span>
+        </div>
     </div>
 }
 else
@@ -34,7 +43,7 @@ else
             <div class="dng-fight-top-grid">
 
                 <!-- LEFT: list -->
-                <div class="card-like dng-panel">
+                <div class="ui-panel dng-panel">
                     <div class="dng-panel-head">
                         <h3 class="m-0">Available dungeons</h3>
                         <p class="text-muted mb-0 small">Last 5 unlocked + next 2 locked.</p>
@@ -87,7 +96,7 @@ else
                 </div>
 
                 <!-- RIGHT: detail -->
-                <div class="card-like dng-panel">
+                <div class="ui-panel dng-panel">
                     <div class="dng-panel-head">
                         @if (selectedDungeon is null)
                         {
@@ -183,7 +192,7 @@ else
 
         <!-- ================= BOTTOM 20% ================= -->
         <div class="dng-fight-bottom">
-            <div class="card-like dng-panel">
+            <div class="ui-panel dng-panel">
                 <div class="dng-panel-head">
                     <div class="fw-bold">Achievements</div>
                     <div class="text-muted small">

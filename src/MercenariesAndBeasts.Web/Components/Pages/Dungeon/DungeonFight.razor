@@ -23,19 +23,21 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
+<PageTitle>Dungeon Fight — Mercenaries & Beasts</PageTitle>
+
 @if (isLoading)
 {
     <PageLoadingSpinner />
 }
 else if (player is null || dungeon is null)
 {
-    <div class="card-like">
+    <div class="ui-panel">
         <div class="alert alert-danger mb-0">Missing player or dungeon.</div>
     </div>
 }
 else
 {
-    <div class="card-like">
+    <div class="ui-panel">
         <div class="d-flex justify-content-between align-items-start gap-3">
             <div>
                 <h3 class="m-0">@DngName(dungeon)</h3>

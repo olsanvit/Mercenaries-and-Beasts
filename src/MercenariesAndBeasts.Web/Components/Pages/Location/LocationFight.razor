@@ -20,26 +20,28 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
+<PageTitle>Expedition Fight — Mercenaries & Beasts</PageTitle>
+
 @if (isLoading)
 {
     <PageLoadingSpinner />
 }
 else if (player is null || location is null)
 {
-    <div class="card-like">
+    <div class="ui-panel">
         <div class="alert alert-danger mb-0">Missing player or location.</div>
     </div>
 }
 else if (enemy is null)
 {
-    <div class="card-like">
+    <div class="ui-panel">
         <div class="alert alert-danger mb-2">Order not found for slot @SlotIndex.</div>
         <a class="btn btn-outline-secondary" href="/expeditions">Back</a>
     </div>
 }
 else
 {
-    <div class="card-like">
+    <div class="ui-panel">
         <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
             <div>
                 <h3 class="m-0">@LocName(location)</h3>
@@ -51,7 +53,7 @@ else
         <hr />
 
         <div class="fw-bold mb-2">Enemy Order</div>
-        <div class="card-like mb-3" style="background:rgba(255,255,255,0.04);">
+        <div class="ui-panel mb-3" style="background:rgba(255,255,255,0.04);">
             <div class="d-flex align-items-center gap-3">
                 @if (!string.IsNullOrWhiteSpace(enemy.ImagePath))
                 {

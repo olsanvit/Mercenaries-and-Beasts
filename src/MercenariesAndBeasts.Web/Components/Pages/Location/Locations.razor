@@ -15,13 +15,19 @@
 @attribute [Authorize]
 @rendermode InteractiveServer
 
+<PageTitle>Expeditions — Mercenaries & Beasts</PageTitle>
+
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-compass"></i> Expeditions</h3>
+</div>
+
 @if (isLoading)
 {
     <PageLoadingSpinner />
 }
 else if (player is null)
 {
-    <div class="card-like">
+    <div class="ui-panel p-3">
         <div class="alert alert-danger mb-0">No player profile found.</div>
     </div>
 }
@@ -34,7 +40,7 @@ else
             <div class="dng-fight-top-grid">
 
                 <!-- LEFT: list -->
-                <div class="card-like dng-panel">
+                <div class="ui-panel dng-panel">
                     <div class="dng-panel-head">
                         <h3 class="m-0">Available locations</h3>
                         <p class="text-muted mb-0 small">Last 5 unlocked + next 2 locked.</p>
@@ -87,7 +93,7 @@ else
                 </div>
 
                 <!-- RIGHT: detail -->
-                <div class="card-like dng-panel">
+                <div class="ui-panel dng-panel">
                     <div class="dng-panel-head">
                         @if (selectedLocation is null)
                         {
@@ -142,8 +148,8 @@ else
                                 <div class="d-flex flex-column gap-2">
                                     @foreach (var e in encounters)
                                     {
-                                        <div class="card-like d-flex justify-content-between align-items-center gap-3"
-                                             style="background:rgba(255,255,255,0.04);padding:.75rem 1rem;">
+                                        <div class="ui-panel d-flex justify-content-between align-items-center gap-3"
+                                             style="padding:.75rem 1rem;">
                                             <div class="d-flex align-items-center gap-2" style="min-width:0;">
                                                 @if (!string.IsNullOrWhiteSpace(e.ImagePath))
                                                 {
@@ -183,7 +189,7 @@ else
 
         <!-- ================= BOTTOM 20% ================= -->
         <div class="dng-fight-bottom">
-            <div class="card-like dng-panel">
+            <div class="ui-panel dng-panel">
                 <div class="dng-panel-head">
                     <div class="fw-bold">Achievements</div>
                     <div class="text-muted small">

@@ -14,82 +14,113 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 
+<PageTitle>Profile — Mercenaries & Beasts</PageTitle>
+
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-person-circle"></i> Profile</h3>
+</div>
+
 @if (_loading)
 {
-    <PageLoadingSpinner />
+    <div class="ui-anim-fade-up d-flex align-items-center gap-2 mt-3">
+        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+        <span class="text-muted">Loading profile…</span>
+    </div>
 }
 else if (_player is null)
 {
-    <div class="card-like">
-        <div class="alert alert-danger mb-0">No player profile found.</div>
+    <div class="ui-panel ui-anim-fade-up p-3">
+        <div class="d-flex align-items-center gap-2 text-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>No player profile found.</span>
+        </div>
     </div>
 }
 else
 {
-    <div class="card-like">
-        <h4 class="mb-2">Profile</h4>
-        <hr />
-        <div class="text-muted small mb-3">
-            User: <b>@_userName</b>
+    <!-- Account info -->
+    <div class="ui-panel ui-anim-fade-up">
+        <div class="ui-panel-header">
+            <span class="ui-panel-title">
+                <i class="bi bi-person text-accent"></i>
+                Account
+            </span>
         </div>
+        <div class="p-3">
+            <div class="text-muted small">Username</div>
+            <div class="fw-semibold">@_userName</div>
+        </div>
+    </div>
 
-        <hr />
+    <!-- Country settings -->
+    <div class="ui-panel ui-anim-fade-up">
+        <div class="ui-panel-header">
+            <span class="ui-panel-title">
+                <i class="bi bi-flag text-accent"></i>
+                Country
+            </span>
+        </div>
+        <div class="p-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label small text-muted">Country (ISO2)</label>
+                    <select class="form-select form-select-sm"
+                            style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);color:var(--ui-text-1)"
+                            @bind="_selectedCountry">
+                        <option value="">(not set)</option>
+                        @foreach (var c in Countries)
+                        {
+                            <option value="@c.Code">@c.Name (@c.Code)</option>
+                        }
+                    </select>
+                    <div class="text-muted small mt-1">ISO 3166-1 alpha-2 code (e.g. CZ, SK, DE)</div>
+                </div>
 
-        <h3 class="mb-2">Country</h3>
+                <div class="col-12 col-md-4">
+                    <div class="text-muted small">Current</div>
+                    <div class="fw-semibold">@(_player.CountryCode ?? "(not set)")</div>
+                    <div class="text-muted small mt-2">Last change</div>
+                    <div class="small">
+                        @(_player.CountryChangedUtc is null
+                            ? "—"
+                            : _player.CountryChangedUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm"))
+                    </div>
+                </div>
 
-        <div class="row g-2 align-items-end">
-            <div class="col-12 col-md-4">
-                <label class="form-label">Country (ISO2)</label>
-                <select class="form-select" @bind="_selectedCountry">
-                    <option value="">(not set)</option>
-                    @foreach (var c in Countries)
-                    {
-                        <option value="@c.Code">@c.Name (@c.Code)</option>
-                    }
-                </select>
-                <div class="text-muted small mt-1">
-                    Stored as ISO 3166-1 alpha-2 code (e.g. CZ, SK, DE).
+                <div class="col-12 col-md-4">
+                    <div class="text-muted small">Cost</div>
+                    <div class="fw-semibold">@_costSoft</div>
+                    <div class="text-muted small mt-2">Cooldown</div>
+                    <div class="fw-semibold @(_canChange ? "text-success" : "text-warning")">
+                        @(_canChange ? "Ready" : "Waiting")
+                    </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-4">
-                <div class="text-muted small">Current</div>
-                <div class="fw-bold">@(_player.CountryCode ?? "(not set)")</div>
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-success btn-sm" @onclick="SaveCountryAsync" disabled="@(!_canSave)">
+                    <i class="bi bi-floppy me-1"></i>Save
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="ReloadAsync" disabled="@_loading">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Reload
+                </button>
+            </div>
 
-                <div class="text-muted small mt-2">Last change</div>
-                <div>
-                    @(_player.CountryChangedUtc is null
-                        ? "-"
-                        : _player.CountryChangedUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm"))
+            @if (!string.IsNullOrWhiteSpace(_error))
+            {
+                <div class="d-flex align-items-center gap-2 text-danger mt-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span class="small">@_error</span>
                 </div>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <div class="text-muted small">Cost</div>
-                <div class="fw-bold">@_costSoft</div>
-
-                <div class="text-muted small mt-2">Cooldown</div>
-                <div class="fw-bold">@(_canChange ? "OK" : "Waiting")</div>
-            </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(_ok))
+            {
+                <div class="d-flex align-items-center gap-2 text-success mt-3">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span class="small">@_ok</span>
+                </div>
+            }
         </div>
-
-        <div class="d-flex gap-2 mt-3">
-            <button class="btn btn-success" @onclick="SaveCountryAsync" disabled="@(!_canSave)">
-                Save
-            </button>
-            <button class="btn btn-outline-secondary" @onclick="ReloadAsync" disabled="@_loading">
-                Reload
-            </button>
-        </div>
-
-        @if (!string.IsNullOrWhiteSpace(_error))
-        {
-            <div class="alert alert-danger mt-3">@_error</div>
-        }
-        @if (!string.IsNullOrWhiteSpace(_ok))
-        {
-            <div class="alert alert-success mt-3">@_ok</div>
-        }
     </div>
 }
 
@@ -161,13 +192,11 @@ else
 
         var now = DateTime.UtcNow;
 
-        // cooldown: 7 days after last change (first set is free)
         if (string.IsNullOrWhiteSpace(_player.CountryCode) || _player.CountryChangedUtc is null)
             _canChange = true;
         else
             _canChange = (now - _player.CountryChangedUtc.Value).TotalDays >= 7;
 
-        // cost: first change free, then escalating
         _costSoft = _player.CountryChangeCount <= 0 ? 0 : 1000 * (long)Math.Pow(2, _player.CountryChangeCount - 1);
     }
 
@@ -203,7 +232,6 @@ else
 
             await using var db = await DbFactory.CreateDbContextAsync();
 
-            // ✅ fresh tracked entity
             var player = await db.Players
                 .FirstOrDefaultAsync(p => p.UserId == appUser.Id);
 
@@ -215,7 +243,6 @@ else
 
             var now = DateTime.UtcNow;
 
-            // cooldown: 7 days after last change (first set free)
             bool canChange;
             if (string.IsNullOrWhiteSpace(player.CountryCode) || player.CountryChangedUtc is null)
                 canChange = true;
@@ -249,8 +276,7 @@ else
 
             _ok = "Country updated.";
 
-            // refresh UI state from saved entity
-            _player = player; // tracked instance, OK
+            _player = player;
             _selectedCountry = player.CountryCode ?? "";
             RecomputeRules();
         }

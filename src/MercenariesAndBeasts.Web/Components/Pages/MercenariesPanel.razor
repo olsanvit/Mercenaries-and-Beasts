@@ -5,7 +5,7 @@
 @using static MercenariesAndBeasts.Domain.Items.ItemTemplate
 
 <section class="dash-top">
-    <div class="card-like inv-wrap">
+    <div class="ui-panel inv-wrap">
         <div class="inv-head">
             @{
                 var _activeM  = ActiveMercSlot?.Mercenary;
@@ -61,7 +61,7 @@
 
         @if (ActiveMercSlot is null)
         {
-            <div class="card-like">
+            <div class="ui-panel">
                 <div class="text-secondary">No slot selected.</div>
             </div>
         }
@@ -72,7 +72,7 @@
 
             if (t is null)
             {
-                <div class="card-like">
+                <div class="ui-panel">
                     <div class="text-secondary">Empty slot.</div>
                 </div>
             }
@@ -81,7 +81,7 @@
                 <div class="inv-scroll">
                     <div class="row g-3">
                         <div class="col-12">
-                            <div class="card-like"
+                            <div class="ui-panel"
                                  @ondragover:preventDefault
                                  @ondrop="() => OnDropToMercSlot.InvokeAsync(ActiveMercSlot)">
                                 <div class="slotbar-scroll slot-detail">
@@ -150,7 +150,7 @@
 </section>
 
 <section class="dash-bottom">
-    <div class="card-like inv-wrap">
+    <div class="ui-panel inv-wrap">
         <div class="inv-head">
             <div class="d-flex justify-content-between align-items-center">
                 <h6 class="m-0">Inventory</h6>

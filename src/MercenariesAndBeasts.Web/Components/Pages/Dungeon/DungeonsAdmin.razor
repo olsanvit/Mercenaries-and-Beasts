@@ -8,11 +8,13 @@
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
-<div class="dash-switcher mb-3">
-    <h4 class="m-0">@S["Dungeons"]</h4>
+<PageTitle>Dungeons Admin — Mercenaries & Beasts</PageTitle>
+
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-layers"></i> @S["Dungeons"] Admin</h3>
 </div>
 
-<div class="card-like mb-3">
+<div class="ui-panel ui-anim-fade-up mb-3">
     <div class="fw-bold mb-2">Localization coverage <span class="text-muted small fw-normal">(locales: @_localeCount)</span></div>
     <div class="row g-2">
         <div class="col-md-6">
