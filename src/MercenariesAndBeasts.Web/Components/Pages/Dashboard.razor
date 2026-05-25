@@ -23,9 +23,21 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject PlayerOnboardingService Onboarding
 
+<!-- Page header -->
+<div class="ui-page-header ui-anim-fade-up">
+    <h3>
+        <i class="bi bi-shield-fill"></i>
+        Dashboard
+    </h3>
+    <span class="badge bg-secondary text-muted small">Mercenaries & Beasts</span>
+</div>
+
 @if (_isLoading)
 {
-    <PageLoadingSpinner />
+    <div class="ui-anim-fade-up d-flex align-items-center gap-2 mt-2">
+        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+        <span class="text-muted">Načítám hru…</span>
+    </div>
 }
 else if (_profile is null)
 {
