@@ -1,5 +1,7 @@
 using FluentValidation;
 using MercenariesAndBeasts.Domain.Interface;
+using MudBlazor.Services;
+using Radzen;
 using MercenariesAndBeasts.Infrastructure;
 using MercenariesAndBeasts.Infrastructure.AI;
 using MercenariesAndBeasts.Infrastructure.Auth;
@@ -142,6 +144,9 @@ builder.Services.AddMabAuth<AppDbContextMercenariesAndBeasts>(builder.Configurat
 builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender,
     NoOpEmailSender>();
 
+builder.Services.AddMudServices();
+builder.Services.AddRadzenComponents();
+builder.Services.AddScoped<UiLibraryService>();
 builder.Services.AddScoped<SharedServices.ToastService>();
 builder.Services.AddScoped<AchievementService>(sp =>
     new AchievementService(
@@ -151,7 +156,7 @@ builder.Services.AddScoped<AchievementService>(sp =>
         Definitions = MercenariesAchievements.All
     });
 builder.Services.AddScoped<AlertService>();
-builder.Services.AddSingleton<ThemeService>(_ => new ThemeService(builder.Configuration));
+builder.Services.AddSingleton<SharedServices.Services.ThemeService>(_ => new SharedServices.Services.ThemeService(builder.Configuration));
 builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredSessionStorage();

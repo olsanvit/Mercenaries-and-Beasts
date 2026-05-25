@@ -5,6 +5,10 @@
 @using System.Security.Claims
 
 @inherits LayoutComponentBase
+@inject UiLibraryService UiLib
+@implements IDisposable
+
+<UiProviders />
 
 <div class="page">
     <div class="sidebar">
@@ -112,8 +116,18 @@ private string _userName = "Player";
     private string? _userId;
     // _user removed: local var in OnInitializedAsync was shadowing this field (CS0169)
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await UiLib.InitAsync();
+            StateHasChanged();
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        UiLib.OnChanged += StateHasChanged;
         Toasts.OnToastsUpdated += StateHasChanged;
 
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -139,6 +153,7 @@ private string _userName = "Player";
 
     public void Dispose()
     {
+        UiLib.OnChanged -= StateHasChanged;
         Toasts.OnToastsUpdated -= StateHasChanged;
     }
     private void ShowToasts()
