@@ -7,11 +7,11 @@
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
-<div class="dash-switcher mb-3">
-    <h4 class="m-0">Admin</h4>
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-shield-lock me-2"></i>Admin</h3>
 </div>
 
-<div class="card-like mb-3">
+<div class="ui-panel ui-anim-fade-up">
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
         <div>
             <div class="fw-bold">Game Seed</div>
@@ -46,10 +46,10 @@
 
 @if (countsLoaded)
 {
-    <div class="card-like mb-3">
+    <div class="ui-panel ui-anim-fade-up">
         <div class="fw-bold mb-2">Database counts</div>
-        <div class="dungeons-table-wrap">
-            <table class="table table-dark table-stages mb-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
                 <tbody>
                     <tr><td>Dungeons</td><td class="text-end">@dungeonCount</td></tr>
                     <tr><td>Monster templates</td><td class="text-end">@monsterCount</td></tr>
@@ -65,13 +65,13 @@
 
 @if (locStats.Count > 0)
 {
-    <div class="card-like mb-3">
+    <div class="ui-panel ui-anim-fade-up">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="fw-bold">Localization coverage</div>
             <div class="text-muted small">Required locales: @requiredLocaleCount</div>
         </div>
-        <div class="dungeons-table-wrap">
-            <table class="table table-dark table-stages mb-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
                         <th>Entity</th>
@@ -96,16 +96,20 @@
     </div>
 }
 
-<div class="card-like mb-3">
-    <div class="fw-bold mb-2">
-        Draft záznamy čekající na aktivaci
-        <a href="/admin/activation" class="btn btn-sm btn-outline-primary ms-2">Otevřít správu aktivací</a>
+<div class="ui-panel ui-anim-fade-up">
+    <div class="ui-panel-header">
+        <span class="ui-panel-title">
+            <i class="bi bi-clock-history text-amber"></i>
+            Draft záznamy čekající na aktivaci
+        </span>
+        <a href="/admin/activation" class="btn btn-sm btn-outline-primary">Správa aktivací</a>
     </div>
+    <div class="p-3">
     @if (_draftMercenaries.Count > 0)
     {
         <div class="text-muted small mb-1">Žoldáci (@_draftMercenaries.Count)</div>
-        <div class="dungeons-table-wrap">
-            <table class="table table-dark table-stages mb-2">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-2">
                 <thead><tr><th>Code</th><th>Název</th><th>Level</th><th>Akce</th></tr></thead>
                 <tbody>
                     @foreach (var m in _draftMercenaries.Take(10))
@@ -124,8 +128,8 @@
     @if (_draftMonsters.Count > 0)
     {
         <div class="text-muted small mb-1 mt-2">Monstra (@_draftMonsters.Count)</div>
-        <div class="dungeons-table-wrap">
-            <table class="table table-dark table-stages mb-2">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-2">
                 <thead><tr><th>Code</th><th>Název</th><th>Level</th><th>Akce</th></tr></thead>
                 <tbody>
                     @foreach (var m in _draftMonsters.Take(10))
@@ -145,6 +149,7 @@
     {
         <p class="text-muted mb-0">Žádné drafty.</p>
     }
+    </div>
 </div>
 
 <TranslationPanel />

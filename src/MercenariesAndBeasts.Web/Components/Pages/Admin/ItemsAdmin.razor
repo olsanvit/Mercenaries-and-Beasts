@@ -8,11 +8,11 @@
 @using MercenariesAndBeasts.Domain.Localization
 @using MercenariesAndBeasts.Domain.Combat
 
-<div class="dash-switcher mb-3">
-    <h4 class="m-0">Item Templates</h4>
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-box-seam me-2"></i>Item Templates</h3>
 </div>
 
-<div class="card-like mb-3">
+<div class="ui-panel ui-anim-fade-up">
     <div class="fw-bold mb-2">Localization coverage <span class="text-muted small fw-normal">(locales: @_localeCount)</span></div>
     <div class="row g-2">
         <div class="col-md-6">
@@ -38,18 +38,18 @@
 }
 else
 {
-    <div class="card-like mb-3">
+    <div class="ui-panel ui-anim-fade-up">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="text-secondary">
                 Total: <b>@_items.Count</b>
             </div>
 
             <div class="d-flex gap-2 flex-wrap">
-                <input class="form-control dungeon-input" style="max-width:320px"
+                <input class="form-control form-control-sm" style="max-width:320px"
                        placeholder="Search code/name..."
                        @bind="_search" @bind:event="oninput" />
 
-                <select class="form-select lang-switcher" style="min-width:220px"
+                <select class="form-select form-select-sm" style="min-width:220px"
                         @bind="_slotFilter">
                     <option value="">All slots</option>
 
@@ -68,7 +68,7 @@ else
                     </optgroup>
                 </select>
 
-                <select class="form-select lang-switcher" style="min-width:180px"
+                <select class="form-select form-select-sm" style="min-width:180px"
                         @bind="_ownerFilter">
                     <option value="">All owners</option>
                     @foreach (var ok in Enum.GetValues<ItemOwnerKind>())
@@ -85,7 +85,7 @@ else
 
     @if (_edit is not null)
     {
-        <div class="card-like mb-3">
+        <div class="ui-panel ui-anim-fade-up">
             <h3 class="m-0">@(_edit.Guid == Guid.Empty ? "Create ItemTemplate" : "Edit ItemTemplate")</h3>
             <div class="text-secondary mb-3">Code musí být unikátní.</div>
 
@@ -161,8 +161,8 @@ else
         </div>
     }
 
-    <div class="dungeons-table-wrap">
-        <table class="table table-dark table-stages">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
                     <th>Code</th>
@@ -205,7 +205,7 @@ else
     <Paginator TotalItems="_totalItems" PageSize="PageSize" CurrentPage="_page"
                OnPageChanged="async p => { _page = p; StateHasChanged(); }" />
 
-    <div class="card-like mt-3">
+    <div class="ui-panel ui-anim-fade-up mt-3">
         <h3 class="m-0">ItemUpgradeResources</h3>
         <div class="text-secondary mb-2">
             Rows: @_resources.Count

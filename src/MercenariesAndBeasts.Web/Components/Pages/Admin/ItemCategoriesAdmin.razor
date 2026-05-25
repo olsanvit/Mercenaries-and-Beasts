@@ -5,12 +5,12 @@
 @using Microsoft.EntityFrameworkCore
 @using MercenariesAndBeasts.Domain.Items
 
-<div class="dash-switcher mb-3">
-    <h4 class="m-0">Item Scaling Profiles</h4>
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-sliders me-2"></i>Item Scaling Profiles</h3>
 </div>
 
-<div class="card-like mb-3">
-    <div class="text-muted small">
+<div class="ui-panel ui-anim-fade-up">
+    <div class="p-3 text-muted small">
         Scaling profiles define how item stats grow per level.
         Each <strong>ItemTemplate</strong> can reference a profile via <em>ScalingId</em>.
         The default profile (ID <code>11111111-1111-1111-1111-111111111111</code>) is used when no profile is assigned.
@@ -24,7 +24,7 @@
 }
 else
 {
-    <div class="card-like mb-3">
+    <div class="ui-panel ui-anim-fade-up">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="text-secondary">
                 Total: <b>@_profiles.Count</b>
@@ -38,7 +38,7 @@ else
 
     @if (_edit is not null)
     {
-        <div class="card-like mb-3">
+        <div class="ui-panel ui-anim-fade-up">
             <h3 class="m-0">@(_isNew ? "Create Scaling Profile" : "Edit Scaling Profile")</h3>
             <div class="text-secondary mb-3">All per-level values are fractional multipliers (e.g. 0.05 = +5% per level).</div>
 
@@ -185,8 +185,8 @@ else
         </div>
     }
 
-    <div class="dungeons-table-wrap">
-        <table class="table table-dark table-stages">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
                     <th>Label</th>
