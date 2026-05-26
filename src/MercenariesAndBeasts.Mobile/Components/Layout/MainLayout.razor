@@ -1,28 +1,15 @@
 @inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+<div class="container-fluid px-2 py-3">
+    <div class="d-flex align-items-center mb-3 gap-2">
+        <i class="bi bi-shield-fill-exclamation text-accent fs-5"></i>
+        <span class="fw-semibold">Mercenaries &amp; Beasts</span>
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+    <main>@Body</main>
 </div>
 
 <LoadingOverlay />
 <ConfirmDialog />
 <ConnectionBanner />
 <Toast />
-
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
