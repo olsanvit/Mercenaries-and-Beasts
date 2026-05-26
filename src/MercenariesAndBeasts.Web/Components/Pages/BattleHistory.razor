@@ -1,0 +1,250 @@
+@page "/history"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Domain.Enums
+@using MercenariesAndBeasts.Infrastructure
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
+@inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Battle History — Mercenaries &amp; Beasts</PageTitle>
+
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-journal-text me-2"></i>Battle History</h3>
+    <span class="badge bg-secondary">@_filtered.Count fights</span>
+</div>
+
+@if (_loading)
+{
+    <div class="ui-anim-fade-up d-flex align-items-center gap-2 mt-3">
+        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+        <span class="text-muted">Loading…</span>
+    </div>
+}
+else
+{
+    <!-- Filters -->
+    <div class="ui-panel ui-anim-fade-up">
+        <div class="ui-panel-header">
+            <span class="ui-panel-title">
+                <i class="bi bi-funnel text-accent"></i>
+                Filters
+            </span>
+        </div>
+        <div class="p-3 d-flex gap-3 flex-wrap align-items-center">
+            <div>
+                <label class="form-label small text-muted mb-1">Type</label>
+                <select class="form-select form-select-sm" style="min-width:130px" @bind="_contextFilter" @bind:after="ApplyFilters">
+                    <option value="">All</option>
+                    <option value="Dungeon">Dungeon</option>
+                    <option value="Expedition">Expedition</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label small text-muted mb-1">Result</label>
+                <select class="form-select form-select-sm" style="min-width:110px" @bind="_resultFilter" @bind:after="ApplyFilters">
+                    <option value="">All</option>
+                    <option value="win">Win</option>
+                    <option value="loss">Loss</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label small text-muted mb-1">From</label>
+                <input type="date" class="form-control form-control-sm" @bind="_dateFrom" @bind:after="ApplyFilters" />
+            </div>
+            <div>
+                <label class="form-label small text-muted mb-1">To</label>
+                <input type="date" class="form-control form-control-sm" @bind="_dateTo" @bind:after="ApplyFilters" />
+            </div>
+            <div class="mt-auto">
+                <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters">
+                    <i class="bi bi-x-circle me-1"></i>Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (_filtered.Count == 0)
+    {
+        <div class="ui-panel ui-anim-fade-up text-center p-4">
+            <div style="font-size:2rem">⚔️</div>
+            <div class="text-muted small mt-2">No battle records found.</div>
+        </div>
+    }
+    else
+    {
+        <div class="ui-panel ui-anim-fade-up">
+            <div class="ui-panel-header">
+                <span class="ui-panel-title">
+                    <i class="bi bi-list-ul text-accent"></i>
+                    Fights
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Stage</th>
+                            <th class="text-center">Result</th>
+                            <th>Summary</th>
+                            <th class="text-center">Loot</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in _filtered.OrderByDescending(f => f.FightUtc).Take(200))
+                        {
+                            <tr>
+                                <td class="text-muted small text-nowrap">@f.FightUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>
+                                    @if (f.ContextType == FightContextType.Dungeon)
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-fire me-1"></i>Dungeon</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary"><i class="bi bi-compass me-1"></i>Expedition</span>
+                                    }
+                                </td>
+                                <td class="text-muted small">
+                                    @if (f.ContextType == FightContextType.Dungeon && f.DungeonStageId.HasValue)
+                                    { <span>Stage @f.DungeonStageId.Value.ToString("N")[..8]…</span> }
+                                    else if (f.ExpeditionStageId.HasValue)
+                                    { <span>Stage @f.ExpeditionStageId.Value.ToString("N")[..8]…</span> }
+                                    else
+                                    { <span>—</span> }
+                                </td>
+                                <td class="text-center">
+                                    @if (f.DidWin)
+                                    { <span class="badge bg-success"><i class="bi bi-trophy me-1"></i>Win</span> }
+                                    else
+                                    { <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Loss</span> }
+                                </td>
+                                <td class="text-muted small" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                    @f.Summary
+                                </td>
+                                <td class="text-center text-muted small">
+                                    @if (f.LootItems.Count > 0)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-gem me-1"></i>@f.LootItems.Count
+                                        </span>
+                                    }
+                                    else
+                                    { <span>—</span> }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (_filtered.Count > 200)
+            {
+                <div class="px-3 py-2 text-muted small border-top border-opacity-10">
+                    Showing latest 200 of @_filtered.Count records.
+                </div>
+            }
+        </div>
+
+        <!-- Stats summary -->
+        <div class="row g-3 mt-1 ui-anim-fade-up">
+            <div class="col-6 col-lg-3">
+                <div class="ui-panel text-center p-3">
+                    <div class="fw-bold fs-4 text-accent">@_filtered.Count</div>
+                    <div class="text-muted small">Total Fights</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="ui-panel text-center p-3">
+                    <div class="fw-bold fs-4 text-success">@_filtered.Count(f => f.DidWin)</div>
+                    <div class="text-muted small">Wins</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="ui-panel text-center p-3">
+                    <div class="fw-bold fs-4 text-danger">@_filtered.Count(f => !f.DidWin)</div>
+                    <div class="text-muted small">Losses</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="ui-panel text-center p-3">
+                    <div class="fw-bold fs-4 text-accent">
+                        @(_filtered.Count > 0 ? $"{(double)_filtered.Count(f => f.DidWin) / _filtered.Count * 100:F0}%" : "—")
+                    </div>
+                    <div class="text-muted small">Win Rate</div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private bool _loading = true;
+    private List<PlayerFightRecord> _records = new();
+    private List<PlayerFightRecord> _filtered = new();
+
+    private string _contextFilter = "";
+    private string _resultFilter = "";
+    private DateTime? _dateFrom;
+    private DateTime? _dateTo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var appUser = await UserManager.GetUserAsync(authState.User);
+        if (appUser is null) { _loading = false; return; }
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var profile = await db.Players.AsNoTracking()
+            .FirstOrDefaultAsync(p => p.UserId == appUser.Id);
+
+        if (profile is not null)
+        {
+            _records = await db.PlayerFightRecords
+                .AsNoTracking()
+                .Where(f => f.PlayerId == profile.Guid)
+                .OrderByDescending(f => f.FightUtc)
+                .ToListAsync();
+        }
+
+        ApplyFilters();
+        _loading = false;
+    }
+
+    private void ApplyFilters()
+    {
+        var q = _records.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(_contextFilter))
+        {
+            var ct = _contextFilter == "Dungeon" ? FightContextType.Dungeon : FightContextType.Expedition;
+            q = q.Where(f => f.ContextType == ct);
+        }
+
+        if (_resultFilter == "win")  q = q.Where(f => f.DidWin);
+        if (_resultFilter == "loss") q = q.Where(f => !f.DidWin);
+
+        if (_dateFrom.HasValue)
+            q = q.Where(f => f.FightUtc.Date >= _dateFrom.Value.Date);
+        if (_dateTo.HasValue)
+            q = q.Where(f => f.FightUtc.Date <= _dateTo.Value.Date);
+
+        _filtered = q.ToList();
+    }
+
+    private void ClearFilters()
+    {
+        _contextFilter = "";
+        _resultFilter = "";
+        _dateFrom = null;
+        _dateTo = null;
+        ApplyFilters();
+    }
+}

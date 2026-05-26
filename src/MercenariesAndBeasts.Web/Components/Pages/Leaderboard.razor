@@ -1,0 +1,179 @@
+@page "/leaderboard"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+@using MercenariesAndBeasts.Domain.Players
+@using MercenariesAndBeasts.Infrastructure
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
+@inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Leaderboard — Mercenaries &amp; Beasts</PageTitle>
+
+<div class="ui-page-header ui-anim-fade-up">
+    <h3><i class="bi bi-trophy-fill me-2 text-warning"></i>Leaderboard</h3>
+    <span class="badge bg-secondary">@_rows.Count players</span>
+</div>
+
+@if (_loading)
+{
+    <div class="ui-anim-fade-up d-flex align-items-center gap-2 mt-3">
+        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+        <span class="text-muted">Loading…</span>
+    </div>
+}
+else
+{
+    <!-- Top 3 podium -->
+    @if (_rows.Count >= 3)
+    {
+        <div class="row g-3 mb-3 ui-anim-fade-up">
+            @{
+                var medals = new[] { ("🥇", "text-warning", "border-warning"), ("🥈", "text-secondary", "border-secondary"), ("🥉", "text-danger", "border-danger") };
+            }
+            @for (int i = 0; i < 3 && i < _rows.Count; i++)
+            {
+                var r = _rows[i];
+                var (medal, textCls, borderCls) = medals[i];
+                <div class="col-12 col-md-4">
+                    <div class="ui-panel text-center p-3 border @borderCls border-opacity-25">
+                        <div style="font-size:2.5rem">@medal</div>
+                        <div class="fw-bold mt-1 @textCls">@r.UserName</div>
+                        @if (r.CountryCode is not null)
+                        {
+                            <div class="text-muted small">@r.CountryCode</div>
+                        }
+                        <div class="mt-2">
+                            <span class="badge bg-primary me-1">Lv @r.Level</span>
+                            <span class="badge bg-secondary">@r.Experience.ToString("N0") XP</span>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            @r.SoftCurrency.ToString("N0") <i class="bi bi-coin text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Full table -->
+    <div class="ui-panel ui-anim-fade-up">
+        <div class="ui-panel-header">
+            <span class="ui-panel-title">
+                <i class="bi bi-list-ol text-accent"></i>
+                Rankings
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th class="text-center">Level</th>
+                        <th class="text-center">Experience</th>
+                        <th class="text-center">Energy</th>
+                        <th class="text-center">
+                            <i class="bi bi-coin text-warning"></i>
+                        </th>
+                        <th class="text-center">Country</th>
+                        <th class="text-center">Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int rank = 1;}
+                    @foreach (var r in _rows)
+                    {
+                        var isMe = r.UserId == _myUserId;
+                        <tr class="@(isMe ? "table-active" : "")">
+                            <td class="text-muted small">
+                                @if (rank == 1) { <span>🥇</span> }
+                                else if (rank == 2) { <span>🥈</span> }
+                                else if (rank == 3) { <span>🥉</span> }
+                                else { <span class="text-muted">@rank</span> }
+                            </td>
+                            <td>
+                                <span class="fw-semibold @(isMe ? "text-accent" : "")">
+                                    @r.UserName
+                                    @if (isMe) { <span class="badge bg-primary ms-1 small">You</span> }
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary">@r.Level</span>
+                            </td>
+                            <td class="text-center text-muted small">@r.Experience.ToString("N0")</td>
+                            <td class="text-center text-muted small">@r.Energy / @r.MaxEnergy</td>
+                            <td class="text-center text-muted small">@r.SoftCurrency.ToString("N0")</td>
+                            <td class="text-center text-muted small">@(r.CountryCode ?? "—")</td>
+                            <td class="text-center text-muted small text-nowrap">@r.CreatedUtc.ToString("dd.MM.yyyy")</td>
+                        </tr>
+                        rank++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private List<LeaderboardRow> _rows = new();
+    private string? _myUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var appUser = await UserManager.GetUserAsync(authState.User);
+        _myUserId = appUser?.Id;
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        var profiles = await db.Players
+            .AsNoTracking()
+            .OrderByDescending(p => p.Level)
+            .ThenByDescending(p => p.Experience)
+            .ToListAsync();
+
+        // Load all users into a dictionary to avoid N+1 queries
+        var userIds = profiles.Select(p => p.UserId).Distinct().ToList();
+        var users = new Dictionary<string, string>();
+        foreach (var uid in userIds)
+        {
+            var u = await UserManager.FindByIdAsync(uid);
+            if (u is not null)
+                users[uid] = u.UserName ?? u.Email ?? uid[..8];
+        }
+
+        _rows = profiles.Select(p => new LeaderboardRow
+        {
+            UserId      = p.UserId,
+            UserName    = users.TryGetValue(p.UserId, out var n) ? n : p.UserId[..8] + "…",
+            Level       = p.Level,
+            Experience  = p.Experience,
+            Energy      = p.Energy,
+            MaxEnergy   = p.MaxEnergy,
+            SoftCurrency= p.SoftCurrency,
+            CountryCode = p.CountryCode,
+            CreatedUtc  = p.CreatedUtc,
+        }).ToList();
+
+        _loading = false;
+    }
+
+    private sealed class LeaderboardRow
+    {
+        public string UserId    { get; set; } = "";
+        public string UserName  { get; set; } = "";
+        public int Level        { get; set; }
+        public long Experience  { get; set; }
+        public int Energy       { get; set; }
+        public int MaxEnergy    { get; set; }
+        public long SoftCurrency{ get; set; }
+        public string? CountryCode { get; set; }
+        public DateTime CreatedUtc { get; set; }
+    }
+}
