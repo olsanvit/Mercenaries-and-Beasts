@@ -8,10 +8,7 @@ using MercenariesAndBeasts.Infrastructure.Auth;
 using MercenariesAndBeasts.Infrastructure.Localization;
 using MercenariesAndBeasts.Infrastructure.AI.Translations;
 using MercenariesAndBeasts.Web.Components;
-using ApexCharts;
-using Blazored.LocalStorage;
-using Blazored.Modal;
-using Blazored.SessionStorage;
+using SharedServices;
 using SharedServices.Services;
 using MercenariesAndBeasts.Web.Achievements;
 using Microsoft.AspNetCore.Identity;
@@ -147,7 +144,7 @@ builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
 builder.Services.AddMudServices();
 builder.Services.AddRadzenComponents();
 builder.Services.AddScoped<UiLibraryService>();
-builder.Services.AddScoped<SharedServices.ToastService>();
+builder.Services.AddSharedUI(builder.Configuration);
 builder.Services.AddScoped<AchievementService>(sp =>
     new AchievementService(
         sp.GetRequiredService<SharedServices.ToastService>(),
@@ -155,12 +152,6 @@ builder.Services.AddScoped<AchievementService>(sp =>
     {
         Definitions = MercenariesAchievements.All
     });
-builder.Services.AddScoped<AlertService>();
-builder.Services.AddSingleton<SharedServices.Services.ThemeService>(_ => new SharedServices.Services.ThemeService(builder.Configuration));
-builder.Services.AddBlazoredModal();
-builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddBlazoredSessionStorage();
-builder.Services.AddApexCharts();
 builder.Services.AddTransient<HttpInterceptorHandler>();
 builder.Services.AddScoped<AdminUserService>();
 builder.Services.AddScoped<PlayerLootService>();
