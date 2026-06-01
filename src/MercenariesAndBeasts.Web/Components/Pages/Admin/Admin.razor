@@ -44,6 +44,27 @@
     }
 </div>
 
+<!-- Test player seed -->
+<div class="ui-panel ui-anim-fade-up">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+        <div>
+            <div class="fw-bold">Test Players</div>
+            <div class="text-muted small">
+                Vytvoří 5 testovacích hráčů (Novice → Legenda) s progression daty.<br />
+                Vyžaduje seeded lokace a dungeony. Idempotentní.
+            </div>
+        </div>
+        <button class="btn btn-warning btn-sm" @onclick="SeedTestPlayersAsync" disabled="@_seedingPlayers">
+            @if (_seedingPlayers) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            <i class="bi bi-people-fill me-1"></i>Seed test hráčů
+        </button>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(_playerSeedResult))
+    {
+        <div class="alert alert-info mb-0 py-2 small">@_playerSeedResult</div>
+    }
+</div>
+
 @if (countsLoaded)
 {
     <div class="ui-panel ui-anim-fade-up">
@@ -159,6 +180,18 @@
 
     private bool isSeeding = false;
     private string? seedResult;
+    private bool _seedingPlayers = false;
+    private string? _playerSeedResult;
+
+    [Inject] MercenariesAndBeasts.Web.Services.TestPlayerSeeder TestSeeder { get; set; } = default!;
+
+    private async Task SeedTestPlayersAsync()
+    {
+        _seedingPlayers = true; _playerSeedResult = null;
+        try   { _playerSeedResult = await TestSeeder.SeedAsync(); }
+        catch (Exception ex) { _playerSeedResult = $"❌ {ex.Message}"; }
+        finally { _seedingPlayers = false; }
+    }
 
     // drafts
     private List<MercenaryTemplate> _draftMercenaries = new();
