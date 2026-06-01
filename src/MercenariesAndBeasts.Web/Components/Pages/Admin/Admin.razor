@@ -44,25 +44,57 @@
     }
 </div>
 
-<!-- Test player seed -->
+<!-- Test seeders -->
 <div class="ui-panel ui-anim-fade-up">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-        <div>
-            <div class="fw-bold">Test Players</div>
-            <div class="text-muted small">
-                Vytvoří 5 testovacích hráčů (Novice → Legenda) s progression daty.<br />
-                Vyžaduje seeded lokace a dungeony. Idempotentní.
-            </div>
-        </div>
-        <button class="btn btn-warning btn-sm" @onclick="SeedTestPlayersAsync" disabled="@_seedingPlayers">
-            @if (_seedingPlayers) { <span class="spinner-border spinner-border-sm me-1"></span> }
-            <i class="bi bi-people-fill me-1"></i>Seed test hráčů
-        </button>
+    <div class="ui-panel-header">
+        <span class="ui-panel-title"><i class="bi bi-database-fill-add text-accent"></i> Testovací data</span>
     </div>
-    @if (!string.IsNullOrWhiteSpace(_playerSeedResult))
-    {
-        <div class="alert alert-info mb-0 py-2 small">@_playerSeedResult</div>
-    }
+    <div class="p-3 d-flex flex-column gap-3">
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+                <div class="fw-semibold">Lokace + Žoldnéři</div>
+                <div class="text-muted small">8 expedičních lokací (10 fází), 24 šablon žoldnéřů. Idempotentní.</div>
+            </div>
+            <button class="btn btn-outline-success btn-sm" @onclick="SeedLocationsAsync" disabled="@_seedingLocations">
+                @if (_seedingLocations) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="bi bi-geo-alt-fill me-1"></i>Seed lokací
+            </button>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(_locationSeedResult))
+        { <div class="alert alert-info py-2 small mb-0">@_locationSeedResult</div> }
+
+        <hr class="border-opacity-10" />
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+                <div class="fw-semibold">Dungeony + Bestie</div>
+                <div class="text-muted small">8 dungeonů (11 fází), 24 šablon monster. Idempotentní.</div>
+            </div>
+            <button class="btn btn-outline-danger btn-sm" @onclick="SeedDungeonsAsync" disabled="@_seedingDungeons">
+                @if (_seedingDungeons) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="bi bi-door-open me-1"></i>Seed dungeonů
+            </button>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(_dungeonSeedResult))
+        { <div class="alert alert-info py-2 small mb-0">@_dungeonSeedResult</div> }
+
+        <hr class="border-opacity-10" />
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+                <div class="fw-semibold">Test Hráči</div>
+                <div class="text-muted small">5 hráčů (Novice→Legenda) s progression. Vyžaduje lokace+dungeony.</div>
+            </div>
+            <button class="btn btn-warning btn-sm" @onclick="SeedTestPlayersAsync" disabled="@_seedingPlayers">
+                @if (_seedingPlayers) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="bi bi-people-fill me-1"></i>Seed hráčů
+            </button>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(_playerSeedResult))
+        { <div class="alert alert-info py-2 small mb-0">@_playerSeedResult</div> }
+
+    </div>
 </div>
 
 @if (countsLoaded)
@@ -181,9 +213,15 @@
     private bool isSeeding = false;
     private string? seedResult;
     private bool _seedingPlayers = false;
+    private bool _seedingLocations = false;
+    private bool _seedingDungeons = false;
     private string? _playerSeedResult;
+    private string? _locationSeedResult;
+    private string? _dungeonSeedResult;
 
     [Inject] MercenariesAndBeasts.Web.Services.TestPlayerSeeder TestSeeder { get; set; } = default!;
+    [Inject] MercenariesAndBeasts.Web.Services.TestLocationsAndMercenariesSeeder LocationSeeder { get; set; } = default!;
+    [Inject] MercenariesAndBeasts.Web.Services.TestDungeonsAndBeastsSeeder DungeonSeeder { get; set; } = default!;
 
     private async Task SeedTestPlayersAsync()
     {
@@ -191,6 +229,22 @@
         try   { _playerSeedResult = await TestSeeder.SeedAsync(); }
         catch (Exception ex) { _playerSeedResult = $"❌ {ex.Message}"; }
         finally { _seedingPlayers = false; }
+    }
+
+    private async Task SeedLocationsAsync()
+    {
+        _seedingLocations = true; _locationSeedResult = null;
+        try   { _locationSeedResult = await LocationSeeder.SeedAsync(); }
+        catch (Exception ex) { _locationSeedResult = $"❌ {ex.Message}"; }
+        finally { _seedingLocations = false; }
+    }
+
+    private async Task SeedDungeonsAsync()
+    {
+        _seedingDungeons = true; _dungeonSeedResult = null;
+        try   { _dungeonSeedResult = await DungeonSeeder.SeedAsync(); }
+        catch (Exception ex) { _dungeonSeedResult = $"❌ {ex.Message}"; }
+        finally { _seedingDungeons = false; }
     }
 
     // drafts

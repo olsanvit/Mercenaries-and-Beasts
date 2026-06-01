@@ -165,6 +165,8 @@ builder.Services.AddTransient<HttpInterceptorHandler>();
 builder.Services.AddScoped<AdminUserService>();
 builder.Services.AddScoped<PlayerLootService>();
 builder.Services.AddScoped<MercenariesAndBeasts.Web.Services.TestPlayerSeeder>();
+builder.Services.AddScoped<MercenariesAndBeasts.Web.Services.TestDungeonsAndBeastsSeeder>();
+builder.Services.AddScoped<MercenariesAndBeasts.Web.Services.TestLocationsAndMercenariesSeeder>();
 builder.Services.AddScoped<FightHistoryService>();
 builder.Services.AddScoped<MercenariesAndBeasts.Web.Services.LevelUpService>();
 builder.Services.AddScoped<IFightService, FightService>();
