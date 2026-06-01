@@ -19,6 +19,7 @@
 @inject NavigationManager Nav
 @inject IFightService FightService
 @inject FightHistoryService FightHistoryService
+@inject MercenariesAndBeasts.Web.Services.LevelUpService LevelUpService
 
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -359,6 +360,10 @@ PlayerId = player.Guid,
             progress.IsCompleted = pr.IsCompleted;
             progress.LastUpdatedUtc = pr.LastUpdatedUtc;
         }
+
+        // Level-up check — runs after dungeon completion (win or loss; thresholds decide)
+        if (player?.Guid != Guid.Empty)
+            await LevelUpService.CheckAndApplyAsync(player!.Guid);
 
         StateHasChanged();
     }

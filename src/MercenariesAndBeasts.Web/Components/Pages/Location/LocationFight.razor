@@ -16,6 +16,7 @@
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject FightHistoryService FightHistoryService
+@inject MercenariesAndBeasts.Web.Services.LevelUpService LevelUpService
 
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -274,6 +275,10 @@ PlayerId = player.Guid,
         {
             lootLines.Add("No loot.");
         }
+
+        // Level-up check — after each expedition fight
+        if (player?.Guid != Guid.Empty)
+            await LevelUpService.CheckAndApplyAsync(player!.Guid);
 
         StateHasChanged();
     }
