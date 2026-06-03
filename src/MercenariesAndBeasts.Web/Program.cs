@@ -11,6 +11,7 @@ using MercenariesAndBeasts.Web.Components;
 using SharedServices;
 using SharedServices.Services;
 using MercenariesAndBeasts.Web.Achievements;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -214,6 +215,10 @@ app.MapHealthChecks("/health");
 app.UseRequestLocalization(
     app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 var pathBase = builder.Configuration["PathBase"];
 if (!string.IsNullOrWhiteSpace(pathBase))
     app.UsePathBase(pathBase);
