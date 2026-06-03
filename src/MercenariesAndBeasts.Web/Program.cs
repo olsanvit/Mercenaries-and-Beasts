@@ -240,18 +240,22 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 app.MapMabCultureEndpoint();
 
-using (var scope = app.Services.CreateScope())
+try
 {
-    var services = scope.ServiceProvider;
-    var db = services.GetRequiredService<AppDbContextMercenariesAndBeasts>();
-    var userManager = services.GetRequiredService<UserManager<AppUser>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    var seed = services.GetRequiredService<GameSeed>();
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var db = services.GetRequiredService<AppDbContextMercenariesAndBeasts>();
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var seed = services.GetRequiredService<GameSeed>();
 
-    await db.Database.MigrateAsync();
-    await seed.SeedIdentityAsync(userManager, roleManager);
-    await seed.SeedAsync(false);
+        await db.Database.MigrateAsync();
+        await seed.SeedIdentityAsync(userManager, roleManager);
+        await seed.SeedAsync(false);
+    }
 }
+catch (Exception ex) { Log.Warning(ex, "DB migration/seed skipped — DB not available"); }
 
 app.Lifetime.ApplicationStopping.Register(() =>
     Log.Warning("Application stopping — flushing logs..."));

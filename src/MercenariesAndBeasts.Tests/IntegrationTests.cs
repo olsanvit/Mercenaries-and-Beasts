@@ -12,7 +12,8 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>
     {
         _client = factory.WithWebHostBuilder(builder =>
         {
-            builder.UseSetting("ConnectionStrings:DefaultConnection", "DataSource=:memory:");
+            builder.UseSetting("ConnectionStrings:QNAPGameDatabase", "Host=localhost;Port=54321;Database=ci_test_db");
+            builder.UseSetting("OpenAI:ApiKey", "sk-test-key-for-ci");
         }).CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false
