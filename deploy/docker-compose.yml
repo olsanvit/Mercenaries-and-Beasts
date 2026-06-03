@@ -13,6 +13,7 @@ x-app-defaults: &app-defaults
   environment: &app-env
     ASPNETCORE_ENVIRONMENT: Production
     ASPNETCORE_URLS: http://+:8080
+    ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
     TZ: Europe/Prague
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
   networks:
