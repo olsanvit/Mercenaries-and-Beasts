@@ -241,6 +241,74 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapRazorPages(); // kvůli Identity UI
+
+// ── Google OAuth external login endpoints ─────────────────────────────────────
+app.MapPost("/Identity/Account/ExternalLogin", async (
+    HttpContext http,
+    SignInManager<AppUser> signInManager) =>
+{
+    var provider  = http.Request.Form["provider"].ToString();
+    var returnUrl = http.Request.Form["returnUrl"].ToString() ?? "/";
+    var callback  = $"/Identity/Account/ExternalLogin/Callback?returnUrl={Uri.EscapeDataString(returnUrl)}";
+    var props     = signInManager.ConfigureExternalAuthenticationProperties(provider, callback);
+    return Results.Challenge(props, new[] { provider });
+}).DisableAntiforgery();
+
+app.MapGet("/Identity/Account/ExternalLogin/Callback", async (
+    HttpContext http,
+    string? returnUrl,
+    SignInManager<AppUser> signInManager,
+    UserManager<AppUser> userManager,
+    IWebHostEnvironment env,
+    IConfiguration config) =>
+{
+    returnUrl ??= "/";
+    var info = await signInManager.GetExternalLoginInfoAsync();
+    if (info is null)
+        return Results.Redirect("/login?error=external");
+
+    var signIn = await signInManager.ExternalLoginSignInAsync(
+        info.LoginProvider, info.ProviderKey, isPersistent: true);
+
+    if (signIn.Succeeded)
+    {
+        var signedInUser = await userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+        if (signedInUser is not null)
+        {
+            var denied = await AccessGate.CheckAsync(signedInUser, signInManager, env, config);
+            if (denied is not null) return Results.Redirect(denied);
+        }
+        return Results.Redirect(returnUrl);
+    }
+
+    var email = info.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.Email) ?? "";
+    if (string.IsNullOrWhiteSpace(email))
+        return Results.Redirect("/login?error=noemail");
+
+    var user = new AppUser { UserName = email, Email = email };
+    var created = await userManager.CreateAsync(user);
+    if (created.Succeeded)
+    {
+        await userManager.AddLoginAsync(user, info);
+        await signInManager.SignInAsync(user, isPersistent: true);
+        var deniedNew = await AccessGate.CheckAsync(user, signInManager, env, config);
+        if (deniedNew is not null) return Results.Redirect(deniedNew);
+        return Results.Redirect(returnUrl);
+    }
+
+    var existing = await userManager.FindByEmailAsync(email);
+    if (existing is not null)
+    {
+        await userManager.AddLoginAsync(existing, info);
+        await signInManager.SignInAsync(existing, isPersistent: true);
+        var deniedExisting = await AccessGate.CheckAsync(existing, signInManager, env, config);
+        if (deniedExisting is not null) return Results.Redirect(deniedExisting);
+        return Results.Redirect(returnUrl);
+    }
+
+    return Results.Redirect("/login?error=external");
+});
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 app.MapMabCultureEndpoint();
