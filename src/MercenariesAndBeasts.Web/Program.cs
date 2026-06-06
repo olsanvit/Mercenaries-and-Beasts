@@ -281,7 +281,7 @@ app.MapGet("/Identity/Account/ExternalLogin/Callback", async (
         return Results.Redirect(returnUrl);
     }
 
-    var email = info.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.Email) ?? "";
+    var email = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
     if (string.IsNullOrWhiteSpace(email))
         return Results.Redirect("/login?error=noemail");
 
