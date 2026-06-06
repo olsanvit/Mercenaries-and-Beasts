@@ -242,7 +242,7 @@ app.UseAntiforgery();
 
 app.MapRazorPages(); // kvůli Identity UI
 
-// ── Google OAuth external login endpoints ─────────────────────────────────────
+// ── OAuth external login endpoints (Google / Facebook / Microsoft / GitHub / Apple) ──
 app.MapPost("/Identity/Account/ExternalLogin", async (
     HttpContext http,
     SignInManager<AppUser> signInManager) =>
