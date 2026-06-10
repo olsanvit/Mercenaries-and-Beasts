@@ -330,6 +330,9 @@ try
 }
 catch (Exception ex) { Log.Warning(ex, "DB migration/seed skipped — DB not available"); }
 
+// Seed role a admin účet
+await MercenariesAndBeasts.Infrastructure.Auth.AdminUserSeeder.SeedAsync(app.Services, app.Configuration);
+
 app.Lifetime.ApplicationStopping.Register(() =>
     Log.Warning("Application stopping — flushing logs..."));
 
