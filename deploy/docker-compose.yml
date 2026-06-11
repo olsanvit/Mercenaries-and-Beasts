@@ -95,7 +95,7 @@ services:
     container_name: simulategames
     ports: ["127.0.0.1:5011:8080"]
     volumes:
-      - /share/Public/BlazorSimulateGames/publish:/app:ro
+      - /share/Public/BlazorSimulateGames/publish:/app
     command: dotnet SimulateGames.Web.dll
 
   simulatecar:
