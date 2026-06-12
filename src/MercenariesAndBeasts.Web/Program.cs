@@ -195,6 +195,10 @@ if (!string.IsNullOrWhiteSpace(openAiKey))
     builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
     builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();
 }
+else
+{
+    builder.Services.AddScoped<IUnitAiGenerator, MercenariesAndBeasts.Web.Services.NullUnitAiGenerator>();
+}
 builder.Services.AddScoped<GameSeed>();
 builder.Services.AddScoped<PlayerOnboardingService>();
 builder.Services.AddHttpContextAccessor();
