@@ -321,19 +321,26 @@ try
     {
         var services = scope.ServiceProvider;
         var db = services.GetRequiredService<AppDbContextMercenariesAndBeasts>();
-        var userManager = services.GetRequiredService<UserManager<AppUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-        var seed = services.GetRequiredService<GameSeed>();
-
         await db.Database.MigrateAsync();
-        await seed.SeedIdentityAsync(userManager, roleManager);
-        await seed.SeedAsync(false);
+
+        if (!string.IsNullOrWhiteSpace(openAiKey))
+        {
+            var userManager = services.GetRequiredService<UserManager<AppUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            var seed = services.GetRequiredService<GameSeed>();
+            await seed.SeedIdentityAsync(userManager, roleManager);
+            await seed.SeedAsync(false);
+        }
     }
 }
 catch (Exception ex) { Log.Warning(ex, "DB migration/seed skipped — DB not available"); }
 
 // Seed role a admin účet
-await MercenariesAndBeasts.Infrastructure.Auth.AdminUserSeeder.SeedAsync(app.Services, app.Configuration);
+try
+{
+    await MercenariesAndBeasts.Infrastructure.Auth.AdminUserSeeder.SeedAsync(app.Services, app.Configuration);
+}
+catch (Exception ex) { Log.Warning(ex, "AdminUserSeeder skipped — DB not available"); }
 
 app.Lifetime.ApplicationStopping.Register(() =>
     Log.Warning("Application stopping — flushing logs..."));
