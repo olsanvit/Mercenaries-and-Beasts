@@ -172,27 +172,29 @@ builder.Services.AddHttpClient("Backend")
 
 var openAiKey = builder.Configuration["OpenAI:ApiKey"];
 if (string.IsNullOrWhiteSpace(openAiKey))
-    throw new InvalidOperationException("OpenAI:ApiKey is not configured in appsettings or environment.");
+    Log.Warning("OpenAI:ApiKey is not configured — AI translation features will be disabled.");
+else
+    builder.Services.AddSingleton(sp =>
+        new MercenariesAndBeasts.Infrastructure.AI.ChatGptAsker(
+            apiKey: openAiKey,
+            isSimple: true,
+            maxParallelism: 5,
+            maxRetries: 5,
+            baseDelayMs: 750));
 
-// ChatGptAsker – jeden společný klient; musí být před AddMabTranslations
-builder.Services.AddSingleton(sp =>
-    new MercenariesAndBeasts.Infrastructure.AI.ChatGptAsker(
-        apiKey: openAiKey,
-        isSimple: true,
-        maxParallelism: 5,
-        maxRetries: 5,
-        baseDelayMs: 750));
-
-builder.Services.AddMabTranslations<AppDbContextMercenariesAndBeasts>(registry =>
+if (!string.IsNullOrWhiteSpace(openAiKey))
 {
-    registry.Add("Dungeon",           db => db.Dungeons.Select(x          => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
-    registry.Add("Location",          db => db.Locations.Select(x         => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
-    registry.Add("MonsterTemplate",   db => db.MonsterTemplates.Select(x   => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
-    registry.Add("MercenaryTemplate", db => db.MercenaryTemplates.Select(x => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
-    registry.Add("ItemTemplate",      db => db.ItemTemplates.Select(x      => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
-});
-builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
-builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();
+    builder.Services.AddMabTranslations<AppDbContextMercenariesAndBeasts>(registry =>
+    {
+        registry.Add("Dungeon",           db => db.Dungeons.Select(x          => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+        registry.Add("Location",          db => db.Locations.Select(x         => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+        registry.Add("MonsterTemplate",   db => db.MonsterTemplates.Select(x   => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+        registry.Add("MercenaryTemplate", db => db.MercenaryTemplates.Select(x => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+        registry.Add("ItemTemplate",      db => db.ItemTemplates.Select(x      => new ValueTuple<Guid, string, string?>(x.Guid, x.NameEn, x.DescriptionEn)));
+    });
+    builder.Services.AddScoped<IUnitAiGenerator, AiUnitGeneratorService>();
+    builder.Services.AddSingleton<IAiImageGenerator, AiImageGeneratorService>();
+}
 builder.Services.AddScoped<GameSeed>();
 builder.Services.AddScoped<PlayerOnboardingService>();
 builder.Services.AddHttpContextAccessor();
