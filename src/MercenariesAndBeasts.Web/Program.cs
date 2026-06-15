@@ -319,7 +319,9 @@ app.MapGet("/Identity/Account/ExternalLogin/Callback", async (
 });
 
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode()
+    .AddAdditionalAssemblies(
+        typeof(MercenariesAndBeasts.Infrastructure.Components.Account.Login).Assembly);
 app.MapMabCultureEndpoint();
 
 try
