@@ -143,6 +143,7 @@ builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
     NoOpEmailSender>();
 
 builder.Services.AddMudServices();
+builder.Services.AddBlazoredModal();
 builder.Services.AddRadzenComponents();
 builder.Services.AddScoped<UiLibraryService>();
 builder.Services.AddSharedUI(builder.Configuration);
