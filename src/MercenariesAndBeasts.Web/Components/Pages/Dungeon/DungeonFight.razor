@@ -30,6 +30,13 @@
 {
     <PageLoadingSpinner />
 }
+else if (errorMessage is not null)
+{
+    <div class="card-like">
+        <div class="alert alert-warning mb-0">@errorMessage</div>
+        <a href="/dungeons" class="btn btn-secondary btn-sm mt-2">← Zpět na dungeony</a>
+    </div>
+}
 else if (player is null || dungeon is null)
 {
     <div class="ui-panel">
@@ -102,6 +109,7 @@ else
     [Parameter] public Guid DungeonId { get; set; }
 
     private bool isLoading = true;
+    private string? errorMessage;
 
     private string? _userId; // ASP.NET Identity user ID for inventory writes
     private PlayerProfile? player;
@@ -145,6 +153,18 @@ else
                 .FirstOrDefaultAsync(d => d.Guid == DungeonId);
 
             if (dungeon is null) return;
+
+            // Ověření že dungeon je odemčen pro hráče
+            var maxCompleted = await db.PlayerDungeonProgresses
+                .Where(p => p.PlayerId == player.Guid && p.IsCompleted)
+                .Join(db.Dungeons, p => p.DungeonId, d => d.Guid, (p, d) => d.UnlockOrder)
+                .DefaultIfEmpty(0)
+                .MaxAsync();
+            if (dungeon.UnlockOrder > maxCompleted + 1)
+            {
+                errorMessage = "Tento dungeon ještě není odemčen.";
+                return;
+            }
 
             progress = await db.PlayerDungeonProgresses
                 .FirstOrDefaultAsync(p => p.PlayerId == player.Guid && p.DungeonId == dungeon.Guid);
