@@ -31,6 +31,7 @@ public sealed class StatAggregator : IStatAggregator
     /// <param name="ct">Optional cancellation token.</param>
     /// <returns>A fully-resolved <see cref="UnitSnapshot"/> ready for use in combat.</returns>
     /// <exception cref="KeyNotFoundException">Thrown when no <c>PlayerMercenary</c> with the given ID exists in the database.</exception>
+    // AUDIT:CRITICAL|Kritický|Injektován DbContext přímo místo IDbContextFactory – thread safety hazard v Blazor Server
     public async Task<UnitSnapshot> BuildMercenaryAsync(Guid playerMercenaryId, CancellationToken ct = default)
     {
         var merc = await _db.PlayerMercenaries
@@ -97,6 +98,7 @@ public sealed class StatAggregator : IStatAggregator
     /// <param name="ct">Optional cancellation token.</param>
     /// <returns>A fully-resolved <see cref="UnitSnapshot"/> ready for use in combat.</returns>
     /// <exception cref="KeyNotFoundException">Thrown when no <c>PlayerMonster</c> with the given ID exists in the database.</exception>
+    // AUDIT:CRITICAL|Kritický|Injektován DbContext přímo místo IDbContextFactory – thread safety hazard v Blazor Server
     public async Task<UnitSnapshot> BuildBeastAsync(Guid playerMonsterId, CancellationToken ct = default)
     {
         var beast = await _db.PlayerMonsters

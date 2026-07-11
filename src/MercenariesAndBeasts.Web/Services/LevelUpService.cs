@@ -35,6 +35,7 @@ public class LevelUpService
     /// Should be called after each expedition or dungeon fight completion.
     /// </summary>
     /// <returns>True if the player leveled up, false otherwise.</returns>
+    // AUDIT:CRITICAL|Kritický|Race condition – double level-up při souběžných requestech; bez concurrency ochrany
     public async Task<bool> CheckAndApplyAsync(Guid playerId)
     {
         await using var db = await _dbFactory.CreateDbContextAsync();
