@@ -6,27 +6,19 @@ namespace MercenariesAndBeasts.Web.Services;
 
 internal sealed class NullUnitAiGenerator : IUnitAiGenerator
 {
-    private static Exception Disabled() =>
-        new InvalidOperationException("AI generation is disabled — OpenAI:ApiKey is not configured.");
-
-    // AUDIT:PENDING|Střední|Hází InvalidOperationException místo null – crash aplikace
     public Task<Dungeon> GenerateNextDungeonAsync(Dungeon previousDungeon, Dungeon currentDungeon, bool current,
-        string? predefinedBeastsCsv = "", CancellationToken ct = default) => throw Disabled();
+        string? predefinedBeastsCsv = "", CancellationToken ct = default) => Task.FromResult<Dungeon>(null!);
 
-    // AUDIT:PENDING|Střední|Hází InvalidOperationException místo null – crash aplikace
     public Task<Location> GenerateNextLocationAsync(Location previousDungeon, Location currentDungeon, bool current,
-        string? predefinedOrdersCsv = "", CancellationToken ct = default) => throw Disabled();
+        string? predefinedOrdersCsv = "", CancellationToken ct = default) => Task.FromResult<Location>(null!);
 
-    // AUDIT:PENDING|Střední|Hází InvalidOperationException místo null – crash aplikace
     public Task<LocalizedNameResult?> GenerateLocalizedNamesAsync(
         string entityKind, string nameEn, string? descriptionEn,
-        List<string?> missing, CancellationToken ct = default) => throw Disabled();
+        List<string?> missing, CancellationToken ct = default) => Task.FromResult<LocalizedNameResult?>(null);
 
-    // AUDIT:PENDING|Střední|Hází InvalidOperationException místo null – crash aplikace
     public Task<ItemTemplate?> GenerateItemTemplateAsync(ItemTemplate tpl, string? groupHint,
-        CancellationToken ct = default) => throw Disabled();
+        CancellationToken ct = default) => Task.FromResult<ItemTemplate?>(null);
 
-    // AUDIT:PENDING|Střední|Hází InvalidOperationException místo null – crash aplikace
     public Task<ItemUpgradeResourceNamesResult?> GenerateUpgradeResourceNamesAsync(
-        ItemTemplate tpl, CancellationToken ct = default) => throw Disabled();
+        ItemTemplate tpl, CancellationToken ct = default) => Task.FromResult<ItemUpgradeResourceNamesResult?>(null);
 }
