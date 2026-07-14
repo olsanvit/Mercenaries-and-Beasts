@@ -1,4 +1,4 @@
-@* AUDIT:PENDING|Střední|Chybí rate limiting na nákup herní měny *@
+@* AUDIT:FIXED|Přidán cooldown 60s na nákup herní měny (simulovaný shop, bez platební brány) *@
 @page "/shop"
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -117,6 +117,9 @@ else
 }
 
 @code {
+    private static readonly TimeSpan _purchaseCooldown = TimeSpan.FromSeconds(60);
+    private static readonly Dictionary<string, DateTimeOffset> _lastPurchase = new();
+
     private bool _loading = true;
     private bool _purchasing = false;
     private bool _isError = false;
@@ -148,6 +151,16 @@ else
     {
         if (_purchasing || _player is null || _userId is null) return;
 
+        var cooldownKey = $"{_userId}:{type}";
+        if (_lastPurchase.TryGetValue(cooldownKey, out var last) && DateTimeOffset.UtcNow - last < _purchaseCooldown)
+        {
+            var remaining = (int)(_purchaseCooldown - (DateTimeOffset.UtcNow - last)).TotalSeconds;
+            _isError = true;
+            _message = $"Please wait {remaining}s before purchasing again.";
+            StateHasChanged();
+            return;
+        }
+
         _purchasing = true;
         _message = null;
         StateHasChanged();
@@ -172,6 +185,7 @@ else
 
             await db.SaveChangesAsync();
 
+            _lastPurchase[$"{_userId}:{type}"] = DateTimeOffset.UtcNow;
             _player = player;
             _isError = false;
             _message = $"Purchase simulated: +{amount:N0} {(type == "soft" ? "💰 Soft" : "💎 Premium")} ({price})";
