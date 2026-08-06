@@ -14,13 +14,12 @@ using MercenariesAndBeasts.Infrastructure;
 /// </summary>
 public sealed class StatAggregator : IStatAggregator
 {
-    private readonly AppDbContextMercenariesAndBeasts _db;
+    private readonly IDbContextFactory<AppDbContextMercenariesAndBeasts> _dbFactory;
 
     /// <summary>
-    /// Initialises a new instance of <see cref="StatAggregator"/> with the required database context.
+    /// Initialises a new instance of <see cref="StatAggregator"/> with a context factory (thread-safe in Blazor Server).
     /// </summary>
-    /// <param name="db">The EF Core database context used to load mercenary and beast data.</param>
-    public StatAggregator(AppDbContextMercenariesAndBeasts db) => _db = db;
+    public StatAggregator(IDbContextFactory<AppDbContextMercenariesAndBeasts> dbFactory) => _dbFactory = dbFactory;
 
     /// <summary>
     /// Builds a complete <see cref="UnitSnapshot"/> for a player's mercenary, including template base
@@ -31,10 +30,11 @@ public sealed class StatAggregator : IStatAggregator
     /// <param name="ct">Optional cancellation token.</param>
     /// <returns>A fully-resolved <see cref="UnitSnapshot"/> ready for use in combat.</returns>
     /// <exception cref="KeyNotFoundException">Thrown when no <c>PlayerMercenary</c> with the given ID exists in the database.</exception>
-    // AUDIT:CRITICAL|Kritický|Injektován DbContext přímo místo IDbContextFactory – thread safety hazard v Blazor Server
+    // AUDIT:FIXED|byl: přímý DbContext → thread-safety hazard; nyní IDbContextFactory
     public async Task<UnitSnapshot> BuildMercenaryAsync(Guid playerMercenaryId, CancellationToken ct = default)
     {
-        var merc = await _db.PlayerMercenaries
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+        var merc = await db.PlayerMercenaries
             .Include(m => m.Template)
             .Include(m => m.Equipment)
                 .ThenInclude(es => es.PlayerItem)
@@ -98,10 +98,11 @@ public sealed class StatAggregator : IStatAggregator
     /// <param name="ct">Optional cancellation token.</param>
     /// <returns>A fully-resolved <see cref="UnitSnapshot"/> ready for use in combat.</returns>
     /// <exception cref="KeyNotFoundException">Thrown when no <c>PlayerMonster</c> with the given ID exists in the database.</exception>
-    // AUDIT:CRITICAL|Kritický|Injektován DbContext přímo místo IDbContextFactory – thread safety hazard v Blazor Server
+    // AUDIT:FIXED|byl: přímý DbContext → thread-safety hazard; nyní IDbContextFactory
     public async Task<UnitSnapshot> BuildBeastAsync(Guid playerMonsterId, CancellationToken ct = default)
     {
-        var beast = await _db.PlayerMonsters
+        await using var db = await _dbFactory.CreateDbContextAsync(ct);
+        var beast = await db.PlayerMonsters
             .Include(b => b.Template)
             .Include(b => b.Equipment)
                 .ThenInclude(es => es.PlayerItem)

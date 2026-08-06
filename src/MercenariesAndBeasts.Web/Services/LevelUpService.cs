@@ -35,12 +35,14 @@ public class LevelUpService
     /// Should be called after each expedition or dungeon fight completion.
     /// </summary>
     /// <returns>True if the player leveled up, false otherwise.</returns>
-    // AUDIT:CRITICAL|Kritický|Race condition – double level-up při souběžných requestech; bez concurrency ochrany
+    // AUDIT:FIXED|byl: race condition – dva souběžné requesty mohly oba level-up aplikovat;
+    // nyní optimistická concurrency: ExecuteUpdateAsync WHERE Level = currentLevel (jen jeden uspěje)
     public async Task<bool> CheckAndApplyAsync(Guid playerId)
     {
         await using var db = await _dbFactory.CreateDbContextAsync();
 
         var player = await db.Players
+            .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Guid == playerId);
 
         if (player is null) return false;
@@ -64,8 +66,8 @@ public class LevelUpService
             .CountAsync(a => a.PlayerId == playerId && a.IsCompleted);
 
         // Thresholds scale with current level so each level-up requires more progress
-        int requiredCompleted     = currentLevel;          // expeditions AND dungeons
-        int requiredAchievements  = currentLevel * 10;     // 10 per level
+        int requiredCompleted    = currentLevel;
+        int requiredAchievements = currentLevel * 10;
 
         bool canLevelUp =
             completedExpeditions   >= requiredCompleted    &&
@@ -75,17 +77,23 @@ public class LevelUpService
 
         if (!canLevelUp) return false;
 
-        // Apply level-up
-        player.Level++;
-        player.MaxEnergy = 100 + (player.Level - 1) * 10;   // +10 energie za level
-        player.SoftCurrency += 500L * player.Level;          // odměna v měně
-        await db.SaveChangesAsync();
+        int newLevel     = currentLevel + 1;
+        int newMaxEnergy = 100 + currentLevel * 10;
 
-        // Notify
+        // WHERE Level = currentLevel zajišťuje, že při souběžném requestu uspěje jen jeden
+        int rows = await db.Players
+            .Where(p => p.Guid == playerId && p.Level == currentLevel)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.Level,      newLevel)
+                .SetProperty(p => p.MaxEnergy,  newMaxEnergy)
+                .SetProperty(p => p.SoftCurrency, p => p.SoftCurrency + 500L * newLevel));
+
+        if (rows == 0) return false; // jiný request byl rychlejší
+
         _toast.ShowSuccess(
-            $"🎉 Level {player.Level}!",
-            $"Dosáhl jsi úrovně {player.Level}! " +
-            $"Energie +10 ({player.MaxEnergy} max), měna +{500 * player.Level:N0}.");
+            $"🎉 Level {newLevel}!",
+            $"Dosáhl jsi úrovně {newLevel}! " +
+            $"Energie +10 ({newMaxEnergy} max), měna +{500 * newLevel:N0}.");
 
         return true;
     }
