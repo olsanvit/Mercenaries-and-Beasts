@@ -12,6 +12,12 @@
       "runtimeExecutable": "dotnet",
       "runtimeArgs": ["run", "--project", "src/MercenariesAndBeasts.Web", "--launch-profile", "https"],
       "port": 7089
+    },
+    {
+      "name": "devexpresssandbox",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "/Users/rtvdata/Projects/rtv/devexpresssandbox/DevExpressSandbox", "--launch-profile", "http"],
+      "port": 5045
     }
   ]
 }
