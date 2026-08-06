@@ -80,6 +80,7 @@ else
                         <th class="text-center">
                             <i class="bi bi-coin text-warning"></i>
                         </th>
+                        <th class="text-center"><i class="bi bi-sword text-danger" title="Victories"></i></th>
                         <th class="text-center">Country</th>
                         <th class="text-center">Joined</th>
                     </tr>
@@ -108,6 +109,7 @@ else
                             <td class="text-center text-muted small">@r.Experience.ToString("N0")</td>
                             <td class="text-center text-muted small">@r.Energy / @r.MaxEnergy</td>
                             <td class="text-center text-muted small">@r.SoftCurrency.ToString("N0")</td>
+                            <td class="text-center small @(r.TotalWins > 0 ? "text-danger fw-semibold" : "text-muted")">@r.TotalWins</td>
                             <td class="text-center text-muted small">@(r.CountryCode ?? "—")</td>
                             <td class="text-center text-muted small text-nowrap">@r.CreatedUtc.ToString("dd.MM.yyyy")</td>
                         </tr>
@@ -138,27 +140,24 @@ else
             .ThenByDescending(p => p.Experience)
             .ToListAsync();
 
-        // Load all users into a dictionary to avoid N+1 queries
+        // Jeden dotaz pro všechna uživatelská jména (místo N individuálních FindByIdAsync)
         var userIds = profiles.Select(p => p.UserId).Distinct().ToList();
-        var users = new Dictionary<string, string>();
-        foreach (var uid in userIds)
-        {
-            var u = await UserManager.FindByIdAsync(uid);
-            if (u is not null)
-                users[uid] = u.UserName ?? u.Email ?? uid[..8];
-        }
+        var users = await UserManager.Users
+            .Where(u => userIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u.UserName ?? u.Email ?? u.Id[..8]);
 
         _rows = profiles.Select(p => new LeaderboardRow
         {
-            UserId      = p.UserId,
-            UserName    = users.TryGetValue(p.UserId, out var n) ? n : p.UserId[..8] + "…",
-            Level       = p.Level,
-            Experience  = p.Experience,
-            Energy      = p.Energy,
-            MaxEnergy   = p.MaxEnergy,
-            SoftCurrency= p.SoftCurrency,
-            CountryCode = p.CountryCode,
-            CreatedUtc  = p.CreatedUtc,
+            UserId       = p.UserId,
+            UserName     = users.TryGetValue(p.UserId, out var n) ? n : p.UserId[..8] + "…",
+            Level        = p.Level,
+            Experience   = p.Experience,
+            Energy       = p.Energy,
+            MaxEnergy    = p.MaxEnergy,
+            SoftCurrency = p.SoftCurrency,
+            TotalWins    = p.TotalWins,
+            CountryCode  = p.CountryCode,
+            CreatedUtc   = p.CreatedUtc,
         }).ToList();
 
         _loading = false;
@@ -172,7 +171,8 @@ else
         public long Experience  { get; set; }
         public int Energy       { get; set; }
         public int MaxEnergy    { get; set; }
-        public long SoftCurrency{ get; set; }
+        public long SoftCurrency { get; set; }
+        public int TotalWins    { get; set; }
         public string? CountryCode { get; set; }
         public DateTime CreatedUtc { get; set; }
     }
