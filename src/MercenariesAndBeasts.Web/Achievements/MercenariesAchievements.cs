@@ -1,9 +1,16 @@
 using SharedServices.Models.Achievement;
+using MercenariesAndBeasts.Web.Services;
 
 namespace MercenariesAndBeasts.Web.Achievements;
 
 public static class MercenariesAchievements
 {
+    // ── Country achievement keys ───────────────────────────────────────────────
+    public const string COUNTRY_MERC_SETUP  = "MB_COUNTRY_MERC_SETUP";
+    public const string COUNTRY_BEAST_SETUP = "MB_COUNTRY_BEAST_SETUP";
+    public const string COUNTRY_MIX         = "MB_COUNTRY_MIX";
+    public const string COUNTRY_HOMELAND    = "MB_COUNTRY_HOMELAND";
+
     public static readonly IReadOnlyList<AchievementDef> All = new List<AchievementDef>
     {
         // ── Mercenarky ────────────────────────────────────────────────────────
@@ -79,6 +86,12 @@ public static class MercenariesAchievements
         new("MB_SHOP_SELL",           "Prodej",               "Prodej předmět v obchodě",                             "bi-arrow-left-right",     10, "Obchod"),
         new("MB_SHOP_REVISIT",        "Obchodník",            "Navštiv obchod 10×",                                   "bi-arrow-repeat",         10, "Obchod"),
 
+        // ── Country ───────────────────────────────────────────────────────────
+        new("MB_COUNTRY_MERC_SETUP",  "Pod vlajkou",          "Nastav zemi pro skupinu mercenářů",                    "bi-flag-fill",            15, "Country"),
+        new("MB_COUNTRY_BEAST_SETUP", "Bestie z domoviny",    "Nastav zemi pro skupinu bestií",                       "bi-flag",                 15, "Country"),
+        new("MB_COUNTRY_MIX",         "Různé barvy",          "Nastav různé země pro mercenáře a bestie",             "bi-shuffle",              25, "Country"),
+        new("MB_COUNTRY_HOMELAND",    "Domácí hřiště",        "Nastav obě skupiny na stejnou zemi",                   "bi-house-heart-fill",     20, "Country"),
+
         // ── Speciální ─────────────────────────────────────────────────────────
         new("MB_SPECIAL_WELCOME",     "Vítej, hrdino!",       "Otevři aplikaci poprvé",                               "bi-door-open",             5, "Speciální"),
         new("MB_SPECIAL_DASHBOARD",   "Dashboard",            "Navštiv hlavní dashboard",                             "bi-house",                 5, "Speciální"),
@@ -95,5 +108,31 @@ public static class MercenariesAchievements
         new("MB_SPECIAL_DARK_MODE",   "Temný rytíř",          "Přepni na tmavý režim",                                "bi-moon-fill",            10, "Speciální"),
         new("MB_SPECIAL_POWER_USER",  "Legendární hráč",      "Pouzij všechny sekce aplikace",                        "bi-person-gear",          35, "Speciální"),
         new("MB_SPECIAL_FIRST_WEEK",  "Týdenní dobrodružství","Hraj 7 dní za sebou",                                   "bi-calendar-week",        40, "Speciální"),
-    };
+    }
+    .Concat(BuildCountryDefs())
+    .ToList()
+    .AsReadOnly();
+
+    private static IEnumerable<AchievementDef> BuildCountryDefs()
+    {
+        var countries = CountryAchievementTracker.SupportedCountries;
+        var defeatThresholds = CountryAchievementTracker.DefeatThresholds;
+
+        var thresholdPoints = new[] { 15, 30, 60 };
+
+        foreach (var cc in countries)
+        {
+            for (var i = 0; i < defeatThresholds.Length; i++)
+            {
+                var t = defeatThresholds[i];
+                yield return new AchievementDef(
+                    CountryAchievementTracker.DefeatKey(cc, t),
+                    $"{cc} bojovník {t}",
+                    $"Vyhraj {t} bojů jako tým {cc}",
+                    "bi-flag",
+                    thresholdPoints[i],
+                    $"Země — {cc}");
+            }
+        }
+    }
 }

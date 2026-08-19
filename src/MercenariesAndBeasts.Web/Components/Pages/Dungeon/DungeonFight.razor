@@ -21,6 +21,8 @@
 @inject IFightService FightService
 @inject FightHistoryService FightHistoryService
 @inject MercenariesAndBeasts.Web.Services.LevelUpService LevelUpService
+@inject AchievementService Achievements
+@inject MercenariesAndBeasts.Web.Services.CountryStatService CountryStatService
 
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -380,6 +382,22 @@ PlayerId = player.Guid,
             progress.MaxStageReached = pr.MaxStageReached;
             progress.IsCompleted = pr.IsCompleted;
             progress.LastUpdatedUtc = pr.LastUpdatedUtc;
+        }
+
+        // Country defeat achievement tracking on win
+        if (didWin && _userId is not null)
+        {
+            var cc = player?.MercenaryGroupCountry;
+            if (!string.IsNullOrWhiteSpace(cc) && MercenariesAndBeasts.Web.Services.CountryAchievementTracker.SupportedCountries.Contains(cc))
+            {
+                var counterKey = $"defeat_{cc}";
+                var total = await CountryStatService.IncrementAndGetAsync(_userId, counterKey);
+                foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatThresholds)
+                {
+                    if (total >= t)
+                        await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(cc, t));
+                }
+            }
         }
 
         // Level-up check — runs after dungeon completion (win or loss; thresholds decide)

@@ -14,6 +14,7 @@
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
+@inject AchievementService Achievements
 
 <PageTitle>Profile — Mercenaries & Beasts</PageTitle>
 
@@ -212,6 +213,8 @@ else
 
             _selectedCountry = _player.CountryCode ?? "";
             RecomputeRules();
+
+            await Achievements.CheckAsync("MB_SHOP_PROFILE");
         }
         catch (Exception ex)
         {

@@ -121,30 +121,57 @@
     <value>Standorte</value>
   </data>
   <data name="NewLocation" xml:space="preserve">
-    <value>New location</value>
+    <value>Neuer Standort</value>
   </data>
   <data name="AiGenLocation" xml:space="preserve">
-    <value>AI generate</value>
+    <value>KI-Standort generieren</value>
   </data>
   <data name="Login" xml:space="preserve">
-    <value>Login</value>
+    <value>Anmelden</value>
   </data>
   <data name="Logout" xml:space="preserve">
-    <value>Logout</value>
+    <value>Abmelden</value>
   </data>
   <data name="Register" xml:space="preserve">
-    <value>Register</value>
+    <value>Registrieren</value>
   </data>
   <data name="Dungeons" xml:space="preserve">
-    <value>Dungeons</value>
+    <value>Kerker</value>
   </data>
   <data name="NewDungeon" xml:space="preserve">
-    <value>New Dungeon</value>
+    <value>Neuer Kerker</value>
   </data>
   <data name="AiGenDungeon" xml:space="preserve">
-    <value>Ai Generate Dugeon</value>
+    <value>KI-Kerker generieren</value>
   </data>
   <data name="Home" xml:space="preserve">
-    <value>Haus</value>
+    <value>Startseite</value>
+  </data>
+  <data name="Shop" xml:space="preserve">
+    <value>Shop</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>Profil</value>
+  </data>
+  <data name="BattleHistory" xml:space="preserve">
+    <value>Kampfhistorie</value>
+  </data>
+  <data name="Leaderboard" xml:space="preserve">
+    <value>Bestenliste</value>
+  </data>
+  <data name="Achievements" xml:space="preserve">
+    <value>Errungenschaften</value>
+  </data>
+  <data name="ItemsAdmin" xml:space="preserve">
+    <value>Gegenstände verwalten</value>
+  </data>
+  <data name="ItemScalingProfiles" xml:space="preserve">
+    <value>Gegenstandsskalierung</value>
+  </data>
+  <data name="Mercenaries" xml:space="preserve">
+    <value>Söldner</value>
+  </data>
+  <data name="Beasts" xml:space="preserve">
+    <value>Bestien</value>
   </data>
 </root>

@@ -7,6 +7,7 @@
 @using MercenariesAndBeasts.Domain.Items
 @using MercenariesAndBeasts.Domain.Localization
 @using MercenariesAndBeasts.Domain.Combat
+@using MercenariesAndBeasts.Items
 
 <div class="ui-page-header ui-anim-fade-up">
     <h3><i class="bi bi-box-seam me-2"></i>Item Templates</h3>
@@ -146,6 +147,237 @@ else
                         <div class="text-secondary mt-2">
                             OwnerKind se nastaví automaticky podle vybraného slotu.
                         </div>
+                    </div>
+
+                    @* ===== DescriptionEn ===== *@
+                    <div class="col-12 mt-2">
+                        <label class="form-label">DescriptionEn</label>
+                        <InputTextArea class="form-control" rows="3" @bind-Value="_edit.DescriptionEn" placeholder="English description…" />
+                    </div>
+
+                    @* ===== BaseStats ===== *@
+                    <div class="col-12 mt-3">
+                        <div class="fw-semibold text-secondary mb-2 small text-uppercase">BaseStats</div>
+
+                        <div class="mb-1 small fw-semibold">Core</div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">MaxHp</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.MaxHp" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">Armor</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.Armor" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">Attack</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.Attack" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">Defense</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.Defense" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">Speed</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.Speed" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">MaxEnergy</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.MaxEnergy" />
+                            </div>
+                        </div>
+
+                        <div class="mb-1 small fw-semibold">Crit / Penetration</div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">CritChance (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.CriticalChance" />
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">CritMultiplier</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.CriticalMultiplier" />
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">ArmorPenetration (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.ArmorPenetration" />
+                            </div>
+                        </div>
+
+                        <div class="mb-1 small fw-semibold">Hit / Avoid</div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">Accuracy</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.Accuracy" />
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">Evasion (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.Evasion" />
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">BlockChance (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.BlockChance" />
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">CounterChance (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.CounterChance" />
+                            </div>
+                        </div>
+
+                        <div class="mb-1 small fw-semibold">Damage Modifiers</div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">DamageBonus (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.DamageBonus" />
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">DamageReduction (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.DamageReduction" />
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">TrueDmgBonus (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.TrueDamageBonus" />
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-1">Thorns (0..1)</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.Thorns" />
+                            </div>
+                        </div>
+
+                        <div class="mb-1 small fw-semibold">Tempo / Sustain</div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">TurnMeterGain</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.TurnMeterGain" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">EnergyCostRed.</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.EnergyCostReduction" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">LifeSteal</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.LifeSteal" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">HpRegen</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.HpRegen" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">EnergyRegen</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.EnergyRegen" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">HealingBonus</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.HealingBonus" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">HealingReduction</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.HealingReduction" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">ShieldBonus</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.ShieldBonus" />
+                            </div>
+                        </div>
+
+                        <div class="mb-1 small fw-semibold">Status Effects</div>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">BleedChance</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.BleedChance" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">PoisonChance</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.PoisonChance" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">BurnChance</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.BurnChance" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">ShockChance</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.ShockChance" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">FreezeChance</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.FreezeChance" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">StatusDurBonus</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.StatusDurationBonus" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">StatusResistance</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.StatusResistance" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">DotDmgBonus</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.DotDamageBonus" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">DotDmgReduction</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.DotDamageReduction" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">CleanseChance</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.CleanseChance" />
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1">StatusPotency</label>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_edit.BaseStats.StatusPotency" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @* ===== Effects ===== *@
+                    <div class="col-12 mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="fw-semibold text-secondary small text-uppercase">
+                                Effects <span class="text-muted fw-normal">(@_edit.Effects.Count)</span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AddEffect">+ Přidat effect</button>
+                        </div>
+
+                        @for (int i = 0; i < _edit.Effects.Count; i++)
+                        {
+                            var idx = i;
+                            var effect = _edit.Effects[idx];
+                            <div class="row g-2 mb-2 align-items-end border rounded p-2">
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small mb-1">EffectType</label>
+                                    <InputSelect class="form-select form-select-sm" @bind-Value="effect.EffectType">
+                                        @foreach (var et in Enum.GetValues<ItemEffectType>())
+                                        {
+                                            <option value="@et">@et</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label small mb-1">TargetStat</label>
+                                    <InputText class="form-control form-control-sm" @bind-Value="effect.TargetStat" placeholder="ATK, DEF, HP…" />
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label small mb-1">Value</label>
+                                    <InputNumber class="form-control form-control-sm" @bind-Value="effect.Value" />
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label small mb-1">MinQuality</label>
+                                    <InputSelect class="form-select form-select-sm" @bind-Value="effect.MinQuality">
+                                        @foreach (var q in Enum.GetValues<QualityTier>())
+                                        {
+                                            <option value="@q">@q</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-12 col-md-1 d-flex align-items-end">
+                                    <button type="button" class="btn btn-sm btn-outline-danger w-100" @onclick="() => RemoveEffect(idx)">✕</button>
+                                </div>
+                            </div>
+                        }
+
+                        @if (_edit.Effects.Count == 0)
+                        {
+                            <div class="text-muted small">Žádné effects.</div>
+                        }
                     </div>
                 </div>
 
@@ -469,6 +701,23 @@ else
 
     private void CancelEdit() => _edit = null;
 
+    private void AddEffect()
+    {
+        _edit!.Effects.Add(new ItemEffect
+        {
+            EffectType = ItemEffectType.None,
+            MinQuality = QualityTier.Q1_Common,
+            Value = 0,
+            TargetStat = ""
+        });
+    }
+
+    private void RemoveEffect(int index)
+    {
+        if (index >= 0 && index < _edit!.Effects.Count)
+            _edit.Effects.RemoveAt(index);
+    }
+
     private async Task SaveAsync()
     {
         if (_edit is null) return;
@@ -540,6 +789,7 @@ else
 
                 existing.BaseQuality = _edit.BaseQuality;
                 existing.BaseStats = _edit.BaseStats;
+                existing.Effects = _edit.Effects;
 
                 existing.DescriptionEn = _edit.DescriptionEn;
             }

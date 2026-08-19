@@ -8,6 +8,8 @@
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
+@inject IJSRuntime JS
+
 <PageTitle>Dungeons Admin — Mercenaries & Beasts</PageTitle>
 
 <div class="ui-page-header ui-anim-fade-up">
@@ -78,56 +80,125 @@ else
                         <th>Level range</th>
                         <th>Stages</th>
                         <th>Preview</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach (var d in dungeons)
                     {
-                        <tr>
-                            <td title="@d.Code">@d.Code</td>
+                        @if (_editId == d.Guid)
+                        {
+                            <!-- Edit row -->
+                            <tr class="table-warning text-dark">
+                                <td>@d.Code</td>
+                                <td colspan="2">
+                                    <input class="form-control form-control-sm mb-1"
+                                           placeholder="Name (EN)"
+                                           @bind="_editForm.NameEn" />
+                                    <select class="form-select form-select-sm"
+                                            @bind="_editForm.Element">
+                                        @foreach (var e in Enum.GetValues<ElementType>())
+                                        {
+                                            <option value="@e">@e</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm"
+                                           @bind="_editForm.UnlockOrder" min="1" />
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <input type="number" class="form-control form-control-sm"
+                                               placeholder="Min" @bind="_editForm.MinLevel" min="1" />
+                                        <input type="number" class="form-control form-control-sm"
+                                               placeholder="Max" @bind="_editForm.MaxLevel" min="1" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="_editForm.IsActive" />
+                                        <label class="form-check-label small">Active</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <textarea class="form-control form-control-sm" rows="2"
+                                              placeholder="Description (EN)"
+                                              @bind="_editForm.DescriptionEn"></textarea>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <button class="btn btn-sm btn-success" @onclick="SaveEdit">
+                                            <i class="bi bi-check-lg"></i> Uložit
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" @onclick="CancelEdit">
+                                            Zrušit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td title="@d.Code">@d.Code</td>
 
-                            <td title="@d.NameForCurrentCulture(_dungeonLocs)"
-                                class="location-name ellipsis">
-                                @d.NameForCurrentCulture(_dungeonLocs)
-                            </td>
+                                <td title="@d.NameForCurrentCulture(_dungeonLocs)"
+                                    class="location-name ellipsis">
+                                    @d.NameForCurrentCulture(_dungeonLocs)
+                                </td>
 
-                            <td>@d.Element</td>
-                            <td>@d.UnlockOrder</td>
-                            <td>@d.MinLevel - @d.MaxLevel</td>
+                                <td>@d.Element</td>
+                                <td>@d.UnlockOrder</td>
+                                <td>@d.MinLevel - @d.MaxLevel</td>
 
-                            <td>
-                                @(d.Stages?.Count ?? 0)
-                                <button class="btn btn-sm btn-outline-info ms-2"
-                                        @onclick="() => ToggleDungeonStages(d.Guid)">
-                                    @(expandedDungeonIds.Contains(d.Guid) ? "Hide" : "Show")
-                                </button>
-                            </td>
+                                <td>
+                                    @(d.Stages?.Count ?? 0)
+                                    <button class="btn btn-sm btn-outline-info ms-2"
+                                            @onclick="() => ToggleDungeonStages(d.Guid)">
+                                        @(expandedDungeonIds.Contains(d.Guid) ? "Hide" : "Show")
+                                    </button>
+                                </td>
 
-                            <td style="width:150px;">
-                                @if (!string.IsNullOrWhiteSpace(d.ImagePath))
-                                {
-                                    <img src="@d.ImagePath"
-                                         class="img-thumbnail"
-                                         style="max-height: 80px; cursor:pointer;"
-                                         @onclick="() => ShowImage(d.ImagePath)" />
-                                }
-                                else
-                                {
-                                    <span class="text-muted">No image</span>
-                                }
+                                <td style="width:150px;">
+                                    @if (!string.IsNullOrWhiteSpace(d.ImagePath))
+                                    {
+                                        <img src="@d.ImagePath"
+                                             class="img-thumbnail"
+                                             style="max-height: 80px; cursor:pointer;"
+                                             @onclick="() => ShowImage(d.ImagePath)" />
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No image</span>
+                                    }
 
-                                <button class="btn btn-sm btn-outline-warning mt-1"
-                                        @onclick="() => GenerateDungeonImage(d)">
-                                    Generate Image
-                                </button>
-                            </td>
-                        </tr>
+                                    <button class="btn btn-sm btn-outline-warning mt-1"
+                                            @onclick="() => GenerateDungeonImage(d)">
+                                        Generate Image
+                                    </button>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <button class="btn btn-sm btn-outline-light"
+                                                @onclick="() => StartEdit(d)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                @onclick="() => DeleteDungeon(d)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
 
                         @if (expandedDungeonIds.Contains(d.Guid))
 {
     <tr class="dungeon-detail-row">
-        <td colspan="7" style="max-width:0;">
+        <td colspan="8" style="max-width:0;">
             <div class="mb-2 dungeon-description">
                 @d.DescriptionForCurrentCulture(_dungeonLocs)
             </div>
@@ -156,7 +227,7 @@ else
                              aria-labelledby="heading-@d.Guid">
                             <div class="accordion-body">
 
-                                <!-- ✅ scroll wrapper for INNER stats table -->
+                                <!-- scroll wrapper for INNER stats table -->
                                 <div class="table-scroll-x inner-scroll">
                 <table class="table table-sm table-dark align-middle text-nowrap mb-0 inner-wide">
                                         <thead>
@@ -171,6 +242,7 @@ else
                                                 {
                                                     <th class="">@col.Header</th>
                                                 }
+                                                <th></th>
                                             </tr>
                                         </thead>
 
@@ -194,16 +266,143 @@ else
                                                     {
                                                         <td class="">@FormatStat(col.GetValue(mt?.BaseStats))</td>
                                                     }
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-danger"
+                                                                @onclick="() => DeleteStage(s)">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             }
                                         </tbody>
                                     </table>
                                 </div>
 
+                                <!-- Add Stage form -->
+                                @if (_stageAddForDungeon == d.Guid)
+                                {
+                                    <div class="mt-3 p-3 border border-secondary rounded">
+                                        <div class="fw-bold mb-2">Přidat stage</div>
+                                        <div class="row g-2">
+                                            <div class="col-auto">
+                                                <label class="form-label small">StageIndex</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                       @bind="_stageAdd.StageIndex" min="1" style="width:80px;" />
+                                            </div>
+                                            <div class="col-auto">
+                                                <label class="form-label small">StageType</label>
+                                                <select class="form-select form-select-sm"
+                                                        @bind="_stageAdd.StageType">
+                                                    @foreach (var st in Enum.GetValues<DungeonStageType>())
+                                                    {
+                                                        <option value="@st">@st</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-auto">
+                                                <label class="form-label small">RecommendedLevel</label>
+                                                <input type="number" class="form-control form-control-sm"
+                                                       @bind="_stageAdd.RecommendedLevel" min="1" style="width:80px;" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label small">Monster Template</label>
+                                                <select class="form-select form-select-sm"
+                                                        @bind="_stageAdd.MonsterTemplateId">
+                                                    <option value="@Guid.Empty">— vybrat —</option>
+                                                    @foreach (var mt in _monsterTemplates)
+                                                    {
+                                                        <option value="@mt.Guid">@mt.NameEn (@mt.Element, Lv@mt.BaseLevel)</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-auto align-self-end">
+                                                <button class="btn btn-sm btn-success me-1"
+                                                        disabled="@(_stageAdd.MonsterTemplateId == Guid.Empty)"
+                                                        @onclick="() => SaveStage(d.Guid)">
+                                                    <i class="bi bi-plus-circle"></i> Přidat
+                                                </button>
+                                                <button class="btn btn-sm btn-secondary"
+                                                        @onclick="() => _stageAddForDungeon = null">
+                                                    Zrušit
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-success mt-2"
+                                            @onclick="() => StartAddStage(d.Guid, d.Stages?.Count ?? 0)">
+                                        <i class="bi bi-plus-circle"></i> Přidat stage
+                                    </button>
+                                }
+
                             </div>
                         </div>
                     </div>
                 </div>
+            }
+
+            <!-- Always show add-stage option if no stages yet -->
+            @if (d.Stages == null || d.Stages.Count == 0)
+            {
+                @if (_stageAddForDungeon == d.Guid)
+                {
+                    <div class="mt-3 p-3 border border-secondary rounded">
+                        <div class="fw-bold mb-2">Přidat první stage</div>
+                        <div class="row g-2">
+                            <div class="col-auto">
+                                <label class="form-label small">StageIndex</label>
+                                <input type="number" class="form-control form-control-sm"
+                                       @bind="_stageAdd.StageIndex" min="1" style="width:80px;" />
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label small">StageType</label>
+                                <select class="form-select form-select-sm"
+                                        @bind="_stageAdd.StageType">
+                                    @foreach (var st in Enum.GetValues<DungeonStageType>())
+                                    {
+                                        <option value="@st">@st</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label small">RecommendedLevel</label>
+                                <input type="number" class="form-control form-control-sm"
+                                       @bind="_stageAdd.RecommendedLevel" min="1" style="width:80px;" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Monster Template</label>
+                                <select class="form-select form-select-sm"
+                                        @bind="_stageAdd.MonsterTemplateId">
+                                    <option value="@Guid.Empty">— vybrat —</option>
+                                    @foreach (var mt in _monsterTemplates)
+                                    {
+                                        <option value="@mt.Guid">@mt.NameEn (@mt.Element, Lv@mt.BaseLevel)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-auto align-self-end">
+                                <button class="btn btn-sm btn-success me-1"
+                                        disabled="@(_stageAdd.MonsterTemplateId == Guid.Empty)"
+                                        @onclick="() => SaveStage(d.Guid)">
+                                    <i class="bi bi-plus-circle"></i> Přidat
+                                </button>
+                                <button class="btn btn-sm btn-secondary"
+                                        @onclick="() => _stageAddForDungeon = null">
+                                    Zrušit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-sm btn-outline-success mt-2"
+                            @onclick="() => StartAddStage(d.Guid, 0)">
+                        <i class="bi bi-plus-circle"></i> Přidat stage
+                    </button>
+                }
             }
         </td>
     </tr>
@@ -219,6 +418,7 @@ else
     private bool isLoading = true;
 
     private List<Dungeon> dungeons = new();
+    private List<MonsterTemplate> _monsterTemplates = new();
 
     private string manualDungeonName = string.Empty;
     private bool IsManualGenerateDisabled => isLoading || string.IsNullOrWhiteSpace(manualDungeonName);
@@ -230,6 +430,14 @@ else
     private List<LocalizedText> _monsterLocs = new();
 
     private ImagePreviewer? imagePreviewer;
+
+    // ===== Edit dungeon =====
+    private Guid? _editId;
+    private DungeonEditForm _editForm = new();
+
+    // ===== Stage add =====
+    private Guid? _stageAddForDungeon;
+    private StageAddForm _stageAdd = new();
 
     // ===== Coverage metrics =====
     private int _localeCount;
@@ -266,6 +474,12 @@ else
                 .ThenBy(d => d.Code)
                 .ToListAsync();
 
+            _monsterTemplates = await db.MonsterTemplates
+                .AsNoTracking()
+                .OrderBy(m => m.BaseLevel)
+                .ThenBy(m => m.NameEn)
+                .ToListAsync();
+
             // načti lokalizace + spočítej coverage (v separátním kontextu)
             await using var db2 = await DbFactory.CreateDbContextAsync();
             await LoadLocalizationsAndCoverageAsync(db2);
@@ -282,6 +496,159 @@ else
             StateHasChanged();
         }
     }
+
+    // ===========================
+    // EDIT dungeon
+    // ===========================
+
+    private void StartEdit(Dungeon d)
+    {
+        _editId = d.Guid;
+        _editForm = new DungeonEditForm
+        {
+            NameEn = d.NameEn,
+            DescriptionEn = d.DescriptionEn,
+            Element = d.Element,
+            UnlockOrder = d.UnlockOrder,
+            MinLevel = d.MinLevel,
+            MaxLevel = d.MaxLevel,
+            IsActive = d.IsActive
+        };
+    }
+
+    private void CancelEdit()
+    {
+        _editId = null;
+    }
+
+    private async Task SaveEdit()
+    {
+        if (_editId is null) return;
+
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var dbDungeon = await db.Dungeons.FirstOrDefaultAsync(x => x.Guid == _editId.Value);
+            if (dbDungeon is null) { Toasts.Error("Kobka nenalezena.", "Admin"); return; }
+
+            dbDungeon.NameEn = _editForm.NameEn;
+            dbDungeon.DescriptionEn = _editForm.DescriptionEn;
+            dbDungeon.Element = _editForm.Element;
+            dbDungeon.UnlockOrder = _editForm.UnlockOrder;
+            dbDungeon.MinLevel = _editForm.MinLevel;
+            dbDungeon.MaxLevel = _editForm.MaxLevel;
+            dbDungeon.IsActive = _editForm.IsActive;
+
+            await db.SaveChangesAsync();
+            _editId = null;
+            Toasts.Success("Kobka uložena", _editForm.NameEn);
+            await LoadDungeons();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error("Chyba při ukládání", ex.Message);
+        }
+    }
+
+    private async Task DeleteDungeon(Dungeon d)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Opravdu smazat kobku '{d.NameEn}'? Tato akce smaže i všechny stages.");
+        if (!confirmed) return;
+
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var dbDungeon = await db.Dungeons
+                .Include(x => x.Stages)
+                .FirstOrDefaultAsync(x => x.Guid == d.Guid);
+            if (dbDungeon is null) { Toasts.Error("Kobka nenalezena.", "Admin"); return; }
+
+            db.DungeonStages.RemoveRange(dbDungeon.Stages);
+            db.Dungeons.Remove(dbDungeon);
+            await db.SaveChangesAsync();
+
+            Toasts.Warning($"Kobka smazána: {d.NameEn}", "Admin");
+            await LoadDungeons();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error("Chyba při mazání", ex.Message);
+        }
+    }
+
+    // ===========================
+    // STAGE management
+    // ===========================
+
+    private void StartAddStage(Guid dungeonId, int currentCount)
+    {
+        _stageAddForDungeon = dungeonId;
+        _stageAdd = new StageAddForm
+        {
+            StageIndex = currentCount + 1,
+            StageType = DungeonStageType.DS1_Feeble,
+            RecommendedLevel = 1
+        };
+    }
+
+    private async Task SaveStage(Guid dungeonId)
+    {
+        if (_stageAdd.MonsterTemplateId == Guid.Empty) return;
+
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            var stage = new DungeonStage
+            {
+                DungeonId = dungeonId,
+                StageIndex = _stageAdd.StageIndex,
+                StageType = _stageAdd.StageType,
+                MonsterTemplateId = _stageAdd.MonsterTemplateId,
+                RecommendedLevel = _stageAdd.RecommendedLevel,
+                NameEn = $"Stage {_stageAdd.StageIndex}",
+                Code = $"stage_{_stageAdd.StageIndex}_{dungeonId.ToString("N")[..8]}"
+            };
+
+            db.DungeonStages.Add(stage);
+            await db.SaveChangesAsync();
+
+            _stageAddForDungeon = null;
+            Toasts.Success("Stage přidána", $"Stage {_stageAdd.StageIndex}");
+            await LoadDungeons();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error("Chyba při přidávání stage", ex.Message);
+        }
+    }
+
+    private async Task DeleteStage(DungeonStage stage)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Opravdu smazat stage #{stage.StageIndex}?");
+        if (!confirmed) return;
+
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var dbStage = await db.DungeonStages.FirstOrDefaultAsync(x => x.Guid == stage.Guid);
+            if (dbStage is null) { Toasts.Error("Stage nenalezena.", "Admin"); return; }
+
+            db.DungeonStages.Remove(dbStage);
+            await db.SaveChangesAsync();
+
+            Toasts.Warning($"Stage #{stage.StageIndex} smazána.", "Admin");
+            await LoadDungeons();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error("Chyba při mazání stage", ex.Message);
+        }
+    }
+
+    // ===========================
+    // LOCALIZATION coverage
+    // ===========================
 
     private async Task LoadLocalizationsAndCoverageAsync(AppDbContextMercenariesAndBeasts db)
     {
@@ -349,10 +716,6 @@ else
         return count;
     }
 
-    /// <summary>
-    /// Fully localized (STRICT) = pro každou SupportedLocale existuje řádek a má vyplněné Name i Description.
-    /// Pokud chceš mírnější variantu (jen Name), změň podmínku na kontrolu jen Name.
-    /// </summary>
     private static int CountFullyLocalized_NameDesc_Strict(List<Guid> entityIds, List<LocalizedText> rows)
     {
         if (entityIds.Count == 0) return 0;
@@ -539,5 +902,28 @@ else
             float f2 => f2.ToString("0.###", CultureInfo.InvariantCulture),
             _ => v.ToString() ?? "-"
         };
+    }
+
+    // ===========================
+    // FORM MODELS
+    // ===========================
+
+    private class DungeonEditForm
+    {
+        public string NameEn { get; set; } = "";
+        public string DescriptionEn { get; set; } = "";
+        public ElementType Element { get; set; }
+        public int UnlockOrder { get; set; }
+        public int MinLevel { get; set; }
+        public int MaxLevel { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    private class StageAddForm
+    {
+        public int StageIndex { get; set; } = 1;
+        public DungeonStageType StageType { get; set; } = DungeonStageType.DS1_Feeble;
+        public Guid MonsterTemplateId { get; set; } = Guid.Empty;
+        public int RecommendedLevel { get; set; } = 1;
     }
 }

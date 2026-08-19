@@ -9,6 +9,7 @@
 @inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject AchievementService Achievements
 
 <PageTitle>Shop — Mercenaries & Beasts</PageTitle>
 
@@ -118,7 +119,7 @@ else
 
 @code {
     private static readonly TimeSpan _purchaseCooldown = TimeSpan.FromSeconds(60);
-    private static readonly Dictionary<string, DateTimeOffset> _lastPurchase = new();
+    private readonly Dictionary<string, DateTimeOffset> _lastPurchase = new();
 
     private bool _loading = true;
     private bool _purchasing = false;
@@ -145,6 +146,8 @@ else
         {
             _loading = false;
         }
+
+        await Achievements.CheckAsync("MB_SHOP_VISIT");
     }
 
     private async Task PurchaseAsync(string type, long amount, string price)
@@ -189,6 +192,9 @@ else
             _player = player;
             _isError = false;
             _message = $"Purchase simulated: +{amount:N0} {(type == "soft" ? "💰 Soft" : "💎 Premium")} ({price})";
+
+            await Achievements.CheckAsync("MB_SHOP_FIRST");
+            await Achievements.CheckAsync("MB_SHOP_REVISIT");
         }
         catch (Exception ex)
         {
