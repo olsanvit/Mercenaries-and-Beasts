@@ -305,13 +305,18 @@ PlayerId = player.Guid,
             var cc = player?.MercenaryGroupCountry;
             if (!string.IsNullOrWhiteSpace(cc) && MercenariesAndBeasts.Web.Services.CountryAchievementTracker.SupportedCountries.Contains(cc))
             {
-                var counterKey = $"defeat_{cc}";
-                var total = await CountryStatService.IncrementAndGetAsync(_userId, counterKey);
+                var total = await CountryStatService.IncrementAndGetAsync(_userId, $"defeat_{cc}");
                 foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatThresholds)
-                {
-                    if (total >= t)
-                        await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(cc, t));
-                }
+                    if (total >= t) await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(cc, t));
+            }
+
+            var bcc = player?.BeastGroupCountry;
+            if (!string.IsNullOrWhiteSpace(bcc) && bcc != player?.MercenaryGroupCountry
+                && MercenariesAndBeasts.Web.Services.CountryAchievementTracker.SupportedCountries.Contains(bcc))
+            {
+                var total = await CountryStatService.IncrementAndGetAsync(_userId, $"defeat_{bcc}");
+                foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatThresholds)
+                    if (total >= t) await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(bcc, t));
             }
         }
 

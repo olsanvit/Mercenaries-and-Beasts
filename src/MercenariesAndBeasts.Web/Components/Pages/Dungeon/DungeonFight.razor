@@ -384,19 +384,45 @@ PlayerId = player.Guid,
             progress.LastUpdatedUtc = pr.LastUpdatedUtc;
         }
 
-        // Country defeat achievement tracking on win
-        if (didWin && _userId is not null)
+        // Country achievement tracking
+        if (_userId is not null)
         {
             var cc = player?.MercenaryGroupCountry;
             if (!string.IsNullOrWhiteSpace(cc) && MercenariesAndBeasts.Web.Services.CountryAchievementTracker.SupportedCountries.Contains(cc))
             {
-                var counterKey = $"defeat_{cc}";
-                var total = await CountryStatService.IncrementAndGetAsync(_userId, counterKey);
-                foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatThresholds)
+                // Defeat
+                if (didWin)
                 {
-                    if (total >= t)
-                        await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(cc, t));
+                    var total = await CountryStatService.IncrementAndGetAsync(_userId, $"defeat_{cc}");
+                    foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatThresholds)
+                        if (total >= t) await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(cc, t));
                 }
+
+                // Damage
+                if (fightResult.TotalPlayerDamage > 0)
+                {
+                    var totalDmg = await CountryStatService.AddAndGetAsync(_userId, $"damage_{cc}", fightResult.TotalPlayerDamage);
+                    foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DamageThresholds)
+                        if (totalDmg >= t) await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DamageKey(cc, t));
+                }
+
+                // Block
+                if (fightResult.TotalEnemyBlocks > 0)
+                {
+                    var totalBlk = await CountryStatService.IncrementAndGetAsync(_userId, $"block_{cc}", fightResult.TotalEnemyBlocks);
+                    foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.BlockThresholds)
+                        if (totalBlk >= t) await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.BlockKey(cc, t));
+                }
+            }
+
+            // Beast group country — defeat tracking
+            var bcc = player?.BeastGroupCountry;
+            if (didWin && !string.IsNullOrWhiteSpace(bcc) && bcc != player?.MercenaryGroupCountry
+                && MercenariesAndBeasts.Web.Services.CountryAchievementTracker.SupportedCountries.Contains(bcc))
+            {
+                var total = await CountryStatService.IncrementAndGetAsync(_userId, $"defeat_{bcc}");
+                foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatThresholds)
+                    if (total >= t) await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(bcc, t));
             }
         }
 

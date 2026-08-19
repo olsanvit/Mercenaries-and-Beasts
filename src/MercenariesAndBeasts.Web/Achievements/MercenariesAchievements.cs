@@ -116,21 +116,45 @@ public static class MercenariesAchievements
     private static IEnumerable<AchievementDef> BuildCountryDefs()
     {
         var countries = CountryAchievementTracker.SupportedCountries;
-        var defeatThresholds = CountryAchievementTracker.DefeatThresholds;
-
-        var thresholdPoints = new[] { 15, 30, 60 };
 
         foreach (var cc in countries)
         {
-            for (var i = 0; i < defeatThresholds.Length; i++)
+            var pts = new[] { 15, 30, 60 };
+            for (var i = 0; i < CountryAchievementTracker.DefeatThresholds.Length; i++)
             {
-                var t = defeatThresholds[i];
+                var t = CountryAchievementTracker.DefeatThresholds[i];
                 yield return new AchievementDef(
                     CountryAchievementTracker.DefeatKey(cc, t),
-                    $"{cc} bojovník {t}",
+                    $"{cc}: {t} výher",
                     $"Vyhraj {t} bojů jako tým {cc}",
-                    "bi-flag",
-                    thresholdPoints[i],
+                    "bi-shield-fill",
+                    pts[i],
+                    $"Země — {cc}");
+            }
+
+            var dmgPts = new[] { 20, 45, 90 };
+            for (var i = 0; i < CountryAchievementTracker.DamageThresholds.Length; i++)
+            {
+                var t = CountryAchievementTracker.DamageThresholds[i];
+                yield return new AchievementDef(
+                    CountryAchievementTracker.DamageKey(cc, t),
+                    $"{cc}: {t / 1000}k damage",
+                    $"Způsob celkem {t:N0} poškození jako tým {cc}",
+                    "bi-lightning-fill",
+                    dmgPts[i],
+                    $"Země — {cc}");
+            }
+
+            var blkPts = new[] { 15, 35, 75 };
+            for (var i = 0; i < CountryAchievementTracker.BlockThresholds.Length; i++)
+            {
+                var t = CountryAchievementTracker.BlockThresholds[i];
+                yield return new AchievementDef(
+                    CountryAchievementTracker.BlockKey(cc, t),
+                    $"{cc}: {t} bloků",
+                    $"Soupeř zablokuje {t} útoků vůči týmu {cc}",
+                    "bi-shield-check",
+                    blkPts[i],
                     $"Země — {cc}");
             }
         }
