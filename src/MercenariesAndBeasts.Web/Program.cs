@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Options;
 using MercenariesAndBeasts.Infrastructure.Players;
 using MercenariesAndBeasts.Infrastructure.Fights;
@@ -135,7 +136,8 @@ static string PreferIPv4Host(string cs)
 }
 
 // DbContextFactory + scoped DbContext — NpgsqlDataSource (EnableDynamicJson, retry 5×/5s, timeout 120s)
-builder.Services.AddMabDbContext<AppDbContextMercenariesAndBeasts>(mabDataSource);
+builder.Services.AddMabDbContext<AppDbContextMercenariesAndBeasts>(mabDataSource, configure: options =>
+    options.ConfigureWarnings(w => w.Log(RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddMabAuth<AppDbContextMercenariesAndBeasts>(builder.Configuration);
 
