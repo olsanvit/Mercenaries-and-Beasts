@@ -3,6 +3,7 @@
 @rendermode InteractiveServer
 
 @inject AdminUserService AdminUsers
+@inject IJSRuntime JS
 
 @using MercenariesAndBeasts.Infrastructure.Players;
 
@@ -17,21 +18,45 @@
     }
     else
     {
+        <div class="mb-3 d-flex gap-2 align-items-center">
+            <input class="form-control w-auto flex-grow-1"
+                   placeholder="Hledat uživatele (email)…"
+                   value="@_search"
+                   @oninput="OnSearchInput" />
+            <span class="text-muted small text-nowrap">
+                @_filteredUsers.Count uživatelů
+            </span>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
                         <th>Email</th>
+                        <th>Role</th>
                         <th>Profile</th>
                         <th>Created</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var u in _users)
+                    @foreach (var u in _pagedUsers)
                     {
                         <tr>
                             <td>@u.Email</td>
+                            <td>
+                                @if (_userRoles.TryGetValue(u.UserId, out var roles) && roles.Count > 0)
+                                {
+                                    @foreach (var r in roles)
+                                    {
+                                        <span class="badge bg-primary me-1">@r</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
                             <td>
                                 @if (u.HasProfile)
                                 {
@@ -46,31 +71,90 @@
                                 @(u.ProfileCreatedUtc?.ToString("yyyy-MM-dd HH:mm") ?? "—")
                             </td>
                             <td class="text-end">
-                                @if (!u.HasProfile)
-                                {
-                                    <button class="btn btn-sm btn-warning"
-                                            @onclick="() => CreateProfile(u)">
-                                        Create Profile
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-sm btn-danger"
-                                            @onclick="() => RecreateProfile(u)">
-                                        Recreate Profile
-                                    </button>
-                                }
+                                <div class="d-flex gap-1 justify-content-end flex-wrap">
+                                    @if (!u.HasProfile)
+                                    {
+                                        <button class="btn btn-sm btn-warning"
+                                                @onclick="() => CreateProfile(u)">
+                                            Create Profile
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-danger"
+                                                @onclick="() => RecreateProfile(u)">
+                                            Recreate Profile
+                                        </button>
+                                    }
+
+                                    @{
+                                        var hasAdmin = _userRoles.TryGetValue(u.UserId, out var uroles) && uroles.Contains("Admin");
+                                    }
+                                    @if (hasAdmin)
+                                    {
+                                        <button class="btn btn-sm btn-outline-warning"
+                                                @onclick="() => RemoveAdminRole(u)">
+                                            <i class="bi bi-shield-minus"></i> Admin
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-success"
+                                                @onclick="() => AddAdminRole(u)">
+                                            <i class="bi bi-shield-plus"></i> Admin
+                                        </button>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
+
+        @if (_totalPages > 1)
+        {
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <button class="btn btn-sm btn-outline-secondary"
+                        disabled="@(_page == 0)"
+                        @onclick="() => _page--">
+                    <i class="bi bi-chevron-left"></i> Předchozí
+                </button>
+                <span class="text-muted small">Strana @(_page + 1) / @_totalPages</span>
+                <button class="btn btn-sm btn-outline-secondary"
+                        disabled="@(_page >= _totalPages - 1)"
+                        @onclick="() => _page++">
+                    Další <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        }
     }
 </div>
+
 @code {
     private List<AdminUserRow> _users = new();
+    private Dictionary<string, IList<string>> _userRoles = new();
     private bool _loading;
+
+    private string _search = "";
+    private int _page = 0;
+    private const int PageSize = 20;
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        _search = e.Value?.ToString() ?? "";
+        _page = 0;
+    }
+
+    private List<AdminUserRow> _filteredUsers =>
+        string.IsNullOrWhiteSpace(_search)
+            ? _users
+            : _users.Where(u => u.Email.Contains(_search, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private int _totalPages => Math.Max(1, (int)Math.Ceiling(_filteredUsers.Count / (double)PageSize));
+
+    private List<AdminUserRow> _pagedUsers =>
+        _filteredUsers.Skip(_page * PageSize).Take(PageSize).ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,6 +165,15 @@
     {
         _loading = true;
         _users = await AdminUsers.GetUsersAsync();
+
+        _userRoles.Clear();
+        foreach (var u in _users)
+        {
+            var appUser = await UserManager.FindByIdAsync(u.UserId);
+            if (appUser != null)
+                _userRoles[u.UserId] = await UserManager.GetRolesAsync(appUser);
+        }
+
         _loading = false;
     }
 
@@ -97,17 +190,60 @@
             Toasts.Error(ex.Message, "Admin");
         }
     }
+
     private async Task RecreateProfile(AdminUserRow user)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Opravdu obnovit profil? Tato akce je nevratná a smaže veškerý postup hráče.");
+        if (!confirmed) return;
+
+        try
         {
-            try
-            {
-                await AdminUsers.RecreateProfileAsync(user.UserId);
-                Toasts.Warning($"Profile recreated for {user.Email}", "Admin");
-                await LoadAsync();
-            }
-            catch (Exception ex)
-            {
-                Toasts.Error(ex.Message, "Admin");
-            }
+            await AdminUsers.RecreateProfileAsync(user.UserId);
+            Toasts.Warning($"Profile recreated for {user.Email}", "Admin");
+            await LoadAsync();
         }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Admin");
+        }
+    }
+
+    private async Task AddAdminRole(AdminUserRow user)
+    {
+        try
+        {
+            var appUser = await UserManager.FindByIdAsync(user.UserId);
+            if (appUser == null) { Toasts.Error("Uživatel nenalezen.", "Admin"); return; }
+
+            await UserManager.AddToRoleAsync(appUser, "Admin");
+            _userRoles[user.UserId] = await UserManager.GetRolesAsync(appUser);
+            Toasts.Success($"Role Admin přidána: {user.Email}", "Admin");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Admin");
+        }
+    }
+
+    private async Task RemoveAdminRole(AdminUserRow user)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Odebrat roli Admin uživateli {user.Email}?");
+        if (!confirmed) return;
+
+        try
+        {
+            var appUser = await UserManager.FindByIdAsync(user.UserId);
+            if (appUser == null) { Toasts.Error("Uživatel nenalezen.", "Admin"); return; }
+
+            await UserManager.RemoveFromRoleAsync(appUser, "Admin");
+            _userRoles[user.UserId] = await UserManager.GetRolesAsync(appUser);
+            Toasts.Warning($"Role Admin odebrána: {user.Email}", "Admin");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(ex.Message, "Admin");
+        }
+    }
 }

@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "quicklinks-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7788", "--directory", "/private/tmp/claude-502/-Users-rtvdata-Projects-MercenariesAndBeasts-Mercenaries-and-Beasts--claude-worktrees-stoic-wozniak-318228/0c18d3f4-b6aa-4925-9d1f-204eacb2eb76/scratchpad"],
+      "port": 7788
+    },
+    {
       "name": "MercenariesAndBeasts.Web (http)",
       "runtimeExecutable": "dotnet",
       "runtimeArgs": ["run", "--project", "src/MercenariesAndBeasts.Web", "--launch-profile", "http"],

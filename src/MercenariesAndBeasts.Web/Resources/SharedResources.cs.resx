@@ -136,15 +136,42 @@
     <value>Registrovat</value>
   </data>
   <data name="Dungeons" xml:space="preserve">
-    <value>Dungeons</value>
+    <value>Kobky</value>
   </data>
   <data name="NewDungeon" xml:space="preserve">
-    <value>New Dungeon</value>
+    <value>Nová kobka</value>
   </data>
   <data name="AiGenDungeon" xml:space="preserve">
-    <value>Ai Generate Dugeon</value>
+    <value>Vygenerovat AI kobku</value>
   </data>
   <data name="Home" xml:space="preserve">
-    <value>Doma</value>
+    <value>Přehled</value>
+  </data>
+  <data name="Shop" xml:space="preserve">
+    <value>Obchod</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>Profil</value>
+  </data>
+  <data name="BattleHistory" xml:space="preserve">
+    <value>Historie bitev</value>
+  </data>
+  <data name="Leaderboard" xml:space="preserve">
+    <value>Žebříček</value>
+  </data>
+  <data name="Achievements" xml:space="preserve">
+    <value>Achievementy</value>
+  </data>
+  <data name="ItemsAdmin" xml:space="preserve">
+    <value>Správa předmětů</value>
+  </data>
+  <data name="ItemScalingProfiles" xml:space="preserve">
+    <value>Profily škálování předmětů</value>
+  </data>
+  <data name="Mercenaries" xml:space="preserve">
+    <value>Žoldáci</value>
+  </data>
+  <data name="Beasts" xml:space="preserve">
+    <value>Bestie</value>
   </data>
 </root>

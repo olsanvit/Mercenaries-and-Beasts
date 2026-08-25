@@ -204,6 +204,7 @@ else
 }
 builder.Services.AddScoped<GameSeed>();
 builder.Services.AddScoped<PlayerOnboardingService>();
+builder.Services.AddScoped<MercenariesAndBeasts.Web.Services.CountryStatService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHealthChecks();
 

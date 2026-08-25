@@ -18,6 +18,8 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject FightHistoryService FightHistoryService
 @inject MercenariesAndBeasts.Web.Services.LevelUpService LevelUpService
+@inject AchievementService Achievements
+@inject MercenariesAndBeasts.Web.Services.CountryStatService CountryStatService
 
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -295,6 +297,27 @@ PlayerId = player.Guid,
         else
         {
             lootLines.Add("No loot.");
+        }
+
+        // Country defeat achievement tracking on win
+        if (didWin && _userId is not null)
+        {
+            var cc = player?.MercenaryGroupCountry;
+            if (!string.IsNullOrWhiteSpace(cc) && MercenariesAndBeasts.Web.Services.CountryAchievementTracker.SupportedCountries.Contains(cc))
+            {
+                var total = await CountryStatService.IncrementAndGetAsync(_userId, $"defeat_{cc}");
+                foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatThresholds)
+                    if (total >= t) await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(cc, t));
+            }
+
+            var bcc = player?.BeastGroupCountry;
+            if (!string.IsNullOrWhiteSpace(bcc) && bcc != player?.MercenaryGroupCountry
+                && MercenariesAndBeasts.Web.Services.CountryAchievementTracker.SupportedCountries.Contains(bcc))
+            {
+                var total = await CountryStatService.IncrementAndGetAsync(_userId, $"defeat_{bcc}");
+                foreach (var t in MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatThresholds)
+                    if (total >= t) await Achievements.CheckAsync(MercenariesAndBeasts.Web.Services.CountryAchievementTracker.DefeatKey(bcc, t));
+            }
         }
 
         // Level-up check — after each expedition fight

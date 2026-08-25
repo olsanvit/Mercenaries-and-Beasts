@@ -17,12 +17,14 @@
 @using MercenariesAndBeasts.Infrastructure
 @using MercenariesAndBeasts.Infrastructure.Players
 @using Microsoft.AspNetCore.Components.Authorization
+@using MercenariesAndBeasts.Web.Achievements
 
 @inject UserManager<AppUser> UserManager
 @inject ToastService Toasts
 @inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject AuthenticationStateProvider AuthStateProvider
 @inject PlayerOnboardingService Onboarding
+@inject AchievementService Achievements
 
 <!-- Page header -->
 <div class="ui-page-header ui-anim-fade-up">
@@ -82,7 +84,10 @@ else
                 GetWinsNeed="GetWinsNeed"
                 GetWinsPct="GetWinsPct"
                 GetResources="GetResourcesTuple"
-                CanDragInventoryItem="CanDragInventoryItem" />
+                CanDragInventoryItem="CanDragInventoryItem"
+                GroupCountry="@_profile.MercenaryGroupCountry"
+                CountryOptions="Countries"
+                OnSaveGroupCountry="SaveMercGroupCountryAsync" />
         }
         else
         {
@@ -105,7 +110,10 @@ else
                 GetWinsNeed="GetWinsNeed"
                 GetWinsPct="GetWinsPct"
                 GetResources="GetResourcesTuple"
-                CanDragInventoryItem="CanDragInventoryItem" />
+                CanDragInventoryItem="CanDragInventoryItem"
+                GroupCountry="@_profile.BeastGroupCountry"
+                CountryOptions="Countries"
+                OnSaveGroupCountry="SaveBeastGroupCountryAsync" />
         }
     </div>
 
@@ -896,6 +904,70 @@ else
 
     private static readonly IReadOnlyList<CountryCatalog.CountryOpt> Countries = CountryCatalog.GetAll();
 
+    private async Task SaveMercGroupCountryAsync(string code)
+    {
+        if (_profile is null || _userId is null) return;
+        var normalized = (code ?? "").Trim().ToUpperInvariant();
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var prof = await db.Players.FirstOrDefaultAsync(p => p.UserId == _userId);
+        if (prof is null) return;
+
+        prof.MercenaryGroupCountry = string.IsNullOrWhiteSpace(normalized) ? null : normalized;
+        await db.SaveChangesAsync();
+
+        _profile.MercenaryGroupCountry = prof.MercenaryGroupCountry;
+        Toasts.Success("Mercenary group country saved.", "Country");
+
+        // Country achievements – only when country is actually set (not cleared)
+        if (!string.IsNullOrWhiteSpace(_profile.MercenaryGroupCountry))
+        {
+            await Achievements.CheckAsync(MercenariesAchievements.COUNTRY_MERC_SETUP);
+
+            if (!string.IsNullOrWhiteSpace(_profile.BeastGroupCountry))
+            {
+                if (_profile.MercenaryGroupCountry != _profile.BeastGroupCountry)
+                    await Achievements.CheckAsync(MercenariesAchievements.COUNTRY_MIX);
+                else
+                    await Achievements.CheckAsync(MercenariesAchievements.COUNTRY_HOMELAND);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task SaveBeastGroupCountryAsync(string code)
+    {
+        if (_profile is null || _userId is null) return;
+        var normalized = (code ?? "").Trim().ToUpperInvariant();
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var prof = await db.Players.FirstOrDefaultAsync(p => p.UserId == _userId);
+        if (prof is null) return;
+
+        prof.BeastGroupCountry = string.IsNullOrWhiteSpace(normalized) ? null : normalized;
+        await db.SaveChangesAsync();
+
+        _profile.BeastGroupCountry = prof.BeastGroupCountry;
+        Toasts.Success("Beast group country saved.", "Country");
+
+        // Country achievements – only when country is actually set (not cleared)
+        if (!string.IsNullOrWhiteSpace(_profile.BeastGroupCountry))
+        {
+            await Achievements.CheckAsync(MercenariesAchievements.COUNTRY_BEAST_SETUP);
+
+            if (!string.IsNullOrWhiteSpace(_profile.MercenaryGroupCountry))
+            {
+                if (_profile.MercenaryGroupCountry != _profile.BeastGroupCountry)
+                    await Achievements.CheckAsync(MercenariesAchievements.COUNTRY_MIX);
+                else
+                    await Achievements.CheckAsync(MercenariesAchievements.COUNTRY_HOMELAND);
+            }
+        }
+
+        StateHasChanged();
+    }
+
     private async Task SaveProfileSetupAsync()
     {
         if (_profile is null || string.IsNullOrWhiteSpace(_userId))
@@ -1181,6 +1253,14 @@ PlayerId = _profile.Guid,
             fromSlot.MercenaryInstanceId = targetOldInstanceId;
 
         await Db.SaveChangesAsync();
+
+        // Achievement triggers — hire mercenary
+        await Achievements.CheckAsync("MB_MERC_HIRE");
+        var mercCount = await Db.PlayerMercenarySlots
+            .CountAsync(s => s.PlayerProfileId == _profile.Guid && s.MercenaryInstanceId != null);
+        if (mercCount >= 5)  await Achievements.CheckAsync("MB_MERC_HIRE_5");
+        if (mercCount >= 10) await Achievements.CheckAsync("MB_MERC_HIRE_10");
+        if (mercCount >= 25) await Achievements.CheckAsync("MB_MERC_HIRE_25");
     }
 
     private async Task MoveOrSwapBeastSlotAsync(Guid fromSlotId, Guid toSlotId)

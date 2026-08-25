@@ -12,6 +12,7 @@
 @inject IDbContextFactory<AppDbContextMercenariesAndBeasts> DbFactory
 @inject UserManager<AppUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject AchievementService Achievements
 
 @attribute [Authorize]
 @rendermode InteractiveServer
@@ -295,6 +296,8 @@ else
 
             player = await db.Players.FirstOrDefaultAsync(p => p.UserId == user.Id);
             if (player is null) return;
+
+            await Achievements.CheckAsync("MB_DUNG_FIRST");
 
             progress = await db.PlayerDungeonProgresses
                 .Where(p => p.PlayerId == player.Guid)

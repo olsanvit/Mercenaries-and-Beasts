@@ -4,6 +4,9 @@
 @using MercenariesAndBeasts.Domain
 @using MercenariesAndBeasts.Domain.Utils
 @using static MercenariesAndBeasts.Domain.Items.ItemTemplate
+@using MercenariesAndBeasts.Domain.Localization
+
+@inject AchievementService Achievements
 
 <section class="dash-top">
     <div class="ui-panel inv-wrap">
@@ -57,6 +60,30 @@
                         </div>
                     }
                 </div>
+            </div>
+
+            <!-- Group country selector -->
+            <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
+                @if (!string.IsNullOrWhiteSpace(GroupCountry))
+                {
+                    <span class="badge bg-secondary" title="Group country">
+                        <i class="bi bi-flag me-1"></i>@GroupCountry
+                    </span>
+                }
+                <select class="form-select form-select-sm"
+                        style="max-width:180px;background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);color:var(--ui-text-1)"
+                        @bind="_selectedGroupCountry">
+                    <option value="">(no country)</option>
+                    @foreach (var c in CountryOptions)
+                    {
+                        <option value="@c.Code">@c.Name (@c.Code)</option>
+                    }
+                </select>
+                <button class="btn btn-sm btn-outline-success"
+                        @onclick="HandleSaveGroupCountry"
+                        disabled="@(_selectedGroupCountry == (GroupCountry ?? ""))">
+                    <i class="bi bi-floppy me-1"></i>Save
+                </button>
             </div>
         </div>
 
@@ -275,6 +302,20 @@
     [Parameter, EditorRequired] public int ActiveMercSlotIndex { get; set; }
     [Parameter] public PlayerMercenarySlot? ActiveMercSlot { get; set; }
 
+    [Parameter] public string? GroupCountry { get; set; }
+    [Parameter] public IReadOnlyList<CountryCatalog.CountryOpt> CountryOptions { get; set; } = Array.Empty<CountryCatalog.CountryOpt>();
+    [Parameter] public EventCallback<string> OnSaveGroupCountry { get; set; }
+
+    private string _selectedGroupCountry = "";
+
+    protected override void OnParametersSet()
+    {
+        _selectedGroupCountry = GroupCountry ?? "";
+    }
+
+    private async Task HandleSaveGroupCountry()
+        => await OnSaveGroupCountry.InvokeAsync(_selectedGroupCountry);
+
     [Parameter, EditorRequired] public IReadOnlyList<(string Key, string Label, int Count)> OrderTabs { get; set; } = Array.Empty<(string Key, string Label, int Count)>();
     [Parameter, EditorRequired] public string ActiveOrderTabKey { get; set; } = "all";
     [Parameter, EditorRequired] public IReadOnlyList<PlayerItem> InventoryItems { get; set; } = Array.Empty<PlayerItem>();
@@ -293,6 +334,11 @@
     [Parameter, EditorRequired] public Func<PlayerItem, int> GetWinsPct { get; set; } = _ => 0;
     [Parameter, EditorRequired] public Func<PlayerItem, IEnumerable<(string Name, long Have, long Need)>> GetResources { get; set; } = _ => Enumerable.Empty<(string Name, long Have, long Need)>();
     [Parameter, EditorRequired] public Func<PlayerItem, bool> CanDragInventoryItem { get; set; } = _ => true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Achievements.CheckAsync("MB_MERC_PANEL");
+    }
 
     private static bool IsGear(PlayerItem it)
         => it.Template.MercenarySlot.HasValue || it.Template.MonsterSlot.HasValue;
