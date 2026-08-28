@@ -211,7 +211,47 @@ for DOMAIN in \
 done
 
 echo ""
-echo "── 4. Internet ping (8.8.8.8, 1.1.1.1) ─────────────"
+echo "── 4. Interní nástroje (HTTP monitoring) ────────────"
+# Formát: Název|URL|povinný řetězec v odpovědi
+# Další nástroje (vaultwarden, pgadmin…) stačí dopsat na tento seznam.
+for TOOL in \
+  "ntfy|https://ntfy.vo2info.cz/v1/health|healthy"; do
+  NAME=$(echo "$TOOL" | cut -d'|' -f1)
+  URL=$(echo "$TOOL" | cut -d'|' -f2)
+  REQUIRED=$(echo "$TOOL" | cut -d'|' -f3)
+  echo "  $NAME → $URL"
+
+  SCENARIO_EXISTS=$(zapi "{\"jsonrpc\":\"2.0\",\"method\":\"httptest.get\",\"params\":{\"filter\":{\"name\":\"$NAME\"},\"output\":[\"httptestid\"]},\"auth\":\"$AUTH\",\"id\":11}")
+  SID=$(echo "$SCENARIO_EXISTS" | grep -o '"httptestid":"[0-9]*"' | head -1 | cut -d'"' -f4)
+  if [ -n "$SID" ]; then
+    echo "    → existuje (id=$SID)"
+  else
+    RESP=$(zapi "{
+      \"jsonrpc\": \"2.0\",
+      \"method\": \"httptest.create\",
+      \"params\": {
+        \"name\": \"$NAME\",
+        \"hostid\": \"$QNAP_HID\",
+        \"delay\": \"60s\",
+        \"retries\": 2,
+        \"steps\": [{
+          \"name\": \"Health\",
+          \"url\": \"$URL\",
+          \"status_codes\": \"200\",
+          \"required\": \"$REQUIRED\",
+          \"no\": 1
+        }]
+      },
+      \"auth\": \"$AUTH\",
+      \"id\": 11
+    }")
+    SID=$(echo "$RESP" | grep -o '"httptestids":\["[0-9]*"\]' | grep -o '[0-9]*')
+    echo "    → vytvořen (id=$SID)"
+  fi
+done
+
+echo ""
+echo "── 5. Internet ping (8.8.8.8, 1.1.1.1) ─────────────"
 for TARGET in "Google-DNS|8.8.8.8" "Cloudflare-DNS|1.1.1.1"; do
   NAME=$(echo "$TARGET" | cut -d'|' -f1)
   IP=$(echo "$TARGET" | cut -d'|' -f2)
@@ -246,6 +286,7 @@ echo ""
 echo "Co je monitorované:"
 echo "  • QNAPOL: Linux metriky + Docker kontejnery (via Agent 2)"
 echo "  • Blazor apps: HTTP 200 check každých 60s"
+echo "  • ntfy: /v1/health check každých 60s (hlídá i obsah odpovědi)"
 echo "  • Internet: ICMP ping na 8.8.8.8 a 1.1.1.1"
 echo ""
 echo "Přístup do Zabbix UI (přes SSH tunnel):"
